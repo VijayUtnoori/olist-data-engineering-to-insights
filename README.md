@@ -15,6 +15,10 @@ This project transforms raw e-commerce data into structured analytical models to
 3. **Problem-Centric Analytics:** Solving specific e-commerce bottlenecks (e.g., delivery delays and customer churn) using SQL and Power BI dashboards.
 
 ---
+## 📐 Data Model & Architecture
+
+- **High-Level Data Model:** ![Architecture Overview](docs/olist_architecture_overview.png)
+- **Detailed ERD (PDF):** [View Full Data Model PDF](docs/olist_erd_detailed.pdf)
 
 ## 📁 Repository Structure
 
