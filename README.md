@@ -17,7 +17,7 @@ This project transforms raw e-commerce data into structured analytical models to
 ---
 ## 📐 Data Model & Architecture
 
-- **High-Level Data Model:** ![Architecture Overview](docs/olist_architecture_overview.png)
+- **High-Level Data Model:** ![Architecture Overview](docs/olist_architecture_overview.pdf)
 - **Detailed ERD (PDF):** [View Full Data Model PDF](docs/olist_erd_detailed.pdf)
 
 ## 📁 Repository Structure
