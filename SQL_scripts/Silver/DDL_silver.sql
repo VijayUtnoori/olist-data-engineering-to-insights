@@ -30,8 +30,8 @@ CREATE TABLE silver.olist_geolocation(
     geolocation_zip_code_prefix INT,
     geolocation_lat DECIMAL(18, 14),
     geolocation_lng DECIMAL(18, 14),
-    geolocation_city NVARCHAR(100),
-    geolocation_state NVARCHAR(10),
+    geolocation_city VARCHAR(100),
+    geolocation_state VARCHAR(100),
 );
 ----olist_order_items
 IF OBJECT_ID ('silver.olist_order_items', 'U') IS NOT NULL
@@ -68,8 +68,8 @@ CREATE TABLE silver.olist_order_reviews (
     review_id NVARCHAR(50),
     order_id NVARCHAR(50),
     review_score INT,
-    review_creation_date DATETIME2,
-    review_answer_timestamp DATETIME2,
+    review_creation_date DATE,
+    review_answer_timestamp DATETIME2(0),
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 ---olist_product_category_translation
@@ -88,14 +88,13 @@ IF OBJECT_ID ('silver.olist_products' , 'U') IS NOT NULL
 
 CREATE TABLE silver.olist_products(
     product_id NVARCHAR(50),
-    product_category_name NVARCHAR(100),
-    product_name_length INT,
+    product_category_name VARCHAR(100),
     product_description_length INT,
     product_photos_qty INT,
-    product_weight_g INT,
-    product_length_cm INT,
-    product_height_cm INT,
-    product_width_cm INT,
+    product_weight_g DECIMAL(10,2),
+    product_length_cm DECIMAL(10,2),
+    product_height_cm DECIMAL(10,2),
+    product_weight_g DECIMAL(10,2),
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
@@ -106,8 +105,8 @@ IF OBJECT_ID ('silver.olist_sellers' , 'U') IS NOT NULL
 CREATE TABLE silver.olist_sellers(
     seller_id NVARCHAR(50),
     seller_zip_code_prefix INT,
-    seller_city NVARCHAR(100),
-    seller_state NVARCHAR(10),
+    seller_city VARCHAR(100),
+    seller_state VARCHAR(50),
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
@@ -119,11 +118,11 @@ CREATE TABLE silver.olist_orders(
     order_id NVARCHAR(50),
     customer_id NVARCHAR(50),
     order_status NVARCHAR(50),
-    order_purchase_timestamp DATETIME2,
-    order_approved_at DATETIME2,
-    order_delivered_carrier_date DATETIME2,
-    order_delivered_customer_date DATETIME2,
-    order_estimated_delivery_date DATETIME2,
+    order_purchase_timestamp DATETIME2(0),
+    order_approved_at DATETIME2(0),
+    order_delivered_carrier_date DATETIME2(0),
+    order_delivered_customer_date DATETIME2(0),
+    order_estimated_delivery_date DATE,
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
