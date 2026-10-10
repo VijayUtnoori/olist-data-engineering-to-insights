@@ -17,13 +17,10 @@ Usage Example:
     EXEC Silver.load_silver;
 ===============================================================================
 */
-
-
-
-
 --CREATED STORED PROCEDURE
 CREATE OR ALTER PROCEDURE silver.load_silver AS
 BEGIN
+    --START AND END TIME 
     DECLARE @start_time DATETIME,@end_time DATETIME --to measure the start and end time 
     BEGIN TRY
     PRINT'=============================================';
@@ -37,81 +34,61 @@ BEGIN
     PRINT'>>TRUNCATE TABLE:silver.olist_customers'
 	TRUNCATE TABLE silver.olist_customers;
 	PRINT'>>INSERTING DATA INTO:silver.olist_customers'
-
-   --main action: 1)joined table to featch customer_unique_id removed using window function
-   --2)mapped customer state with full state name
-    INSERT INTO silver.olist_customers(
-    customer_id,
-    customer_unique_id,
-    customer_zip_code_prefix,
-    customer_city,
-    customer_state)
-    SELECT 
-        customer_id,
-        customer_unique_id,
-        customer_zip_code_prefix,
-        customer_city,
-        customer_state
-    FROM (
-        SELECT 
-            c.customer_id,
-            c.customer_unique_id,
-            c.customer_zip_code_prefix,
-            c.customer_city,
-            CASE UPPER(c.customer_state)
-                WHEN 'AC' THEN 'Acre'
-                WHEN 'AL' THEN 'Alagoas'
-                WHEN 'AP' THEN 'Amapa'
-                WHEN 'AM' THEN 'Amazonas'
-                WHEN 'BA' THEN 'Bahia'
-                WHEN 'CE' THEN 'Ceara'
-                WHEN 'DF' THEN 'Federal District'
-                WHEN 'ES' THEN 'Espirito Santo'
-                WHEN 'GO' THEN 'Goias'
-                WHEN 'MA' THEN 'Maranhao'
-                WHEN 'MT' THEN 'Mato Grosso'
-                WHEN 'MS' THEN 'Mato Grosso do Sul'
-                WHEN 'MG' THEN 'Minas Gerais'
-                WHEN 'PA' THEN 'Para'
-                WHEN 'PB' THEN 'Paraiba'
-                WHEN 'PR' THEN 'Parana'
-                WHEN 'PE' THEN 'Pernambuco'
-                WHEN 'PI' THEN 'Piaui'
-                WHEN 'RJ' THEN 'Rio de Janeiro'
-                WHEN 'RN' THEN 'Rio Grande do Norte'
-                WHEN 'RS' THEN 'Rio Grande do Sul'
-                WHEN 'RO' THEN 'Rondonia'
-                WHEN 'RR' THEN 'Roraima'
-                WHEN 'SC' THEN 'Santa Catarina'
-                WHEN 'SP' THEN 'Sao Paulo'
-                WHEN 'SE' THEN 'Sergipe'
-                WHEN 'TO' THEN 'Tocantins'
-                ELSE 'Unknown'
-            END AS customer_state,
-            ROW_NUMBER() OVER(PARTITION BY c.customer_unique_id ORDER BY o.order_purchase_timestamp DESC) AS ranking
+            --customer_unique_id, but different customers can have multiple customer_unique_id,
+            INSERT INTO silver.olist_customers (
+            customer_id,
+            customer_unique_id,
+            customer_zip_code_prefix,
+            customer_city,
+            customer_state)
+        SELECT
+            customer_id,
+            customer_unique_id,
+            customer_zip_code_prefix,
+            customer_city,
+            customer_state
         FROM (
-            SELECT 
+            SELECT
                 REPLACE(customer_id, '"', '') AS customer_id,
                 REPLACE(customer_unique_id, '"', '') AS customer_unique_id,
                 REPLACE(customer_zip_code_prefix, '"', '') AS customer_zip_code_prefix,
                 TRIM(customer_city) AS customer_city,
-                TRIM(customer_state) AS customer_state
+                CASE UPPER(TRIM(customer_state))--state mapping 
+                    WHEN 'AC' THEN 'Acre'
+                    WHEN 'AL' THEN 'Alagoas'
+                    WHEN 'AP' THEN 'Amapa'
+                    WHEN 'AM' THEN 'Amazonas'
+                    WHEN 'BA' THEN 'Bahia'
+                    WHEN 'CE' THEN 'Ceara'
+                    WHEN 'DF' THEN 'Federal District'
+                    WHEN 'ES' THEN 'Espirito Santo'
+                    WHEN 'GO' THEN 'Goias'
+                    WHEN 'MA' THEN 'Maranhao'
+                    WHEN 'MT' THEN 'Mato Grosso'
+                    WHEN 'MS' THEN 'Mato Grosso do Sul'
+                    WHEN 'MG' THEN 'Minas Gerais'
+                    WHEN 'PA' THEN 'Para'
+                    WHEN 'PB' THEN 'Paraiba'
+                    WHEN 'PR' THEN 'Parana'
+                    WHEN 'PE' THEN 'Pernambuco'
+                    WHEN 'PI' THEN 'Piaui'
+                    WHEN 'RJ' THEN 'Rio de Janeiro'
+                    WHEN 'RN' THEN 'Rio Grande do Norte'
+                    WHEN 'RS' THEN 'Rio Grande do Sul'
+                    WHEN 'RO' THEN 'Rondonia'
+                    WHEN 'RR' THEN 'Roraima'
+                    WHEN 'SC' THEN 'Santa Catarina'
+                    WHEN 'SP' THEN 'Sao Paulo'
+                    WHEN 'SE' THEN 'Sergipe'
+                    WHEN 'TO' THEN 'Tocantins'
+                    ELSE 'Unknown'
+                END AS customer_state
             FROM bronze.olist_customers
-            WHERE customer_unique_id IS NOT NULL) c 
-        LEFT JOIN bronze.olist_orders o 
-        ON c.customer_id = REPLACE(o.customer_id, '"', '')) t
-    WHERE ranking = 1;
+            WHERE customer_id IS NOT NULL) AS cleaned; --ensure that customer_id is not null 
 
      SET @end_time=GETDATE();
 	 PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 	 PRINT'------'
-
-
-
-
-
-
-
     --=========================
     --GEOLOCATION
     --==========
@@ -119,16 +96,13 @@ BEGIN
     PRINT'>>TRUNCATE TABLE:silver.olist_geolocation'
 	TRUNCATE TABLE silver.olist_geolocation;
 	PRINT'>>INSERTING DATA INTO:silver.olist_geolocation';
-
     WITH normalized_geo AS (
             SELECT 
                 geolocation_zip_code_prefix,
                 TRY_CAST(geolocation_lat AS DECIMAL(10, 8)) AS geolocation_lat,
                 TRY_CAST(geolocation_lng AS DECIMAL(10, 8)) AS geolocation_lng,           
                 -- Physical accent stripping & lowercasing
-                LOWER(
-                    TRANSLATE(
-                        CAST(geolocation_city AS VARCHAR(100)),
+                LOWER(TRANSLATE(CAST(geolocation_city AS VARCHAR(100)),
                         'áàâãäéèêëíìîïóòôõöúùûüç','aaaaaeeeeiiiiooooouuuuc')) AS geolocation_city,
                 -- State mapping
                 CASE UPPER(geolocation_state)
@@ -184,15 +158,11 @@ BEGIN
             geolocation_city,
             geolocation_state
         FROM normalized_geo
-        WHERE rn = 1;
+        WHERE rn = 1; --only feach unique records
 
       SET @end_time=GETDATE();
 	  PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 	  PRINT'------'
-
-
-
-
     --=====================================
     --order_items
     --=========================
@@ -200,20 +170,20 @@ BEGIN
     PRINT'>>TRUNCATE TABLE:silver.olist_order_items'
 	TRUNCATE TABLE silver.olist_order_items;
 	PRINT'>>INSERTING DATA INTO:silver.olist_order_items';
-
     WITH converted_items AS (
-        SELECT 
+        SELECT
             REPLACE(oi.order_id, '"', '') AS order_id,
-            CAST(oi.order_item_id AS INT) AS order_item_id,
+            TRY_CAST(oi.order_item_id AS INT) AS order_item_id,
             REPLACE(oi.product_id, '"', '') AS product_id,
             REPLACE(oi.seller_id, '"', '') AS seller_id,
-            CAST(oi.shipping_limit_date AS DATETIME2(0)) AS shipping_limit_date,--remove micro second
+            TRY_CAST(oi.shipping_limit_date AS DATETIME2(0))AS shipping_limit_date,
             TRY_CAST(oi.price AS DECIMAL(10,2)) AS price,
-            TRY_CAST(oi.freight_value AS DECIMAL(10,2)) AS freight_value,
-            CAST(o.order_purchase_timestamp AS DATETIME2(0)) AS order_purchase_timestamp
-        FROM Olist_DataWarehouse.bronze.olist_order_items oi
-        INNER JOIN Olist_DataWarehouse.bronze.olist_orders o
-        ON REPLACE(oi.order_id, '"', '') = REPLACE(o.order_id, '"', '')) --check date validation
+            TRY_CAST(oi.freight_value AS DECIMAL(10,2))AS freight_value,
+            TRY_CAST(o.order_purchase_timestamp AS DATETIME2(0))AS order_purchase_timestamp
+        FROM Olist_DataWarehouse.bronze.olist_order_items AS oi
+        INNER JOIN Olist_DataWarehouse.bronze.olist_orders AS o
+            ON REPLACE(oi.order_id, '"', '') =
+               REPLACE(o.order_id, '"', ''))
     INSERT INTO Olist_DataWarehouse.silver.olist_order_items (
         order_id,
         order_item_id,
@@ -222,7 +192,7 @@ BEGIN
         shipping_limit_date,
         price,
         freight_value)
-    SELECT 
+    SELECT
         order_id,
         order_item_id,
         product_id,
@@ -231,7 +201,16 @@ BEGIN
         price,
         freight_value
     FROM converted_items
-    WHERE price > 0 AND freight_value > 0 AND shipping_limit_date>= order_purchase_timestamp; -- Date validation
+    --check all validations make sure that not nulls
+    WHERE order_id IS NOT NULL
+      AND order_item_id IS NOT NULL
+      AND product_id IS NOT NULL
+      AND seller_id IS NOT NULL
+      AND shipping_limit_date IS NOT NULL
+      AND order_purchase_timestamp IS NOT NULL
+      AND price > 0
+      AND freight_value >= 0
+      AND shipping_limit_date >= order_purchase_timestamp; -- Date validation
 
      SET @end_time=GETDATE();
 	 PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
@@ -262,16 +241,12 @@ BEGIN
 	    END AS payment_type,
 	    CAST(payment_installments AS INT) AS payment_installments,
 	    TRY_CAST(payment_value AS DECIMAL(10,2)) AS payment_value
-    FROM Olist_DataWarehouse.bronze.olist_order_payments;
+    FROM Olist_DataWarehouse.bronze.olist_order_payments
+    WHERE REPLACE(order_id,'"','') IS NOT NULL;
 
      SET @end_time=GETDATE();
 		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 		PRINT'------'
-
-
-
-
-
 
     ---================================
     --order_review
@@ -290,7 +265,7 @@ BEGIN
         --feach only unique reviews 
 	    ROW_NUMBER() OVER(PARTITION BY REPLACE(review_id,'"','') ORDER BY CAST(review_creation_date AS DATE)DESC) AS rn
     FROM Olist_DataWarehouse.bronze.olist_order_reviews
-    WHERE CAST(review_score AS INT)>0 AND CAST(review_creation_date AS DATE) <= CAST(review_answer_timestamp AS DATETIME2(0))
+    WHERE REPLACE(review_id,'"','') IS NOT NULL AND CAST(review_score AS INT)>0 AND CAST(review_creation_date AS DATE) <= CAST(review_answer_timestamp AS DATETIME2(0))
     )
     INSERT INTO Olist_DataWarehouse.silver.olist_order_reviews(
     review_id,
@@ -310,11 +285,6 @@ BEGIN
      SET @end_time=GETDATE();
 		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 		PRINT'------'
-
-
-
-
-
 
     ----========================
     --order
@@ -370,11 +340,6 @@ BEGIN
 		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 		PRINT'------'
 
-
-
-
-
-
         --=================================
         --products
         SET @start_time=GETDATE();
@@ -422,13 +387,6 @@ BEGIN
      SET @end_time=GETDATE();
 		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 		PRINT'------'
-
-
-
-
-
-
-
     --======================================
     --seller
     --====================
@@ -495,10 +453,6 @@ BEGIN
     SET @end_time=GETDATE();
 	PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 	PRINT'------'
-
-
-
-
     --try catch block if any error occur show the error details
     END TRY
         BEGIN CATCH
@@ -512,4 +466,6 @@ BEGIN
   END;
 
   EXEC silver.load_silver
+
+  
 
