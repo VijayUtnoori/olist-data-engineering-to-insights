@@ -51,7 +51,7 @@ BEGIN
             SELECT
                 REPLACE(customer_id, '"', '') AS customer_id,
                 REPLACE(customer_unique_id, '"', '') AS customer_unique_id,
-                REPLACE(customer_zip_code_prefix, '"', '') AS customer_zip_code_prefix,
+                TRY_CAST(REPLACE(customer_zip_code_prefix, '"', '') AS INT) AS customer_zip_code_prefix,
                 TRIM(customer_city) AS customer_city,
                 CASE UPPER(TRIM(customer_state))--state mapping 
                     WHEN 'AC' THEN 'Acre'
@@ -98,7 +98,7 @@ BEGIN
 	PRINT'>>INSERTING DATA INTO:silver.olist_geolocation';
     WITH normalized_geo AS (
             SELECT 
-                geolocation_zip_code_prefix,
+                TRY_CAST(REPLACE(geolocation_zip_code_prefix,'"','') AS INT) AS geolocation_zip_code_prefix,
                 TRY_CAST(geolocation_lat AS DECIMAL(10, 8)) AS geolocation_lat,
                 TRY_CAST(geolocation_lng AS DECIMAL(10, 8)) AS geolocation_lng,           
                 -- Physical accent stripping & lowercasing
@@ -260,23 +260,39 @@ BEGIN
 	    REPLACE(review_id,'"','') AS review_id, 
 	    REPLACE(order_id, '"','') AS order_id,
 	    CAST(review_score AS INT) AS review_score,
+        CASE 
+            WHEN NULLIF(TRIM(REPLACE(review_comment_title,'"','')),'')IS NOT NULL THEN TRIM(REPLACE(review_comment_title,'"',''))
+            ELSE 'Not submitd'
+        END AS review_comment_title,
+        CASE
+            WHEN NULLIF(TRIM(REPLACE(review_comment_message,'"','')),'') IS NOT NULL THEN TRIM(REPLACE(review_comment_message,'"',''))
+            ELSE 'Not commented'
+        END AS review_comment_message,
 	    CAST(review_creation_date AS DATE) AS review_creation_date,
 	    CAST(review_answer_timestamp AS DATETIME2(0)) AS review_answer_timestamp,
         --feach only unique reviews 
 	    ROW_NUMBER() OVER(PARTITION BY REPLACE(review_id,'"','') ORDER BY CAST(review_creation_date AS DATE)DESC) AS rn
     FROM Olist_DataWarehouse.bronze.olist_order_reviews
-    WHERE REPLACE(review_id,'"','') IS NOT NULL AND CAST(review_score AS INT)>0 AND CAST(review_creation_date AS DATE) <= CAST(review_answer_timestamp AS DATETIME2(0))
+    WHERE NULLIF(TRIM(REPLACE(review_id,'"','')),'') IS NOT NULL 
+          AND TRY_CAST(review_score AS INT) BETWEEN 1 AND 5 
+          AND TRY_CAST(review_creation_date AS DATE) IS NOT NULL
+          AND TRY_CAST(review_answer_timestamp AS DATETIME2(0)) IS NOT NULL
+          AND TRY_CAST(review_creation_date AS DATE) <= TRY_CAST(review_answer_timestamp AS DATETIME2(0))
     )
     INSERT INTO Olist_DataWarehouse.silver.olist_order_reviews(
     review_id,
     order_id,
     review_score,
+    review_comment_title,
+    review_comment_message,
     review_creation_date,
     review_answer_timestamp)
     SELECT 
 	    review_id,
 	    order_id,
 	    review_score,
+        review_comment_title,
+        review_comment_message,
 	    review_creation_date,
 	    review_answer_timestamp
     FROM rank_reviews
@@ -356,6 +372,7 @@ BEGIN
                 LOWER(TRIM(REPLACE(t.product_category_name_english, '"', ''))),
                 LOWER(TRIM(REPLACE(p.product_category_name, '"', ''))),
                 'unknown') AS product_category_name,
+            COALESCE(TRY_CAST(product_name_lenght AS INT),0) AS product_name_length,
             COALESCE(TRY_CAST(p.product_description_lenght AS INT),0) AS product_description_length,
             COALESCE(TRY_CAST(p.product_photos_qty AS INT),0) AS product_photos_qty,
             COALESCE(TRY_CAST(p.product_weight_g AS DECIMAL(10,2)),0) AS product_weight_g,--can have decimal so conver decimal and replace 0 with nulls
@@ -368,6 +385,7 @@ BEGIN
     INSERT INTO Olist_DataWarehouse.silver.olist_products (
         product_id,
         product_category_name,
+        product_name_length,
         product_description_length,
         product_photos_qty,
         product_weight_g,
@@ -377,6 +395,7 @@ BEGIN
     SELECT 
         product_id,
         product_category_name,
+        product_name_length,
         product_description_length,
         product_photos_qty,
         product_weight_g,
@@ -465,7 +484,6 @@ BEGIN
         END CATCH
   END;
 
-  EXEC silver.load_silver
-
-  
-
+ 
+   
+   
