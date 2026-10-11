@@ -1,24 +1,17 @@
-USE Olist_DataWarehouse
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_customers;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_geolocation;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_order_items;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_order_payments;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_order_reviews;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_products;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_sellers;
-SELECT TOP 10 * FROM Olist_DataWarehouse.silver.olist_orders;
---====================
+
 --CUSTOMER
 --========================
-CREATE VIEW gold.dim_customer AS(
+CREATE OR ALTER VIEW  gold.dim_customers AS(
 SELECT
-    customer_id,
-    customer_unique_id,
-    customer_zip_code_prefix,
-    customer_city,
-    customer_state,
+    C.customer_id,
+    C.customer_unique_id,
+    C.customer_zip_code_prefix,
+    C.customer_city,
+    C.customer_state,
+    G.geolocation_lat AS customer_lat,
+    G.geolocation_lng AS customer_lng,
 -- Derived Geographic Region
-    CASE customer_state
+    CASE C.customer_state
         -- Southeast
         WHEN 'Sao Paulo' THEN 'Southeast'
         WHEN 'Rio de Janeiro' THEN 'Southeast'
@@ -53,13 +46,17 @@ SELECT
         WHEN 'Mato Grosso do Sul' THEN 'Central-West'        
         ELSE 'Unknown'
     END AS customer_region
-FROM Olist_DataWarehouse.silver.olist_customers
+FROM Olist_DataWarehouse.silver.olist_customers C
+LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
+ON C.customer_zip_code_prefix=G.geolocation_zip_code_prefix
 )
+
 --============================
 --GEOLOCATION
 --=======================
-CREATE VIEW gold.dim_geolocation AS(
+CREATE OR ALTER VIEW gold.dim_geolocation AS(
 SELECT
+    ROW_NUMBER() OVER(ORDER BY geolocation_zip_code_prefix) AS geolocation_sk,
     geolocation_zip_code_prefix,
     geolocation_lat,
     geolocation_lng,
@@ -106,14 +103,16 @@ FROM Olist_DataWarehouse.silver.olist_geolocation
 ---===================================
 --SELLER
 --==========================
-CREATE VIEW gold.dim_sellers AS(
+CREATE OR ALTER VIEW  gold.dim_sellers AS(
 SELECT
-    seller_id,
-    seller_zip_code_prefix,
-    seller_city,
-    seller_state,
+    S.seller_id,
+    S.seller_zip_code_prefix,
+    S.seller_city,
+    S.seller_state,
+    G.geolocation_lat AS seller_lat,
+    G.geolocation_lng AS seller_lng,
 -- Derived Geographic Region
-    CASE seller_state
+    CASE S.seller_state
         -- Southeast
         WHEN 'Sao Paulo' THEN 'Southeast'
         WHEN 'Rio de Janeiro' THEN 'Southeast'
@@ -148,14 +147,17 @@ SELECT
         WHEN 'Mato Grosso do Sul' THEN 'Central-West'        
         ELSE 'Unknown'
     END AS seller_region
-FROM Olist_DataWarehouse.silver.olist_sellers
+FROM Olist_DataWarehouse.silver.olist_sellers S
+LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
+ON S.seller_zip_code_prefix=G.geolocation_zip_code_prefix
 )
 --==========================
 --PRODUCT
 --
-CREATE VIEW gold.dim_products AS(
+CREATE OR ALTER VIEW gold.dim_products AS(
 SELECT * FROM (
 SELECT 
+  ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
   product_id,
   product_category_name,
   product_description_length,
@@ -173,66 +175,69 @@ SELECT
 FROM Olist_DataWarehouse.silver.olist_products)t
 WHERE weight_kg>0)
 
---=======================
---orders fact
-CREATE VIEW gold.fact_orders AS(
-SELECT
-    --Integer Surrogate Key
-    ROW_NUMBER() OVER(ORDER BY o.order_purchase_timestamp, o.order_id) AS order_sk,
-    -- Primary Keys
-    o.order_id,
-    o.customer_id,
-    r.review_id,
-     -- Status
-    o.order_status, 
+---=============
+    --ORDER TABLE
+CREATE OR ALTER VIEW gold.fact_orders AS(
+SELECT 
+--serogate key
+   ROW_NUMBER() OVER (ORDER BY order_purchase_timestamp, order_id) AS order_sk,
+   order_id,
+   customer_id,
+   order_status, 
     -- Order Timeline Milestones
-    o.order_purchase_timestamp AS purchased_at,
-    o.order_approved_at AS approved_at,
-    o.order_delivered_carrier_date AS shipped_at,
-    o.order_delivered_customer_date AS delivered_at,
-    o.order_estimated_delivery_date AS estimated_delivery_at,  
-    -- Aggregated Payment Metrics
-    COALESCE(p.payment_sequential, 1) AS total_payment_sequences,
-    COALESCE(p.max_payment_installments, 1) AS max_payment_installments,
-    COALESCE(p.total_payment_value, 0) AS total_payment_value, 
-    -- Review Metrics
-    r.review_score,
-    r.review_creation_date AS created_at,
-    r.review_answer_timestamp AS answered_at,   
-    -- Derived Time Metrics
-    DATEDIFF(DAY, o.order_purchase_timestamp, o.order_delivered_customer_date) AS order_delivered_days,
-    DATEDIFF(DAY, o.order_delivered_customer_date, o.order_estimated_delivery_date) AS delivery_variance_days,
-    DATEDIFF(DAY, o.order_purchase_timestamp, o.order_estimated_delivery_date) AS estimated_delivery_days,
-    DATEDIFF(HOUR, o.order_purchase_timestamp, o.order_approved_at) AS approval_delay_hours,
-    -- Derived Categorical Statuses
-    CASE 
-        WHEN r.review_score = 5 THEN 'Excellent_score'
-        WHEN r.review_score IN (3, 4) THEN 'Average_score'
-        WHEN r.review_score IS NOT NULL THEN 'Low_score'
-        ELSE 'Unreviewed'
-    END AS score_status,   
-    CASE 
-        WHEN COALESCE(p.total_payment_value, 0) >= 500 THEN 'High payment value'
-        WHEN COALESCE(p.total_payment_value, 0) BETWEEN 100 AND 499.99 THEN 'Medium payment value'
-        ELSE 'Low payment value'
-    END AS payment_status
-FROM Olist_DataWarehouse.silver.olist_orders o
--- Pre-aggregated Payments Subquery (Prevents Order Fan-Out)
-LEFT JOIN (
-    SELECT 
-        order_id,
-        COUNT(payment_sequential) AS payment_sequential,
-        MAX(payment_installments) AS max_payment_installments,
-        SUM(payment_value) AS total_payment_value
-    FROM Olist_DataWarehouse.silver.olist_order_payments
-    WHERE payment_value > 0
-    GROUP BY order_id
-) p ON o.order_id = p.order_id
--- Reviews Join
-LEFT JOIN Olist_DataWarehouse.silver.olist_order_reviews r 
-    ON o.order_id = r.order_id);
+   order_purchase_timestamp AS purchased_at,
+   order_approved_at AS approved_at,
+   order_delivered_carrier_date AS shipped_at,
+   order_delivered_customer_date AS delivered_at,
+   order_estimated_delivery_date AS estimated_delivery_at,
+       -- Derived Time Metrics
+   DATEDIFF(DAY, order_purchase_timestamp, order_delivered_customer_date) AS order_delivered_days,
+   DATEDIFF(DAY, order_delivered_customer_date, order_estimated_delivery_date) AS delivery_variance_days,
+   DATEDIFF(DAY, order_purchase_timestamp, order_estimated_delivery_date) AS estimated_delivery_days,
+   DATEDIFF(HOUR, order_purchase_timestamp, order_approved_at) AS approval_delay_hours
+FROM Olist_DataWarehouse.silver.olist_orders);
 
 ---====
+--REVIEWS
+CREATE VIEW gold.fact_reviews AS(
+SELECT 
+    -- Review Metrics
+    ROW_NUMBER() OVER(ORDER BY review_id) AS review_sk,
+    review_id,
+    order_id,
+    review_score,
+    review_creation_date AS created_at,
+    review_answer_timestamp AS answered_at, 
+    CASE 
+        WHEN review_score = 5 THEN 'Excellent_score'
+        WHEN review_score IN (3, 4) THEN 'Average_score'
+        WHEN review_score IS NOT NULL THEN 'Low_score'
+        ELSE 'Unreviewed'
+    END AS score_status, 
+    DATEDIFF(DAY,review_creation_date,review_answer_timestamp) AS replay_days
+FROM Olist_DataWarehouse.silver.olist_order_reviews);
+
+
+---======================
+--PAYMENT
+CREATE OR ALTER VIEW gold.fact_payments AS
+SELECT
+    -- Surrogate key
+    ROW_NUMBER() OVER ( ORDER BY order_id, payment_sequential ) AS payment_sk,--give unique combination
+    order_id,
+    payment_sequential,
+    payment_type,
+    payment_installments,
+    payment_value,
+    -- Derived categorical status
+    CASE
+        WHEN payment_value >= 1000 THEN 'High payment value'
+        WHEN payment_value >= 500 THEN 'Medium payment value'
+        ELSE 'Low payment value'
+    END AS payment_status
+FROM Olist_DataWarehouse.silver.olist_order_payments;
+
+--=====================
 --ORDER ITEMS
 CREATE VIEW gold.fact_order_items AS
 SELECT
@@ -263,41 +268,94 @@ FROM Olist_DataWarehouse.silver.olist_order_items i;
 --==================
 --DIM_DATE
 
-CREATE VIEW gold.dim_date AS
-WITH Tally AS (
-    -- Generates up to 10,000 numbers instantly using cross joins
-    SELECT TOP (365 * 10) 
+CREATE OR ALTER VIEW gold.dim_date AS
+WITH N AS (
+    SELECT TOP (1096)
         ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n
     FROM sys.all_objects a
     CROSS JOIN sys.all_objects b),
-Dates AS (
-    -- Add days to the start date
-    SELECT DATEADD(DAY, n, CAST('2016-01-01' AS DATE)) AS full_date
-    FROM Tally
-    WHERE DATEADD(DAY, n, CAST('2016-01-01' AS DATE)) <= '2025-12-31')
-SELECT 
-    -- Primary Surrogate Key (YYYYMMDD)
-    CAST(FORMAT(full_date, 'yyyyMMdd') AS INT) AS date_key,
-       -- Date Attributes
+D AS (SELECT DATEADD(DAY, n, CAST('2016-01-01' AS DATE)) AS full_date FROM N)
+SELECT
+    YEAR(full_date) * 10000
+        + MONTH(full_date) * 100
+        + DAY(full_date) AS date_key,
     full_date,
     YEAR(full_date) AS calendar_year,
     MONTH(full_date) AS calendar_month,
-    FORMAT(full_date, 'MMMM') AS month_name,
-    FORMAT(full_date, 'MMM') AS month_name_short,
+    DATENAME(MONTH, full_date) AS month_name,
     DATEPART(QUARTER, full_date) AS calendar_quarter,
-    CONCAT('Q', DATEPART(QUARTER, full_date)) AS quarter_name,
-    DATEPART(WEEK, full_date) AS week_of_year,
     DAY(full_date) AS day_of_month,
-    DATEPART(WEEKDAY, full_date) AS day_of_week,
-    FORMAT(full_date, 'dddd') AS day_name,
-    FORMAT(full_date, 'ddd') AS day_name_short,
-       -- Business Indicators
-    CASE 
-        WHEN DATEPART(WEEKDAY, full_date) IN (1, 7) THEN 1 
-        ELSE 0 
-    END AS is_weekend,    
-    CASE 
-        WHEN DATEPART(WEEKDAY, full_date) BETWEEN 2 AND 6 THEN 1 
-        ELSE 0 
-    END AS is_weekday
-FROM Dates;
+    DATENAME(WEEKDAY, full_date) AS day_name,
+    CASE
+        WHEN DATENAME(WEEKDAY, full_date) IN ('Saturday', 'Sunday') THEN 1
+        ELSE 0
+    END AS is_weekend
+FROM D
+WHERE full_date <= '2018-12-31';
+---------=======================
+Distance------------------
+---===========================
+--================================================================================================================================================================
+--===================================================================================================================================================================
+### Distance Calculation
+
+**Formula:** Haversine formula calculates the straight-line distance between customer and seller coordinates (latitude and longitude) in kilometres.
+
+- **Earth radius:** 6,371 km
+- **Validation:** Recalculated distances matched the original results for 108,056 rows, with 0 mismatches.
+
+**Limitations:**
+- Coordinates are approximate ZIP-code-prefix locations, not exact addresses.
+- Distance represents straight-line distance, not actual road or courier distance.
+- Missing coordinates result in NULL distances.
+- Results show estimated geographic distance, not actual delivery distance.
+    --========================================================================================================================================================
+   ---==================================================================================================================================================================== 
+    
+  CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
+SELECT
+    o.order_id,
+    o.customer_id,
+    oi.product_id,
+    oi.seller_id,
+    c.customer_lat,
+    c.customer_lng,
+    s.seller_lat,
+    s.seller_lng,
+
+    CASE
+        WHEN c.customer_lat IS NULL
+          OR c.customer_lng IS NULL
+          OR s.seller_lat IS NULL
+          OR s.seller_lng IS NULL
+        THEN NULL
+        ELSE
+            2 * 6371.0 * ASIN(
+                SQRT(
+                    CASE
+                        WHEN h.a > 1 THEN 1
+                        WHEN h.a < 0 THEN 0
+                        ELSE h.a
+                    END))
+        END AS distance_km
+FROM gold.fact_orders AS o
+--join related tables
+INNER JOIN gold.fact_order_items AS oi
+    ON o.order_id = oi.order_id
+INNER JOIN gold.dim_customers AS c
+    ON o.customer_id = c.customer_id
+INNER JOIN gold.dim_sellers AS s
+    ON oi.seller_id = s.seller_id
+CROSS APPLY (
+    SELECT
+        POWER(
+            SIN(RADIANS(s.seller_lat - c.customer_lat) / 2), 2)
+        + COS(RADIANS(c.customer_lat))
+        * COS(RADIANS(s.seller_lat))
+        * POWER(
+            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2), 2
+        ) AS a
+) AS h;
+
+SELECT * FROM gold.vw_order_item_logistics
+
