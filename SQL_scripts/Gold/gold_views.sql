@@ -1,8 +1,24 @@
+/*
+=========================================================================================
+DDL Script: Create Gold Views
+===============================================================================
+Script Purpose:
+    This script creates views for the Gold layer in the data warehouse. 
+    The Gold layer represents the final dimension and fact tables (Star Schema)
 
---CUSTOMER
---========================
+    Each view performs transformations and combines data from the Silver layer 
+    to produce a clean, enriched, and business-ready dataset.
+
+Usage:
+    - These views can be queried directly for analytics and reporting.
+=====================================================================================
+*/
+-- ==========================================================================================
+-- Create Dimension: gold.dim_customers
+-- =============================================================================
 CREATE OR ALTER VIEW  gold.dim_customers AS(
 SELECT
+    ROW_NUMBER() OVER(ORDER BY C.customer_id) AS customer_sk,
     C.customer_id,
     C.customer_unique_id,
     C.customer_zip_code_prefix,
@@ -51,9 +67,9 @@ LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
 ON C.customer_zip_code_prefix=G.geolocation_zip_code_prefix
 )
 
---============================
---GEOLOCATION
---=======================
+-- =============================================================================
+-- Create Dimension: gold.dim_geolocation
+-- =============================================================================
 CREATE OR ALTER VIEW gold.dim_geolocation AS(
 SELECT
     ROW_NUMBER() OVER(ORDER BY geolocation_zip_code_prefix) AS geolocation_sk,
@@ -100,11 +116,12 @@ SELECT
     END AS geolocation_region
 FROM Olist_DataWarehouse.silver.olist_geolocation
 )
----===================================
---SELLER
---==========================
+-- =============================================================================
+-- Create Dimension: gold.dim_seller
+-- ===========================================================================================
 CREATE OR ALTER VIEW  gold.dim_sellers AS(
 SELECT
+    ROW_NUMBER() OVER(ORDER BY S.seller_id) AS seller_sk,
     S.seller_id,
     S.seller_zip_code_prefix,
     S.seller_city,
@@ -151,9 +168,9 @@ FROM Olist_DataWarehouse.silver.olist_sellers S
 LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
 ON S.seller_zip_code_prefix=G.geolocation_zip_code_prefix
 )
---==========================
---PRODUCT
---
+-- ===========================================================================================
+-- Create Dimension: gold.dim_products
+-- =============================================================================
 CREATE OR ALTER VIEW gold.dim_products AS(
 SELECT * FROM (
 SELECT 
@@ -175,8 +192,9 @@ SELECT
 FROM Olist_DataWarehouse.silver.olist_products)t
 WHERE weight_kg>0)
 
----=============
-    --ORDER TABLE
+-- =============================================================================
+-- Create Dimension: gold.fact_orders
+-- =============================================================================
 CREATE OR ALTER VIEW gold.fact_orders AS(
 SELECT 
 --serogate key
@@ -197,8 +215,9 @@ SELECT
    DATEDIFF(HOUR, order_purchase_timestamp, order_approved_at) AS approval_delay_hours
 FROM Olist_DataWarehouse.silver.olist_orders);
 
----====
---REVIEWS
+-- =============================================================================
+-- Create Dimension: gold.fact_reviews
+-- =============================================================================
 CREATE VIEW gold.fact_reviews AS(
 SELECT 
     -- Review Metrics
@@ -218,8 +237,9 @@ SELECT
 FROM Olist_DataWarehouse.silver.olist_order_reviews);
 
 
----======================
---PAYMENT
+-- =============================================================================
+-- Create Dimension: gold.fact_payments
+-- =============================================================================
 CREATE OR ALTER VIEW gold.fact_payments AS
 SELECT
     -- Surrogate key
@@ -237,8 +257,9 @@ SELECT
     END AS payment_status
 FROM Olist_DataWarehouse.silver.olist_order_payments;
 
---=====================
---ORDER ITEMS
+-- =============================================================================
+-- Create Dimension: gold.fact_order_items
+-- =============================================================================
 CREATE VIEW gold.fact_order_items AS
 SELECT
     -- Unique Integer Surrogate Key
@@ -265,8 +286,9 @@ SELECT
     END AS is_high_freight
 FROM Olist_DataWarehouse.silver.olist_order_items i;
 
---==================
---DIM_DATE
+-- =============================================================================
+-- Create Dimension: gold.dim_date
+-- =============================================================================
 
 CREATE OR ALTER VIEW gold.dim_date AS
 WITH N AS (
@@ -292,28 +314,16 @@ SELECT
     END AS is_weekend
 FROM D
 WHERE full_date <= '2018-12-31';
----------=======================
-Distance------------------
----===========================
---================================================================================================================================================================
---===================================================================================================================================================================
-### Distance Calculation
 
-**Formula:** Haversine formula calculates the straight-line distance between customer and seller coordinates (latitude and longitude) in kilometres.
+SELECT * FROM gold.dim_date
 
-- **Earth radius:** 6,371 km
-- **Validation:** Recalculated distances matched the original results for 108,056 rows, with 0 mismatches.
+-- =============================================================================
+-- Create Dimension: gold.vw_order_item_logistics
+-- =============================================================================
 
-**Limitations:**
-- Coordinates are approximate ZIP-code-prefix locations, not exact addresses.
-- Distance represents straight-line distance, not actual road or courier distance.
-- Missing coordinates result in NULL distances.
-- Results show estimated geographic distance, not actual delivery distance.
-    --========================================================================================================================================================
-   ---==================================================================================================================================================================== 
-    
-  CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
+CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
 SELECT
+    ---three tables are joined (to calculate the distance using cordinate)
     o.order_id,
     o.customer_id,
     oi.product_id,
@@ -322,7 +332,6 @@ SELECT
     c.customer_lng,
     s.seller_lat,
     s.seller_lng,
-
     CASE
         WHEN c.customer_lat IS NULL
           OR c.customer_lng IS NULL
@@ -330,32 +339,42 @@ SELECT
           OR s.seller_lng IS NULL
         THEN NULL
         ELSE
-            2 * 6371.0 * ASIN(
+            2 * 6371.0 * ASIN(--earth radiar --6371
                 SQRT(
                     CASE
-                        WHEN h.a > 1 THEN 1
-                        WHEN h.a < 0 THEN 0
+                        WHEN h.a > 1 THEN 1  -----Therefore, h.a means column a from the result named h.
+                        WHEN h.a < 0 THEN 0   -----Therefore, h.a means column a from the result named h.
                         ELSE h.a
-                    END))
-        END AS distance_km
+                    END ))
+    END AS distance_km
+
 FROM gold.fact_orders AS o
---join related tables
+--join with gold.fact_order_items
 INNER JOIN gold.fact_order_items AS oi
     ON o.order_id = oi.order_id
-INNER JOIN gold.dim_customers AS c
+--join with gold.dim_customer
+INNER JOIN gold.dim_customer AS c
     ON o.customer_id = c.customer_id
+--join with seller dimention table
 INNER JOIN gold.dim_sellers AS s
     ON oi.seller_id = s.seller_id
+
 CROSS APPLY (
     SELECT
         POWER(
-            SIN(RADIANS(s.seller_lat - c.customer_lat) / 2), 2)
+            SIN(RADIANS(s.seller_lat - c.customer_lat) / 2), 2 )
         + COS(RADIANS(c.customer_lat))
         * COS(RADIANS(s.seller_lat))
         * POWER(
-            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2), 2
-        ) AS a
-) AS h;
+            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2), 2 ) AS a) AS h;
 
-SELECT * FROM gold.vw_order_item_logistics
+
+==================================================================================================================================================================
+                                                           ================================
+==================================================================================================================================================================
+
+
+
+
+
 
