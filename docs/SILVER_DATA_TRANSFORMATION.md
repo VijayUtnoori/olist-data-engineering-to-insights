@@ -55,11 +55,11 @@ The Silver layer contains cleaned, standardized, and validated data transformed 
 | `review_id` | Extra double quotes and duplicate records for the same review identifier. | Removed unnecessary quotes and deduplicated records, retaining the latest record based on the review creation date. |
 | `order_id` | Extra double quotes. | Removed unnecessary double-quote characters. |
 | `review_score` | Text data type and invalid ratings. | Converted to integer and filtered out scores less than or equal to zero. |
-| `review_comment_title` | Missing review titles (`NULL` values). | Replaced missing titles with `No Title` so that missing titles are explicitly identified. |
+| `review_comment_title` | Missing review titles (`NULL` values). | Replaced missing titles with `Not submited` so that missing titles are explicitly identified. |
 | `review_comment_message` | Missing review messages (`NULL` values). | Replaced missing messages with `Not Commented` so that missing comments are explicitly identified. |
 | `review_creation_date`, `review_answer_timestamp` | Text data types and invalid date sequences. | Converted to appropriate date/datetime types and filtered records where the review creation date occurred after the answer timestamp. |
 
-**Note:** `No Title` and `Not Commented` are placeholders for missing information; they do not represent actual customer feedback.
+**Note:** `Not submited` and `Not Commented` are placeholders for missing information; they do not represent actual customer feedback.
 
 ---
 
