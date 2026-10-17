@@ -171,26 +171,27 @@ ON S.seller_zip_code_prefix=G.geolocation_zip_code_prefix
 -- ===========================================================================================
 -- Create Dimension: gold.dim_products
 -- =============================================================================
-CREATE OR ALTER VIEW gold.dim_products AS(
+CREATE OR ALTER VIEW gold.dim_products AS
 SELECT * FROM (
-SELECT 
-  ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
-  product_id,
-  product_category_name,
-  product_description_length,
-  product_photos_qty,
-  CAST(ROUND(product_weight_g / 1000.0, 2) AS FLOAT) AS weight_kg,
-  product_height_cm,
-  product_width_cm,
-  CAST(ROUND((product_length_cm * product_height_cm * product_width_cm), 2) AS FLOAT) AS product_volume_cm,
-  CASE 
-    WHEN product_weight_g / 1000.0 >= 30 THEN 'Bulky'
-    WHEN product_weight_g / 1000.0 >= 10 THEN 'Large'
-    WHEN product_weight_g / 1000.0 >= 5 THEN 'Medium'
-    ELSE 'Small'
-  END AS product_size_category
-FROM Olist_DataWarehouse.silver.olist_products)t
-WHERE weight_kg>0)
+  SELECT 
+    ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
+    product_id,
+    REPLACE(product_category_name, '_', ' ') AS product_category, -- Added missing comma here
+    product_description_length,
+    product_photos_qty,
+    CAST(ROUND(product_weight_g / 1000.0, 2) AS FLOAT) AS weight_kg,
+    product_height_cm,
+    product_width_cm,
+    CAST(ROUND((product_length_cm * product_height_cm * product_width_cm), 2) AS FLOAT) AS product_volume_cm,
+    CASE 
+      WHEN product_weight_g / 1000.0 >= 30 THEN 'Bulky'
+      WHEN product_weight_g / 1000.0 >= 10 THEN 'Large'
+      WHEN product_weight_g / 1000.0 >= 5 THEN 'Medium'
+      ELSE 'Small'
+    END AS product_size_category
+  FROM Olist_DataWarehouse.silver.olist_products
+) t
+WHERE weight_kg > 0;
 
 -- =============================================================================
 -- Create Dimension: gold.fact_orders
