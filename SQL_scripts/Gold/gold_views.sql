@@ -176,7 +176,7 @@ SELECT * FROM (
   SELECT 
     ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
     product_id,
-    REPLACE(product_category_name, '_', ' ') AS product_category, -- Added missing comma here
+    REPLACE(product_category_name, '_', ' ') AS product_category,
     product_description_length,
     product_photos_qty,
     CAST(ROUND(product_weight_g / 1000.0, 2) AS FLOAT) AS weight_kg,
