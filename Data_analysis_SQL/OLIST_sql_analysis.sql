@@ -1,4 +1,4 @@
-## 📈 SQL Data Analysis & Reporting Overview
+##  SQL Data Analysis & Reporting Overview
 
 * **Temporal & Cumulative Trends:** Analyzed monthly revenue changes, running totals, and moving averages.
 * **Logistics & Freight:** Evaluated freight costs across 50km distance brackets.
