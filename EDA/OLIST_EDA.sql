@@ -1,4 +1,12 @@
---========================
+## 📊 Exploratory Data Analysis (EDA) Overview
+
+* **Database & Schema:** Audited table structures and metadata across tables like `dim_customers`.
+* **Dimensions:** Mapped distinct attributes (customer states, product categories, payment types, and regional seller counts).
+* **Dates:** Analyzed temporal ranges, delivery lead times, order approval durations, and estimation accuracy.
+* **Core Measures:** Consolidated executive KPIs (reviews, order volumes, revenue totals, and active entity counts).
+* **Magnitude Analysis:** Evaluated volume distributions across review scores, payment tiers, order statuses, and regional spend.
+* **Rankings (Top-N):** Extracted top-performing products, revenue-driving regions, and state-level top orders using window functions (`ROW_NUMBER`).
+--========================================================================================
 --DATA BASE EXPLORATION
 --=======================
 --Explore all object in the database
