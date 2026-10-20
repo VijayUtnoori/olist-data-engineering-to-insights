@@ -1,4 +1,4 @@
-## 📊 Exploratory Data Analysis (EDA) Overview
+##  Exploratory Data Analysis (EDA) Overview
 
 * **Database & Schema:** Audited table structures and metadata across tables like `dim_customers`.
 * **Dimensions:** Mapped distinct attributes (customer states, product categories, payment types, and regional seller counts).
