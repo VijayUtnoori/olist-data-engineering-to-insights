@@ -1,15 +1,11 @@
-## Advanced SQL Data Analysis & Reporting Overview
+## 📈 SQL Data Analysis & Reporting Overview
 
-This phase moves beyond basic profiling to execute complex analytical queries, business metric tracking, segmentation models, and reporting structures:
-
-* **Change Over Time Analysis:** Evaluated month-over-month marketplace dynamics—tracking shifts in total revenue, unique order volume, and active customer orders across the dataset's timeline.
-* **Cumulative Analysis:** Computed running totals and moving averages partitioned by year for both monthly revenue and yearly order counts to track performance trajectories.
-* **Logistics & Freight Analysis:** Examined customer-to-seller distance metrics against freight costs by bucketing distance intervals in 50km increments (`distance_km`).
-* **Performance Sales Analysis:** Compared yearly product category revenues against multi-year averages and calculated year-over-year growth status (profit/loss flags) using window functions like `LAG()`.
-* **Part-to-Whole Analysis:** Calculated percentage revenue contributions for customer regions and top product categories against overall marketplace totals.
-* **Data Segmentation:** Categorized product price points into custom pricing buckets and grouped payment types by installment terms to analyze credit behavior and volume distribution.
-* **Customer Segmentation & Reporting:** Implemented a multi-tier customer segmentation model (VIP, Regular, New) based on customer lifespan and cumulative spend thresholds.
-* **Customer Reporting View:** Constructed a comprehensive data mart view aggregating customer-level metrics—including unique order counts, product variety, lifespan in months, last purchase recency, average order value (AOV), and geographical attributes.
+* **Temporal & Cumulative Trends:** Analyzed monthly revenue changes, running totals, and moving averages.
+* **Logistics & Freight:** Evaluated freight costs across 50km distance brackets.
+* **Sales Performance & YoY:** Compared product category revenues against multi-year averages and tracked year-over-year growth.
+* **Part-to-Whole Analysis:** Calculated percentage revenue contributions for regions and top product categories.
+* **Data Segmentation:** Grouped products into price brackets and analyzed payment behaviors by installment terms.
+* **Customer Reporting & Segmentation:** Built a customer lifetime analytics view incorporating VIP/Regular/New segments, recency, lifespan, AOV, and total spend..
 
 USE Olist_DataWarehouse
 --============================
