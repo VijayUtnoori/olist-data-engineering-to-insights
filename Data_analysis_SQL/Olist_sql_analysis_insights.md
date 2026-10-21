@@ -18,6 +18,7 @@ DATA SEGMENTATION
 - **1 BRL to USD:** ~$0.199 USD (1 USD ≈ 5.03 BRL)
 - **1 BRL to INR:** ~₹18.81 INR
 
+
   ## 2 Payment Installment Segmentation
 | installment_bucket | total_installment_count | total_sales |
 | :--- | :--- | :--- |
