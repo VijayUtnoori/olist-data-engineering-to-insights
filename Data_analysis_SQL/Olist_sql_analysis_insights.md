@@ -3,6 +3,7 @@
 --======================================
 
 DATA SEGMENTATION
+
 --======================================
 ## 1. Customer Segmentation Breakdown
 | customer_segmentation | total_customers |
