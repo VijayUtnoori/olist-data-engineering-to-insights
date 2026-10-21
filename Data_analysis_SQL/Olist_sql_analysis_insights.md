@@ -1,6 +1,7 @@
 # Sales & Customer Analytics Report
 
 --======================================
+
 DATA SEGMENTATION
 --======================================
 ## 1. Customer Segmentation Breakdown
@@ -37,7 +38,9 @@ DATA SEGMENTATION
 **Note:** Products are segmented into price ranges using conditional logic: `WHEN I.price < 100 THEN 'Below 100'`, `WHEN I.price BETWEEN 100 AND 200 THEN '100-200'`, `WHEN I.price BETWEEN 200 AND 500 THEN '200-500'`, `WHEN I.price BETWEEN 500 AND 2000 THEN '500-2000'`, and `ELSE 'Above 2000'`.
 
 --====================
+
 --Part to whole analysis
+
 --======================
 
 ## 4. Customer Regional Contribution
@@ -61,8 +64,11 @@ DATA SEGMENTATION
 | arts and craftmanship | 1814.01 | 1260846.23 | 0.14% |
 
 ---===================================
+
 CHANGE OVER TIME
+
 --====================================
+
 
 ## 6. Monthly Revenue & Order Volume
 | order_year | total_revenue | total_orders | total_customer_orders |
@@ -121,7 +127,9 @@ CHANGE OVER TIME
 | 2018-08-01 | 828540.84 | 7054288.87 | 881786.108750 |
 
 --============================================================
+
 CUMMULATIVE ANALYSIS
+
 --==========================================================
 
 ## 8. Yearly Order Growth & Cumulative Orders
@@ -151,7 +159,9 @@ CUMMULATIVE ANALYSIS
 **Note:** We have a total of 68 rows. From the analysis, we found that as distance increases, the average freight cost also generally increases, while the number of orders tends to decrease for longer distances.
 
 --===================
+
 --Performance salaes analysis
+
 --====================
 
 ## 10. Yearly Product Category Performance vs. Historical Averages
@@ -175,7 +185,9 @@ CUMMULATIVE ANALYSIS
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 15 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
 ---===========================================
+
 REPORTING CUSTOMER LEVEL
+
 --=============================================
 
 ## 11. Customer Reporting View Sample
