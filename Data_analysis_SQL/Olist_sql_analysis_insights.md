@@ -1,6 +1,70 @@
 # Sales & Customer Analytics Report
 
-## 1. Monthly Revenue & Order Volume
+--======================================
+DATA SEGMENTATION
+--======================================
+## 1. Customer Segmentation Breakdown
+| customer_segmentation | total_customers |
+| :--- | :--- |
+| Regular customer | 100 |
+| VIP_customer | 17 |
+| New customer | 91914 |
+
+**Note:** Spending amount is in Brazilian Real (BRL). Customers are segmented as VIP (at least 12 months history and spending more than R$500), Regular (at least 12 months history and spending R$500 or less), and New (lifespan less than 12 months).
+
+**Exchange Rate Breakdown:**
+- **1 BRL to USD:** ~$0.199 USD (1 USD ≈ 5.03 BRL)
+- **1 BRL to INR:** ~₹18.81 INR
+
+  ## 2 Payment Installment Segmentation
+| installment_bucket | total_installment_count | total_sales |
+| :--- | :--- | :--- |
+| 1-installment | 58617 | 5342623.69 |
+| Short term installment(2-6) | 44091 | 5180643.21 |
+| medium term installment(7-15) | 14776 | 3650568.86 |
+| long term installment (15 or more) | 117 | 35279.58 |
+
+
+## 3. Product Segmentation by Sales Price Range
+| sales_range | total_product_count |
+| :--- | :--- |
+| Below 100 | 72146 |
+| 100-200 | 27101 |
+| 200-500 | 10157 |
+| 500-2000 | 3092 |
+| Above 2000 | 123 |
+
+**Note:** Products are segmented into price ranges using conditional logic: `WHEN I.price < 100 THEN 'Below 100'`, `WHEN I.price BETWEEN 100 AND 200 THEN '100-200'`, `WHEN I.price BETWEEN 200 AND 500 THEN '200-500'`, `WHEN I.price BETWEEN 500 AND 2000 THEN '500-2000'`, and `ELSE 'Above 2000'`.
+
+--====================
+--Part to whole analysis
+--======================
+
+## 4. Customer Regional Contribution
+| customer_region | total_sales | overall_sales | contribution |
+| :--- | :--- | :--- | :--- |
+| Southeast | 8534758.30 | 13043848.60 | 65.43% |
+| Central-West | 830206.23 | 13043848.60 | 6.36% |
+| North | 324674.83 | 13043848.60 | 2.49% |
+| South | 1875257.96 | 13043848.60 | 14.38% |
+| Northeast | 1478951.28 | 13043848.60 | 11.34% |
+
+---
+
+## 5. Product Category Sales Contribution
+| product_category | total_sales | overall_sales | contribution |
+| :--- | :--- | :--- | :--- |
+| computers accessories | 911954.32 | 1260846.23 | 72.33% |
+| audio | 50688.50 | 1260846.23 | 4.02% |
+| office furniture | 273960.70 | 1260846.23 | 21.73% |
+| drinks | 22428.70 | 1260846.23 | 1.78% |
+| arts and craftmanship | 1814.01 | 1260846.23 | 0.14% |
+
+---===================================
+CHANGE OVER TIME
+--====================================
+
+## 6. Monthly Revenue & Order Volume
 | order_year | total_revenue | total_orders | total_customer_orders |
 | :--- | :--- | :--- | :--- |
 | 2016-09-01 | 134.97 | 1 | 1 |
@@ -29,7 +93,7 @@
 
 ---
 
-## 2. Monthly Sales Trends, Running Totals & Moving Averages
+## 7. Monthly Sales Trends, Running Totals & Moving Averages
 | purchased_at | total_sales | Running_total | moving_average |
 | :--- | :--- | :--- | :--- |
 | 2016-09-01 | 134.97 | 134.97 | 134.970000 |
@@ -56,9 +120,11 @@
 | 2018-07-01 | 796706.39 | 6225748.03 | 889392.575714 |
 | 2018-08-01 | 828540.84 | 7054288.87 | 881786.108750 |
 
----
+--============================================================
+CUMMULATIVE ANALYSIS
+--==========================================================
 
-## 3. Yearly Order Growth & Cumulative Orders
+## 8. Yearly Order Growth & Cumulative Orders
 | order_year | number_of_orders | running_orders | moving_avg_orders |
 | :--- | :--- | :--- | :--- |
 | 2016-01-01 | 268 | 268 | 268 |
@@ -67,7 +133,7 @@
 
 ---
 
-## 4. Distance vs. Freight Cost Analysis
+## 9. Distance vs. Freight Cost Analysis
 | distance_range_start | distance_range_end | total_orders | avg_freight_value | min_freight_value | max_freight_value |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 0 | 50 | 18746 | 11.435982 | 0.00 | 135.44 |
@@ -84,9 +150,11 @@
 
 **Note:** We have a total of 68 rows. From the analysis, we found that as distance increases, the average freight cost also generally increases, while the number of orders tends to decrease for longer distances.
 
----
+--===================
+--Performance salaes analysis
+--====================
 
-## 5. Yearly Product Category Performance vs. Historical Averages
+## 10. Yearly Product Category Performance vs. Historical Averages
 | Order_year | product_category | avg_sales | previous_sales | avg_sales_status | diff_previous_year | previous_sales_status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 2017 | agro industry and commerce | 35076.550000 | NULL | Below the avg | 1998.99 | N/A |
@@ -106,68 +174,9 @@
 | 2018 | auto | 191035.890000 | 233945.80 | Above the avg | 306391.45 | profit |
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 15 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
-
----
-
-## 6. Customer Regional Contribution
-| customer_region | total_sales | overall_sales | contribution |
-| :--- | :--- | :--- | :--- |
-| Southeast | 8534758.30 | 13043848.60 | 65.43% |
-| Central-West | 830206.23 | 13043848.60 | 6.36% |
-| North | 324674.83 | 13043848.60 | 2.49% |
-| South | 1875257.96 | 13043848.60 | 14.38% |
-| Northeast | 1478951.28 | 13043848.60 | 11.34% |
-
----
-
-## 7. Product Category Sales Contribution
-| product_category | total_sales | overall_sales | contribution |
-| :--- | :--- | :--- | :--- |
-| computers accessories | 911954.32 | 1260846.23 | 72.33% |
-| audio | 50688.50 | 1260846.23 | 4.02% |
-| office furniture | 273960.70 | 1260846.23 | 21.73% |
-| drinks | 22428.70 | 1260846.23 | 1.78% |
-| arts and craftmanship | 1814.01 | 1260846.23 | 0.14% |
-
----
-
-## 8. Product Segmentation by Sales Price Range
-| sales_range | total_product_count |
-| :--- | :--- |
-| Below 100 | 72146 |
-| 100-200 | 27101 |
-| 200-500 | 10157 |
-| 500-2000 | 3092 |
-| Above 2000 | 123 |
-
-**Note:** Products are segmented into price ranges using conditional logic: `WHEN I.price < 100 THEN 'Below 100'`, `WHEN I.price BETWEEN 100 AND 200 THEN '100-200'`, `WHEN I.price BETWEEN 200 AND 500 THEN '200-500'`, `WHEN I.price BETWEEN 500 AND 2000 THEN '500-2000'`, and `ELSE 'Above 2000'`.
-
----
-
-## 9. Payment Installment Segmentation
-| installment_bucket | total_installment_count | total_sales |
-| :--- | :--- | :--- |
-| 1-installment | 58617 | 5342623.69 |
-| Short term installment(2-6) | 44091 | 5180643.21 |
-| medium term installment(7-15) | 14776 | 3650568.86 |
-| long term installment (15 or more) | 117 | 35279.58 |
-
----
-
-## 10. Customer Segmentation Breakdown
-| customer_segmentation | total_customers |
-| :--- | :--- |
-| Regular customer | 100 |
-| VIP_customer | 17 |
-| New customer | 91914 |
-
-**Note:** Spending amount is in Brazilian Real (BRL). Customers are segmented as VIP (at least 12 months history and spending more than R$500), Regular (at least 12 months history and spending R$500 or less), and New (lifespan less than 12 months).
-
-**Exchange Rate Breakdown:**
-- **1 BRL to USD:** ~$0.199 USD (1 USD ≈ 5.03 BRL)
-- **1 BRL to INR:** ~₹18.81 INR
-
----
+---===========================================
+REPORTING CUSTOMER LEVEL
+--=============================================
 
 ## 11. Customer Reporting View Sample
 | customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_products | total_sales | avg_order_value |
