@@ -18,6 +18,9 @@ DATA SEGMENTATION
 - **1 BRL to USD:** ~$0.199 USD (1 USD ≈ 5.03 BRL)
 - **1 BRL to INR:** ~₹18.81 INR
 
+**Key Insights**:Most of the customers fall under 'New' lifespan less than 12 months and spending R$500 or less
+Only 17 customers VIP customers there  least 12 months history and spending more than R$500
+
 
   ## 2 Payment Installment Segmentation
 | installment_bucket | total_installment_count | total_sales |
@@ -26,6 +29,8 @@ DATA SEGMENTATION
 | Short term installment(2-6) | 44091 | 5180643.21 |
 | medium term installment(7-15) | 14776 | 3650568.86 |
 | long term installment (15 or more) | 117 | 35279.58 |
+
+**Key Insights:** The majority of customers complete their payments in a **single installment (58,617)**, closely followed by **short-term installments (44,091)**. Although single installments account for the highest volume of transactions, the total sales generated are nearly identical between single installments (~R$5.34M) and short-term installment plans (~R$5.18M)
 
 
 ## 3. Product Segmentation by Sales Price Range
@@ -54,6 +59,7 @@ DATA SEGMENTATION
 | South | 1875257.96 | 13043848.60 | 14.38% |
 | Northeast | 1478951.28 | 13043848.60 | 11.34% |
 
+**Key Insights:**: Southeast region contribute the most overall 65.43% followed by South 14.38%
 ---
 
 ## 5. Product Category Sales Contribution
@@ -64,6 +70,8 @@ DATA SEGMENTATION
 | office furniture | 273960.70 | 1260846.23 | 21.73% |
 | drinks | 22428.70 | 1260846.23 | 1.78% |
 | arts and craftmanship | 1814.01 | 1260846.23 | 0.14% |
+
+**Key Insights:** : computers accessories products contribution the most in over sales which 72.33% and followed by office furniture 21.73%
 
 ---===================================
 
@@ -99,7 +107,9 @@ CHANGE OVER TIME
 | 2018-07-01 | 796706.39 | 5593 | 5593 |
 | 2018-08-01 | 828540.84 | 6265 | 6265 |
 
----
+
+**Key Insights:** each monthly revenue by year and total orders and revenue most of revenue come from in the year of 2017 and 2018
+
 
 ## 7. Monthly Sales Trends, Running Totals & Moving Averages
 | purchased_at | total_sales | Running_total | moving_average |
@@ -128,6 +138,7 @@ CHANGE OVER TIME
 | 2018-07-01 | 796706.39 | 6225748.03 | 889392.575714 |
 | 2018-08-01 | 828540.84 | 7054288.87 | 881786.108750 |
 
+**Key Insights:**:each Month by year sales trends running total and moving avg 
 --============================================================
 
 CUMMULATIVE ANALYSIS
@@ -141,6 +152,7 @@ CUMMULATIVE ANALYSIS
 | 2017-01-01 | 43309 | 43577 | 21788 |
 | 2018-01-01 | 51511 | 95088 | 31696 |
 
+**Key Insights:**: year by year number of orders,running orders count ,moving avg count. over sales performance increase over the time
 ---
 
 ## 9. Distance vs. Freight Cost Analysis
@@ -158,7 +170,7 @@ CUMMULATIVE ANALYSIS
 | 450 | 500 | 8798 | 19.338874 | 0.00 | 375.28 |
 | 500 | 550 | 6960 | 18.709063 | 0.00 | 193.78 |
 
-**Note:** We have a total of 68 rows. From the analysis, we found that as distance increases, the average freight cost also generally increases, while the number of orders tends to decrease for longer distances.
+**Note:** We have a total of 68 rows. From the analysis, i found that as distance increases, the average freight cost also generally increases, while the number of orders tends to decrease for longer distances.
 
 --===================
 
@@ -186,6 +198,7 @@ CUMMULATIVE ANALYSIS
 | 2018 | auto | 191035.890000 | 233945.80 | Above the avg | 306391.45 | profit |
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 15 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
+
 ---===========================================
 
 REPORTING CUSTOMER LEVEL
