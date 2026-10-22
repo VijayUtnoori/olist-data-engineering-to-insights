@@ -1,12 +1,3 @@
-##  SQL Data Analysis & Reporting Overview
-
-* **Temporal & Cumulative Trends:** Analyzed monthly revenue changes, running totals, and moving averages.
-* **Logistics & Freight:** Evaluated freight costs across 50km distance brackets.
-* **Sales Performance & YoY:** Compared product category revenues against multi-year averages and tracked year-over-year growth.
-* **Part-to-Whole Analysis:** Calculated percentage revenue contributions for regions and top product categories.
-* **Data Segmentation:** Grouped products into price brackets and analyzed payment behaviors by installment terms.
-* **Customer Reporting & Segmentation:** Built a customer lifetime analytics view incorporating VIP/Regular/New segments, recency, lifespan, AOV, and total spend..
-
 USE Olist_DataWarehouse
 --============================
 --Chnage over time
@@ -20,11 +11,15 @@ SELECT TOP 2 * FROM gold.dim_sellers
 SELECT TOP 2 * FROM gold.dim_geolocation
 
 --Analyze how sales change over year in Olist marketplace and count total order and total customer purchased orders 
+
+--========================================
+--CHANGED CUSTOMER ID TO CUSTOMER UNIQUE ID
+--===================================
 SELECT
 	CAST(DATETRUNC(MONTH,O.purchased_at) AS DATE) AS order_year,
 	SUM(I.price) AS total_revenue,
 	COUNT(DISTINCT(O.order_id)) AS total_orders,
-	COUNT(DISTINCT(C.customer_id)) AS total_customer_orders
+	COUNT(DISTINCT(C.customer_unique_id)) AS total_customer_orders
 FROM gold.fact_orders O
 LEFT JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
@@ -36,30 +31,31 @@ ORDER BY DATETRUNC(MONTH,O.purchased_at)
 --=========================
 --Cumulative analysis
 --=========================
+
 --Calculate the total sales per month and the running total and moving average of sales over time
 SELECT
 	purchased_at,
 	total_sales,
-	SUM(total_sales) OVER(PARTITION BY YEAR(purchased_at) ORDER BY purchased_at ASC) AS Running_total,
-	AVG(total_sales) OVER(PARTITION BY YEAR(purchased_at) ORDER BY purchased_at ASC) AS moving_average
+	SUM(total_sales) OVER(ORDER BY purchased_at ASC) AS Running_total,
+	ROUND(AVG(total_sales) OVER(ORDER BY purchased_at ASC),1) AS moving_average
 FROM(
 SELECT
 	CAST(DATETRUNC(MONTH,O.purchased_at) AS DATE) AS purchased_at,
-	SUM(I.price) AS total_sales,
-	ROW_NUMBER() OVER(ORDER BY SUM(I.price)) AS sales_ranking
+	SUM(I.price) AS total_sales
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
 GROUP BY DATETRUNC(MONTH,O.purchased_at)
 )t
+ORDER BY purchased_at ASC
 
 --Calculate the total orders per year and the running order total and moving average orders over time
 WITH ordercount AS(
 SELECT
-	CAST(DATETRUNC(YEAR,purchased_at)AS DATE)AS order_year,
+	YEAR(purchased_at) AS order_year,
 	COUNT(order_id) AS number_of_orders
 FROM gold.fact_orders
-GROUP BY DATETRUNC(YEAR,purchased_at)
+GROUP BY YEAR(purchased_at)
 )
 SELECT
 	order_year,
@@ -69,26 +65,25 @@ SELECT
 FROM ordercount;
 
 --find the customer to seller distance w.r.t freight cost
-SELECT TOP 2 * FROM gold.vw_order_item_logistics
-SELECT TOP 2 * FROM gold.fact_order_items
 
 
 SELECT 
+--create bins of 50-50
 	FLOOR(L.distance_km/50)*50 AS distance_range_start,
 	(FLOOR(L.distance_km/50)*50)+50 AS distance_range_end,
 	COUNT(I.order_id) AS total_orders,
 	AVG(I.freight_value) AS avg_freight_value,
 	MIN(I.freight_value) AS min_freight_value,
 	MAX(I.freight_value) AS max_freight_value
-FROM gold.fact_order_items I
+FROM gold.fact_orders O
+INNER JOIN gold.fact_order_items I  --make sure that only take the match found
+ON O.order_id=I.order_id
 INNER JOIN gold.vw_order_item_logistics L
 ON I.order_id=L.order_id
 WHERE distance_km IS NOT NULL AND distance_km >0
-GROUP BY FLOOR(L.distance_km/50)*50 
+GROUP BY FLOOR(L.distance_km/50)*50,(FLOOR(L.distance_km/50)*50)+50 --
 ORDER BY distance_range_start ASC
 
-
-SELECT TOP 2 * from gold.dim_date
 
 --===================
 --Performance salaes analysis
@@ -98,13 +93,14 @@ SELECT TOP 2 * from gold.dim_date
 
 WITH yearly_product_sales AS(
 SELECT 
-	YEAR(O.purchased_at)AS Order_year,
+--YEARLY categorization 
+	YEAR(O.purchased_at) AS Order_year,
 	P.product_category,
 	SUM(I.price) AS current_sales
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
-LEFT JOIN gold.dim_products P
+INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
 WHERE product_category IS NOT NULL
 GROUP BY YEAR(O.purchased_at),P.product_category
@@ -160,7 +156,7 @@ SELECT
 	SUM(total_sales) OVER() AS overall_sales,
 	CONCAT(CAST((total_sales/SUM(total_sales) OVER())*100 AS DECIMAL (5,2)), '%') AS contribution
 FROM Region_sales
-ORDER BY contribution DESC
+ORDER BY total_sales DESC
 
 ---Which product category contribute the most in over all sales
 WITH product_sales AS(
@@ -179,13 +175,13 @@ SELECT
 	SUM(total_sales) OVER() AS overall_sales,
 	CONCAT(CAST((total_sales / SUM(total_sales) OVER()) * 100 AS DECIMAL(5,2)), '%') AS contribution
 FROM product_sales
-ORDER BY contribution DESC
+ORDER BY total_sales DESC
 
 --========================
 --Data Segmentation
 --==========================
 
---Segmnet product sales range and count how many product fall in that range
+--Segmnet product sales range and count how many product category fall in that range
 WITH Sales_range AS(
 SELECT 
 P.product_category,
@@ -211,7 +207,7 @@ ORDER BY total_product_count DESC
 
 SELECT DISTINCT(payment_installments) FROM gold.fact_payments
 
-WITH installment_range AS(
+WITH installment_range AS (
 SELECT
 payment_installments,
 price,
@@ -220,17 +216,26 @@ CASE WHEN payment_installments =1 THEN '1-installment'
 	 WHEN payment_installments BETWEEN 7 AND 15 THEN 'medium term installment(7-15)'
 	 ELSE 'long term installment (15 or more)'
 	 END AS installment_bucket
-
-FROM gold.fact_order_items I
+FROM gold.fact_orders O
+INNER JOIN gold.fact_order_items I
+ON O.order_id=I.order_id
 INNER JOIN gold.fact_payments P
 ON I.order_id=P.order_id
-)
+),
+installment_contribution AS(
 SELECT
 installment_bucket,
 COUNT(*) AS total_installment_count,
 SUM(price) AS total_sales
 FROM installment_range
 GROUP BY installment_bucket
+)
+SELECT
+	installment_bucket,
+	total_installment_count,
+	total_sales,
+	CONCAT(CAST((total_sales/SUM(total_sales) OVER())*100 AS DECIMAL(5,2)),'%') AS contribution
+FROM installment_contribution
 ORDER BY total_installment_count DESC;
 
 --===================
@@ -238,7 +243,7 @@ ORDER BY total_installment_count DESC;
 --=================
 
 /*Group customers into three segments based on their spending behavior:
-    - VIP: Customers with at least 12 months of history and spending more than R$1,000.
+    - VIP: Customers with at least 12 months of history and spending more than R$5,00.
     - Regular: Customers with at least 12 months of history but spending R$5,00 or less.
     - New: Customers with a lifespan less than 12 months.
 And find the total number of customers by each group
@@ -298,6 +303,7 @@ Highlights:
 
 WITH Customer_details AS(
 SELECT 
+--Gather all of those details
 	C.customer_unique_id,
 	O.order_id,
 	P.product_id,
