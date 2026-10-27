@@ -310,47 +310,61 @@ BEGIN
 	TRUNCATE TABLE silver.olist_orders;
 	PRINT'>>INSERTING DATA INTO:silver.olist_orders';
 
-    WITH converted_orders AS (
-        SELECT
-            REPLACE(order_id, '"', '') AS order_id,
-            REPLACE(customer_id, '"', '') AS customer_id,
-            LOWER(TRIM(order_status)) AS order_status,
-            CAST(order_purchase_timestamp AS DATETIME2(0)) AS order_purchase_timestamp,--the column is datetime
-            CAST(order_approved_at AS DATETIME2(0)) AS order_approved_at,--the column is datetime
-            CAST(order_delivered_carrier_date AS DATETIME2(0)) AS order_delivered_carrier_date,--the column is datetime
-            CAST(order_delivered_customer_date AS DATETIME2(0)) AS order_delivered_customer_date,--the column is datetime
-            CAST(order_estimated_delivery_date AS DATETIME2(0)) AS order_estimated_delivery_date--the column is DATE
-        FROM Olist_DataWarehouse.bronze.olist_orders)
-    INSERT INTO Olist_DataWarehouse.silver.olist_orders(
-    order_id,
-    customer_id,
-    order_status,
-    order_purchase_timestamp,
-    order_approved_at,
-    order_delivered_carrier_date,
-    order_delivered_customer_date,
-    order_estimated_delivery_date)
-    SELECT
-        order_id,
-        customer_id,
-        order_status,
-        order_purchase_timestamp,
-        order_approved_at,
-        order_delivered_carrier_date,
-        order_delivered_customer_date,
-        order_estimated_delivery_date
-    FROM converted_orders
-    WHERE 
-        -- 1. Ensure none of the mandatory timestamp fields are NULL
-        order_purchase_timestamp IS NOT NULL 
-        AND order_approved_at IS NOT NULL 
-        AND order_delivered_carrier_date IS NOT NULL 
-        AND order_delivered_customer_date IS NOT NULL 
-        AND order_estimated_delivery_date IS NOT NULL
-        -- 2. Validate strict forward timeline sequence(filter dates those are not posible in real)
-        AND order_purchase_timestamp <= order_approved_at
-        AND order_approved_at <= order_delivered_carrier_date
-        AND order_delivered_carrier_date <= order_delivered_customer_date;
+            WITH converted_orders AS (
+                SELECT
+                    REPLACE(TRIM(order_id), '"', '') AS order_id,
+                    REPLACE(TRIM(customer_id), '"', '') AS customer_id,
+                    LOWER(TRIM(order_status)) AS order_status,
+                    CAST(order_purchase_timestamp AS DATETIME2(0))AS order_purchase_timestamp,
+                    CAST(order_approved_at AS DATETIME2(0)) AS order_approved_at,
+                    CAST(order_delivered_carrier_date AS DATETIME2(0))AS order_delivered_carrier_date,
+                    CAST(order_delivered_customer_date AS DATETIME2(0))AS order_delivered_customer_date,
+                    CAST(order_estimated_delivery_date AS DATE)AS order_estimated_delivery_date
+                FROM Olist_DataWarehouse.bronze.olist_orders)
+            INSERT INTO Olist_DataWarehouse.silver.olist_orders (
+                order_id,
+                customer_id,
+                order_status,
+                order_purchase_timestamp,
+                order_approved_at,
+                order_delivered_carrier_date,
+                order_delivered_customer_date,
+                order_estimated_delivery_date)
+            SELECT
+                order_id,
+                customer_id,
+                order_status,
+                order_purchase_timestamp,
+                order_approved_at,
+                order_delivered_carrier_date,
+                order_delivered_customer_date,
+                order_estimated_delivery_date
+            FROM converted_orders
+            WHERE
+                -- 1. Exclude purchase timestamps occurring after approval
+                NOT (
+                    order_purchase_timestamp IS NOT NULL
+                    AND order_approved_at IS NOT NULL
+                    AND order_purchase_timestamp > order_approved_at
+                )
+                -- 2. Exclude approval timestamps occurring after carrier handoff
+                AND NOT (
+                    order_approved_at IS NOT NULL
+                    AND order_delivered_carrier_date IS NOT NULL
+                    AND order_approved_at > order_delivered_carrier_date )
+                -- 3. Exclude carrier handoff timestamps occurring after delivery
+                AND NOT (
+                    order_delivered_carrier_date IS NOT NULL
+                    AND order_delivered_customer_date IS NOT NULL
+                    AND order_delivered_carrier_date > order_delivered_customer_date )
+                -- 4. Delivered orders must have all required lifecycle timestamps
+                AND (
+                    order_status <> 'delivered'
+                    OR (
+                        order_purchase_timestamp IS NOT NULL
+                        AND order_approved_at IS NOT NULL
+                        AND order_delivered_carrier_date IS NOT NULL
+                        AND order_delivered_customer_date IS NOT NULL));
 
          SET @end_time=GETDATE();
 		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
