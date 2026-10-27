@@ -324,42 +324,33 @@ SELECT * FROM gold.dim_date
 
 CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
 SELECT
-    ---three tables are joined (to calculate the distance using cordinate)
+    -- Order and Item Information
     o.order_id,
+    oi.order_item_id,
     o.customer_id,
     oi.product_id,
     oi.seller_id,
+    -- Customer Coordinates
     c.customer_lat,
     c.customer_lng,
+    -- Seller Coordinates
     s.seller_lat,
     s.seller_lng,
-    CASE
-        WHEN c.customer_lat IS NULL
-          OR c.customer_lng IS NULL
-          OR s.seller_lat IS NULL
-          OR s.seller_lng IS NULL
-        THEN NULL
-        ELSE
-            2 * 6371.0 * ASIN(--earth radiar --6371
-                SQRT(
-                    CASE
-                        WHEN h.a > 1 THEN 1  -----Therefore, h.a means column a from the result named h.
-                        WHEN h.a < 0 THEN 0   -----Therefore, h.a means column a from the result named h.
-                        ELSE h.a
-                    END ))
-    END AS distance_km
-
+    -- Distance in Kilometers
+    2 * 6371.0 * ASIN(
+        SQRT(
+            CASE
+                WHEN h.a > 1 THEN 1.0
+                WHEN h.a < 0 THEN 0.0
+                ELSE h.a
+            END)) AS distance_km
 FROM gold.fact_orders AS o
---join with gold.fact_order_items
 INNER JOIN gold.fact_order_items AS oi
     ON o.order_id = oi.order_id
---join with gold.dim_customer
-INNER JOIN gold.dim_customer AS c
+INNER JOIN gold.dim_customers AS c
     ON o.customer_id = c.customer_id
---join with seller dimention table
 INNER JOIN gold.dim_sellers AS s
     ON oi.seller_id = s.seller_id
-
 CROSS APPLY (
     SELECT
         POWER(
@@ -367,8 +358,17 @@ CROSS APPLY (
         + COS(RADIANS(c.customer_lat))
         * COS(RADIANS(s.seller_lat))
         * POWER(
-            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2), 2 ) AS a) AS h;
-
+            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2), 2
+        ) AS a) AS h
+WHERE
+    c.customer_lat IS NOT NULL
+    AND c.customer_lng IS NOT NULL
+    AND s.seller_lat IS NOT NULL
+    AND s.seller_lng IS NOT NULL
+    AND c.customer_lat BETWEEN -90 AND 90
+    AND c.customer_lng BETWEEN -180 AND 180
+    AND s.seller_lat BETWEEN -90 AND 90
+    AND s.seller_lng BETWEEN -180 AND 180;
 
 ==================================================================================================================================================================
                                                            ================================
