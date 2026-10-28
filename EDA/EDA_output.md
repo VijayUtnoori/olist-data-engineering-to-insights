@@ -1,260 +1,246 @@
-# Brazilian E-Commerce Exploratory Data Analysis (EDA) Report
+# Olist Brazilian E-Commerce Analysis Report
 
 ---
 
-## 1. Measures Exploration Report
+### Measures Exploration Report
 
 | Measure_name | Measure_value |
 | :--- | :--- |
-| Total reviews | 98,410.00 |
-| Distinct customers orders | 95,088.00 |
-| Customers orders | 95,088.00 |
-| Total payment value | 16,008,872.12 |
-| Avg payment value | 154.10 |
-| Total customers | 99,441.00 |
-| Total number of sellers | 3,093.00 |
-| Total number of products | 32,940.00 |
+| Avg payment value | 160.99 |
+| Total payment value | 16008872.12 |
+| Total Customer Records | 99441.00 |
+| Total Unique Customers | 96096.00 |
+| Total reviews | 98410.00 |
+| Distinct customers orders | 98036.00 |
+| Total number of sellers | 3093.00 |
+| Total number unique products | 32940.00 |
 | Total number of unique order items | 21.00 |
-| Total sales | 13,591,643.70 |
+| Total sales | 13411726.58 |
 
-* **Key Insight:** Summary of fundamental platform metrics and core exploratory performance values across customers, sellers, orders, products, and overall revenue.
-
----
-
-## 2. Customer Region Distribution
-
-| customer_region | No_of_customers |
-| :--- | :--- |
-| Southeast | 68,266 |
-| South | 14,148 |
-| Northeast | 9,394 |
-| Central-West | 5,782 |
-| North | 1,851 |
-
-* **Key Insight:** Across the 5 geographic regions of Brazil, the vast majority of customers reside in the Southeast region,
-*  whereas the North region registers the smallest customer presence.
+**Key Insights:** These are the core measure names along with their respective measure values.
 
 ---
 
-## 3. Seller Region Distribution
+### Customer Region Distribution
 
-| seller_region | No_of_sellers |
+| customer_region | NumberOfCustomers |
 | :--- | :--- |
-| Southeast | 2,265 |
+| Southeast | 68266 |
+| South | 14148 |
+| Northeast | 9394 |
+| Central-West | 5782 |
+| North | 1851 |
+
+**Key Insights:** There are a total of 5 regions in Brazil. The majority of customers are concentrated in the Southeast, while the North region has the least number of customers.
+
+---
+
+### Review Score Status Breakdown
+
+| score_status | Count_score_status |
+| :--- | :--- |
+| Excellent_score | 56910 |
+| Average_score | 27104 |
+| Low_score | 14396 |
+
+**Key Insights:** Most reviews fall under the excellent score category (ratings 4 and 5). Average scores (rating 3) account for 27,104 reviews, and low scores (ratings 1 and 2) account for 14,396 reviews.
+
+---
+
+### Payment Type Distribution
+
+| payment_type | Count_payment_type |
+| :--- | :--- |
+| credit_card | 76795 |
+| bank_slip | 19784 |
+| voucher | 5775 |
+| debit_card | 1529 |
+| unknown | 3 |
+
+**Key Insights:** Credit cards heavily dominate over other payment types, whereas debit cards represent the least used common payment type.
+
+---
+
+### Payment Value Status Breakdown
+
+| payment_status | Count_payment_status |
+| :--- | :--- |
+| High payment value | 1150 |
+| Medium payment value | 3113 |
+| Low payment value | 99623 |
+
+**Key Insights:** The maximum transactions fall under the low payment value range (0–499), followed by medium payment values (500–999), with high payment values (1000 and above) recording 1,150 transactions.
+
+---
+
+### Order Status Distribution
+
+| order_status | count_of_order_status |
+| :--- | :--- |
+| delivered | 95082 |
+| shipped | 1098 |
+| canceled | 625 |
+| unavailable | 609 |
+| invoiced | 314 |
+| processing | 301 |
+| created | 5 |
+| approved | 2 |
+
+---
+
+### Overall Item Value by Order Item Position
+
+| order_item_id | overall_item_values |
+| :--- | :--- |
+| 1 | 14230791.09 |
+| 2 | 1001841.91 |
+| 3 | 217770.86 |
+| 4 | 91389.89 |
+| 5 | 42616.51 |
+| 6 | 24120.05 |
+| 7 | 6917.92 |
+| 8 | 5148.76 |
+| 9 | 2798.41 |
+| 10 | 2436.39 |
+| 11 | 1318.29 |
+| 12 | 822.36 |
+| 13 | 513.84 |
+| 14 | 476.46 |
+| 15 | 366.26 |
+| 16 | 232.35 |
+| 17 | 232.35 |
+| 18 | 232.35 |
+| 19 | 232.35 |
+| 20 | 232.35 |
+| 21 | 14.37 |
+
+**Key Insights:** Most purchased items correspond to order item ID 1, while ID 21 has the least. *(Note: Item names are not present in this dataset).*
+
+---
+
+### Seller Region Distribution
+
+| seller_region | Number_of_sellers |
+| :--- | :--- |
+| Southeast | 2265 |
 | South | 688 |
 | Central-West | 80 |
 | Northeast | 56 |
 | North | 4 |
 
-* **Key Insight:** Similar to customer distribution, sellers are heavily concentrated in the Southeast region,
-*  while the North region accounts for the lowest number of active sellers.
+**Key Insights:** There are 5 regions across Brazil; most sellers originate from the Southeast while the North region has the fewest.
 
 ---
 
-## 4. Top 10 Product Categories by Volume
-
-| product_category | No_of_categorys |
-| :--- | :--- |
-| bed bath table | 3,025 |
-| sports leisure | 2,867 |
-| furniture decor | 2,653 |
-| health beauty | 2,444 |
-| housewares | 2,335 |
-| auto | 1,900 |
-| computers accessories | 1,639 |
-| toys | 1,411 |
-| watches gifts | 1,329 |
-| telephony | 1,134 |
-
-* **Key Insight:** Out of 72 distinct product categories present in the dataset, the catalog is led by "bed bath table",
-*  followed closely by sports/leisure and furniture/decor.
-
----
-
-## 5. Review Score Status Breakdown
-
-| score_status | Count_score_status |
-| :--- | :--- |
-| Excellent_score | 56,910 |
-| Average_score | 27,104 |
-| Low_score | 14,396 |
-
-* **Key Insight:** The majority of customer reviews fall under "Excellent_score" (ratings of 4 and 5).
-*  "Average_score" (rating 3) stands at 27,104, while "Low_score" (ratings 1 and 2) accounts for 14,396 reviews.
-
----
-
-## 6. Payment Type Distribution
-
-| payment_type | Count_payment_type |
-| :--- | :--- |
-| credit_card | 76,795 |
-| bank_slip | 19,784 |
-| voucher | 5,775 |
-| debit_card | 1,529 |
-| unknown | 3 |
-
-* **Key Insight:** Credit card is overwhelmingly the dominant payment method chosen by customers,
-*  whereas debit card accounts for the lowest usage among defined payment modes.
-
----
-
-## 7. Payment Value Status Breakdown
-
-| payment_status | Count_payment_status |
-| :--- | :--- |
-| High payment value | 1,150 |
-| Medium payment value | 3,113 |
-| Low payment value | 99,623 |
-
-* **Key Insight:** The highest transaction volume belongs to the low payment value tier (range 0–499 BRL).
-*  Medium payment values (500–999 BRL) follow next, while high payment values (1,000 BRL and above) represent 1,150 transactions.
-
----
-
-## 8. Product Size Category Distribution
-
-| product_size_category | count_of_products |
-| :--- | :--- |
-| Bulky | 144 |
-| Large | 1,762 |
-| Medium | 2,291 |
-| Small | 28,743 |
-
-* **Key Insight:** Most products fall into the "Small" size category (below 5 kg).
-*  Medium covers 5 kg–9 kg, Large covers 10 kg–29 kg, and Bulky accounts for items exceeding 30 kg.
-
----
-
-## 9. Overall Item Value by Order Item Position
-
-| order_item_id | overall_item_values |
-| :--- | :--- |
-| 1 | 14,421,639.62 |
-| 2 | 1,019,452.73 |
-| 3 | 220,089.96 |
-| 4 | 92,629.73 |
-| 5 | 43,285.96 |
-| 6 | 24,453.51 |
-| 7 | 6,944.84 |
-| 8 | 5,148.76 |
-| 9 | 2,798.41 |
-| 10 | 2,436.39 |
-| 11 | 1,318.29 |
-| 12 | 822.36 |
-| 13 | 513.84 |
-| 14 | 476.46 |
-| 15 | 366.26 |
-| 18 | 232.35 |
-| 19 | 232.35 |
-| 16 | 232.35 |
-| 17 | 232.35 |
-| 20 | 232.35 |
-| 21 | 14.37 |
-
-* **Key Insight:** Primary items (`order_item_id = 1`) generate the vast majority of overall monetary value,
-*  while higher item positions occur with decreasing frequency. *(Note: Product names are not present in this table).*
-
----
-
-## 10. Order Status Distribution
-
-| order_status | count_of_order_status |
-| :--- | :--- |
-| delivered | 95,082 |
-| canceled | 6 |
-
-* **Key Insight:** Nearly all recorded orders were successfully delivered, reflecting high fulfillment efficiency and customer satisfaction with order completion.
-
----
-
-## 11. Customer Region Total Spend
+### Customer Region Total Spend
 
 | customer_region | overall_item_value |
 | :--- | :--- |
-| Southeast | 9,829,195.28 |
-| South | 2,205,956.64 |
-| Northeast | 1,799,726.43 |
-| Central-West | 976,242.37 |
-| North | 398,138.24 |
+| Southeast | 10097773.38 |
+| South | 2264330.47 |
+| Northeast | 1857982.65 |
+| Central-West | 1003227.05 |
+| North | 407191.55 |
 
-* **Key Insight:** Overall item value (which combines product price and freight costs) is highest in the Southeast region,
-*  aligning with its dominant customer volume.
+**Key Insights:** Overall item value combines price and freight cost. The highest spending is generated in the Southeast region.
 
 ---
 
-## 12. State-Wise Gross Sales Breakdown
+### State-Wise Gross Sales Breakdown
 
-| customer_state | customer_region | Total_sales |
+| customer_state | customer_region | Total_price |
 | :--- | :--- | :--- |
-| Sao Paulo | Southeast | 4,996,838.54 |
-| Rio de Janeiro | Southeast | 1,740,821.16 |
-| Minas Gerais | Southeast | 1,532,078.34 |
-| Rio Grande do Sul | South | 718,754.98 |
-| Parana | South | 655,145.53 |
-| Santa Catarina | South | 501,357.45 |
-| Bahia | Northeast | 488,132.80 |
-| Federal District | Central-West | 289,626.14 |
-| Goias | Central-West | 277,292.36 |
-| Espirito Santo | Southeast | 265,020.26 |
-| Pernambuco | Northeast | 249,976.42 |
-| Ceara | Northeast | 215,273.85 |
-| Para | North | 173,501.74 |
-| Mato Grosso | Central-West | 149,022.31 |
-| Maranhao | Northeast | 115,854.56 |
-| Mato Grosso do Sul | Central-West | 114,265.42 |
-| Paraiba | Northeast | 110,546.63 |
-| Piaui | Northeast | 83,818.32 |
-| Rio Grande do Norte | Northeast | 81,301.67 |
-| Alagoas | Northeast | 78,330.74 |
-| Sergipe | Northeast | 55,716.29 |
-| Tocantins | North | 47,962.23 |
-| Rondonia | North | 45,522.76 |
-| Amazonas | North | 22,079.84 |
-| Acre | North | 15,524.98 |
-| Amapa | North | 13,374.81 |
-| Roraima | North | 6,708.47 |
+| Sao Paulo | Southeast | 5131750.85 |
+| Rio de Janeiro | Southeast | 1804719.42 |
+| Minas Gerais | Southeast | 1563975.55 |
+| Rio Grande do Sul | South | 740040.54 |
+| Parana | South | 672165.78 |
+| Santa Catarina | South | 514763.66 |
+| Bahia | Northeast | 505898.65 |
+| Federal District | Central-West | 295731.67 |
+| Goias | Central-West | 288917.84 |
+| Espirito Santo | Southeast | 271414.12 |
+| Pernambuco | Northeast | 260874.96 |
+| Ceara | Northeast | 222771.18 |
+| Para | North | 177978.96 |
+| Mato Grosso | Central-West | 153284.22 |
+| Maranhao | Northeast | 118493.40 |
+| Mato Grosso do Sul | Central-West | 115648.09 |
+| Paraiba | Northeast | 113227.89 |
+| Piaui | Northeast | 86011.40 |
+| Rio Grande do Norte | Northeast | 82230.99 |
+| Alagoas | Northeast | 79789.83 |
+| Sergipe | Northeast | 58062.95 |
+| Tocantins | North | 49181.46 |
+| Rondonia | North | 45980.64 |
+| Amazonas | North | 22280.84 |
+| Acre | North | 15576.96 |
+| Amapa | North | 13474.30 |
+| Roraima | North | 7480.43 |
 
-* **Key Insight:** São Paulo ranks #1 among all Brazilian states by total sales revenue, whereas Roraima generates the lowest overall revenue.
+**Key Insights:** Sao Paulo ranks 1st in total sales across Brazil, while Roraima records the lowest.
 
 ---
 
-## 13. Lowest 5 Product Categories by Revenue
+### TOP 5 Products by Revenue
 
-| product_category | total_price |
+| product_id | product_category_name | total_price |
+| :--- | :--- | :--- |
+| bb50f2e236e5eea0100680137654686c | health_beauty | 63225.00 |
+| 6cdd53843498f92890544667809f1595 | health_beauty | 54002.20 |
+| d6160fb7873f184099d9bc95e30376af | computers | 48899.34 |
+| d1c427060a0f73f6b889a5c7c61f2ac4 | computers_accessories | 46039.56 |
+| 99a4788cb24856965c36a24e339b6058 | bed_bath_table | 42626.06 |
+
+**Key Insights:** Top 5 individual products ranked by category revenue from top to bottom.
+
+---
+
+### Lowest 5 Product Categories by Revenue
+
+| product_category_name | total_price |
 | :--- | :--- |
-| security and services | 283.29 |
-| fashion childrens clothes | 569.85 |
-| cds dvds musicals | 730.00 |
-| home comfort 2 | 760.27 |
-| flowers | 1,110.04 |
+| security_and_services | 283.29 |
+| fashion_childrens_clothes | 569.85 |
+| cds_dvds_musicals | 730.00 |
+| home_comfort_2 | 760.27 |
+| flowers | 1110.04 |
 
-* **Key Insight:** These 5 categories generate the lowest cumulative revenue across the platform (bottom to top).
+**Key Insights:** The lowest-performing product categories by total revenue.
 
 ---
 
-## 14. Top 3 Highest Spending Customers
+### Customer Total Revenue by Region
+
+| customer_region | total_revenue |
+| :--- | :--- |
+| Southeast | 8771859.94 |
+| South | 1926969.98 |
+| Northeast | 1527361.25 |
+
+**Key Insights:** The Southeast customer region generates the highest total revenue.
+
+---
+
+### Top 2 Orders per Customer State
+
+| customer_state | order_total | ranking |
+| :--- | :--- | :--- |
+| Acre | 1200.00 | 1 |
+| Acre | 961.60 | 2 |
+| Alagoas | 2159.98 | 1 |
+| Alagoas | 1798.00 | 2 |
+
+**Key Insights:** Displays the top 2 order totals from selected states out of the 27 total states.
+
+---
+
+### Top 3 Highest Spending Customers
 
 | customer_id | customer_state | Total_sales |
 | :--- | :--- | :--- |
-| 1617b1357756262bfa56ab541c47bc... | Rio de Janeiro | 13,440.00 |
-| ec5b2ba62e574342386871631fafd3fc | Espirito Santo | 7,160.00 |
-| c6e2731c5b391845f6800c97401a43... | Mato Grosso ... | 6,735.00 |
+| 1617b1357756262bfa56ab541c47bc... | Rio de Janeiro | 13440.00 |
+| ec5b2ba62e574342386871631fafd3fc | Espirito Santo | 7160.00 |
+| c6e2731c5b391845f6800c97401a43... | Mato Grosso | 6735.00 |
 
-* **Key Insight:** Out of the top spending individual customers, the single highest total order value belongs to a customer in Rio de Janeiro.
-
----
-
-## 15. Top 2 Orders per Customer State
-
-| customer_state | orders_total | ranking |
-| :--- | :--- | :--- |
-| Acre | 1,200.00 | 1 |
-| Acre | 961.60 | 2 |
-| Alagoas | 2,159.98 | 1 |
-| Alagoas | 1,798.00 | 2 |
-| Amapa | 1,437.00 | 1 |
-| Amapa | 1,358.24 | 2 |
-| Amazonas | 1,688.00 | 1 |
-
-* **Key Insight:** Top 2 individual order totals calculated per state across all 27 Brazilian states (sample of 4 states shown above).
+**Key Insights:** Top spending customers with Rio de Janeiro leading the top state in this segment.
