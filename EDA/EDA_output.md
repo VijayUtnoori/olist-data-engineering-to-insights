@@ -3,7 +3,9 @@
 ---
 
 --===============================
+
 --MEASURES EXPLORATION REPORT
+
 --================================
 
 | Measure_name | Measure_value |
@@ -26,7 +28,9 @@
 ---
 
 --=================================================
+
 --Magnitude analysis 
+
 --==================================================
 
 ### Customer Region Distribution
@@ -192,7 +196,9 @@
 ---
 
 ---=======================================
+
 Ranking
+
 --=====================================
 
 **Key Insights:** Top 5 individual products ranked by category revenue from top to bottom.
