@@ -185,15 +185,9 @@
 
 ---
 
-### TOP 5 Products by Revenue
-
-| product_id | product_category_name | total_price |
-| :--- | :--- | :--- |
-| bb50f2e236e5eea0100680137654686c | health_beauty | 63225.00 |
-| 6cdd53843498f92890544667809f1595 | health_beauty | 54002.20 |
-| d6160fb7873f184099d9bc95e30376af | computers | 48899.34 |
-| d1c427060a0f73f6b889a5c7c61f2ac4 | computers_accessories | 46039.56 |
-| 99a4788cb24856965c36a24e339b6058 | bed_bath_table | 42626.06 |
+---=======================================
+Ranking
+--=====================================
 
 **Key Insights:** Top 5 individual products ranked by category revenue from top to bottom.
 
@@ -201,13 +195,13 @@
 
 ### Lowest 5 Product Categories by Revenue
 
-| product_category_name | total_price |
-| :--- | :--- |
-| security_and_services | 283.29 |
-| fashion_childrens_clothes | 569.85 |
-| cds_dvds_musicals | 730.00 |
-| home_comfort_2 | 760.27 |
-| flowers | 1110.04 |
+| product_category_name | total_price | TotalValueIncludingFreight |
+| :--- | :--- | :--- |
+| security_and_services | 283.29 | 324.51 |
+| fashion_childrens_clothing | 569.85 | 665.36 |
+| cds_dvds_musicals | 730.00 | 954.99 |
+| home_comfort_2 | 760.27 | 1170.58 |
+| flowers | 1110.04 | 1598.91 |
 
 **Key Insights:** The lowest-performing product categories by total revenue.
 
@@ -215,11 +209,11 @@
 
 ### Customer Total Revenue by Region
 
-| customer_region | total_revenue |
-| :--- | :--- |
-| Southeast | 8771859.94 |
-| South | 1926969.98 |
-| Northeast | 1527361.25 |
+| customer_region | total_revenue | TotalValueIncludingFreight |
+| :--- | :--- | :--- |
+| Southeast | 8771859.94 | 10097773.38 |
+| South | 1926969.98 | 2264330.47 |
+| Northeast | 1527361.25 | 1857982.65 |
 
 **Key Insights:** The Southeast customer region generates the highest total revenue.
 
@@ -238,12 +232,13 @@
 
 ---
 
-### Top 3 Highest Spending Customers
 
-| customer_id | customer_state | Total_sales |
-| :--- | :--- | :--- |
-| 1617b1357756262bfa56ab541c47bc... | Rio de Janeiro | 13440.00 |
-| ec5b2ba62e574342386871631fafd3fc | Espirito Santo | 7160.00 |
-| c6e2731c5b391845f6800c97401a43... | Mato Grosso | 6735.00 |
+### Top Customers by Sales & Freight Value
+
+| customer_id | customer_state | TotalSaleswithout_FreightCost | TotalValueIncludingFreight |
+| :--- | :--- | :--- | :--- |
+| 1617b1357756262bfa56ab541c47bc16 | Rio de Janeiro | 13440.00 | 13664.08 |
+| ec5b2ba62e574342386871631fafd3fc | Espirito Santo | 7160.00 | 7274.88 |
+| c6e2731c5b391845f6800c97401a43a9 | Mato Grosso do Sul | 6735.00 | 6929.31 |
 
 **Key Insights:** Top spending customers with Rio de Janeiro leading the top state in this segment.
