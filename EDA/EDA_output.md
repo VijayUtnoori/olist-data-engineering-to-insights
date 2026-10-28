@@ -43,7 +43,7 @@
 | Average_score | 27104 |
 | Low_score | 14396 |
 
-**Key Insights:** Most reviews fall under the excellent score category (ratings 4 and 5). Average scores (rating 3) account for 27,104 reviews, and low scores (ratings 1 and 2) account for 14,396 reviews.
+**Key Insights:** Most reviews fall under the excellent score category (ratings 5). Average scores (rating 4 and 3) account for 27,104 reviews, and low scores (ratings 1 and 2) account for 14,396 reviews.
 
 ---
 
@@ -114,7 +114,7 @@
 | 20 | 232.35 |
 | 21 | 14.37 |
 
-**Key Insights:** Most purchased items correspond to order item ID 1, while ID 21 has the least. *(Note: Item names are not present in this dataset).*
+**Key Insights:** Most purchased items correspond to order item ID 1, while ID 21 has the least. *(Note: Item names is not avaliable).*
 
 ---
 
