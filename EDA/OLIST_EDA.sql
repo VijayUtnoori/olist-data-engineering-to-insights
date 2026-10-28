@@ -6,7 +6,8 @@
 * **Core Measures:** Consolidated executive KPIs (reviews, order volumes, revenue totals, and active entity counts).
 * **Magnitude Analysis:** Evaluated volume distributions across review scores, payment tiers, order statuses, and regional spend.
 * **Rankings (Top-N):** Extracted top-performing products, revenue-driving regions, and state-level top orders using window functions (`ROW_NUMBER`).
---========================================================================================
+USE Olist_DataWarehouse
+--========================
 --DATA BASE EXPLORATION
 --=======================
 --Explore all object in the database
@@ -25,7 +26,7 @@ USE Olist_DataWarehouse
 SELECT DISTINCT customer_state FROM gold.dim_customers
 
 --explore all product categorys 
-SELECT DISTINCT product_category FROM gold.dim_products
+SELECT DISTINCT product_category_name FROM gold.dim_products
 
 --explore all payment types 
 SELECT DISTINCT payment_type FROM gold.fact_payments
@@ -42,7 +43,8 @@ GROUP BY seller_region
 ORDER BY No_of_sellers DESC
 
 --Number of categorys analysis
-SELECT product_category_name,COUNT(product_category_name) AS No_of_categorys FROM gold.dim_products 
+
+SELECT TOP 10 product_category_name,COUNT(product_category_name) AS No_of_categorys FROM gold.dim_products 
 GROUP BY product_category_name
 ORDER BY No_of_categorys DESC 
 
@@ -73,32 +75,45 @@ SELECT
 FROM gold.fact_orders;
 
 
+
 --===============================
 --MEASURES EXPLORATION REPORT
 --================================
+WITH orders AS(
+SELECT order_id,SUM(payment_value) AS total_payment_value 
+FROM gold.fact_payments
+GROUP BY order_id)
+SELECT
+'Avg payment value'AS Measure_name ,AVG(total_payment_value) AS Measure_value
+FROM orders
+UNION ALL
+SELECT 'Total payment value'AS Measure_name,SUM(payment_value) AS Measure_value FROM gold.fact_payments
+UNION ALL
+SELECT 'Total Customer Records'AS Measure_name,COUNT(customer_id) AS Measure_value FROM gold.dim_customers
+UNION ALL
+SELECT 'Total Unique Customers' AS Measure_name ,COUNT(DISTINCT(customer_unique_id)) AS measure_name 
+FROM gold.dim_customers
+UNION ALL
 SELECT 'Total reviews' AS Measure_name, COUNT(review_id) AS Measure_value  FROM gold.fact_reviews
 UNION ALL
 SELECT 'Distinct customers orders'AS Measure_name,COUNT(DISTINCT(customer_id)) AS Measure_value FROM gold.fact_orders
 UNION ALL
-SELECT 'Customers orders' AS Measure_name ,COUNT(order_id) AS measure_name 
-FROM gold.fact_orders
-UNION ALL
-SELECT 'Total payment value'AS Measure_name,SUM(payment_value) AS Measure_value FROM gold.fact_payments
-UNION ALL
-SELECT 'Avg payment value' AS Measure_name,AVG(payment_value) AS measure_name 
-FROM gold.fact_payments
-UNION ALL
-SELECT 'Total customers'AS Measure_name,COUNT(customer_id) AS Measure_value FROM gold.dim_customers
-UNION ALL
-SELECT 'Total number of sellers' AS Measure_name,COUNT(seller_id) AS measure_name 
+SELECT 'Total number of sellers' AS Measure_name,COUNT(seller_id) AS measure_value
 FROM gold.dim_sellers
 UNION ALL
-SELECT 'Total number of products'AS Measure_name,COUNT(product_id) AS Measure_value FROM gold.dim_products
+SELECT 'Total number unique products'AS Measure_name,COUNT(DISTINCT(product_id)) AS Measure_value FROM gold.dim_products
 UNION ALL
 SELECT 'Total number of unique order items' AS Measure_name,COUNT(DISTINCT(order_item_id)) AS measure_name 
-FROM gold.fact_order_items;
-
-
+FROM gold.fact_order_items
+UNION ALL
+SELECT 'Total sales' AS Measure_name,SUM(price) AS measure_name 
+FROM gold.fact_order_items
+UNION ALL
+SELECT 'Total Value Including Freight Charges' AS Measure_name,SUM(total_item_value) AS measure_name 
+FROM gold.fact_order_items
+UNION ALL
+SELECT 'Total Freight Charges' AS Measure_name,SUM(freight_value) AS measure_name 
+FROM gold.fact_order_items
 
 --=================================================
 --Magnitude analysis 
@@ -140,26 +155,26 @@ ORDER BY Count_payment_status ASC
 --Overall_item_value by each order_item
 SELECT 
 	order_item_id,
-	SUM(total_item_value) AS overall_item_values
+	SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items
 GROUP BY order_item_id
-ORDER BY overall_item_values DESC
+ORDER BY TotalValueIncludingFreight DESC
 
 --Count total order status
 SELECT
 	order_status,
 	COUNT(order_status) AS count_of_order_status
 FROM gold.fact_orders
-GROUP BY order_status;
+GROUP BY order_status
+ORDER BY count_of_order_status DESC 
 
-
---Total overall_item_values by order_item
 SELECT 
-	order_item_id,
-	SUM(total_item_value) AS overall_item_values
-FROM gold.fact_order_items
-GROUP BY order_item_id
-ORDER BY overall_item_values DESC
+product_size_category,
+COUNT(product_size_category) AS product_size_category
+FROM gold.dim_products
+GROUP BY product_size_category
+
+SELECT TOP 2 * FROM gold.fact_orders
 
 
 --total number of sellers by seller region
@@ -176,7 +191,7 @@ SELECT
 	C.customer_region,
 	SUM(I.total_item_value) AS overall_item_value
 FROM gold.fact_order_items I
-LEFT JOIN gold.fact_orders O
+INNER JOIN gold.fact_orders O
 ON I.order_id=O.order_id
 INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
@@ -187,54 +202,60 @@ ORDER BY overall_item_value DESC
 SELECT 
 	C.customer_state,
 	C.customer_region,
-	SUM(I.price) AS Total_price
+	SUM(I.price) AS Total_price,
+    SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items I
-LEFT JOIN gold.fact_orders O
+INNER JOIN gold.fact_orders O
 ON I.order_id=O.order_id
 INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
 GROUP BY C.customer_state,C.customer_region
-ORDER BY Total_price DESC
+ORDER BY TotalValueIncludingFreight DESC
 
 
 --=======================================================
 --Ranking analysis Top N bottom N 
 --===========================================
 --Top 5 product which generate the highest revenue
-
+SELECT TOP 2 * FROM gold.dim_products
 SELECT TOP 5
 P.product_id,
-P.product_category,
-SUM(O.price) AS total_price
+P.product_category_name,
+SUM(O.price) AS total_price,
+SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items O
 LEFT JOIN gold.dim_products P
 ON O.product_id=P.product_id
-GROUP BY P.product_id,P.product_category
+GROUP BY P.product_id,P.product_category_name
 ORDER BY total_price DESC
 
 
 --Top 5 worst product which generate the highest revenue
 SELECT TOP 5
-P.product_category,
-SUM(O.price) AS total_price
+P.product_category_name,
+SUM(O.price) AS total_price,
+SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items O
 LEFT JOIN gold.dim_products P
 ON O.product_id=P.product_id
-GROUP BY P.product_category
+GROUP BY P.product_category_name
 ORDER BY total_price ASC
 
---TOP 3 customer_rigions which generate the highest revenue
+-- Top 3 customer regions generating the highest revenue
+
 SELECT TOP 3
-	C.customer_id,
-	C.customer_state,
-	SUM(I.price) AS Total_price
-FROM gold.fact_order_items I
-INNER JOIN gold.fact_orders O
-ON I.order_id=O.order_id
-LEFT JOIN gold.dim_customers C
-ON O.customer_id=C.customer_id
-GROUP BY C.customer_id,C.customer_state
-ORDER BY Total_price DESC
+    C.customer_region,
+    SUM(I.price) AS total_revenue,
+    SUM(total_item_value) AS TotalValueIncludingFreight
+FROM gold.fact_order_items AS I
+INNER JOIN gold.fact_orders AS O
+    ON I.order_id = O.order_id
+INNER JOIN gold.dim_customers AS C
+    ON O.customer_id = C.customer_id
+GROUP BY
+    C.customer_region
+ORDER BY
+    total_revenue DESC;
 
 --TOP 2 orders with in the customer state 
 
@@ -243,10 +264,11 @@ WITH OrderTotals AS (
 		O.order_id,
         C.customer_state,
         SUM(I.price) AS order_total
+    
     FROM gold.fact_order_items I
     INNER JOIN gold.fact_orders O 
         ON I.order_id = O.order_id
-    LEFT JOIN gold.dim_customers C 
+    INNER JOIN gold.dim_customers C 
         ON O.customer_id = C.customer_id
     GROUP BY
 		O.order_id,
@@ -260,6 +282,24 @@ RankedOrders AS (
 SELECT *
 FROM RankedOrders
 WHERE ranking <= 2;
+
+--top 3 customers by spending 
+SELECT TOP 3
+    C.customer_id,    C.customer_state,
+    SUM(price) AS TotalSaleswithout_FreightCost,
+    SUM(total_item_value) AS TotalValueIncludingFreight
+FROM gold.fact_order_items AS I
+INNER JOIN gold.fact_orders AS O
+    ON I.order_id = O.order_id
+INNER JOIN gold.dim_customers AS C
+    ON O.customer_id = C.customer_id
+GROUP BY
+    C.customer_id,
+    C.customer_state
+ORDER BY
+    TotalSaleswithout_FreightCost DESC;
+
+
 
 
 
