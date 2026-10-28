@@ -16,6 +16,8 @@
 | Total number unique products | 32940.00 |
 | Total number of unique order items | 21.00 |
 | Total sales | 13411726.58 |
+| Total Value Including Freight Charges | 15630505.12 |
+| Total Freight Charges | 2218778.54 |
 
 **Key Insights:** These are the core measure names along with their respective measure values.
 
