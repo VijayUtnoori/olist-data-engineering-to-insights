@@ -2,7 +2,9 @@
 
 ---
 
-### Measures Exploration Report
+--===============================
+--MEASURES EXPLORATION REPORT
+--================================
 
 | Measure_name | Measure_value |
 | :--- | :--- |
@@ -22,6 +24,10 @@
 **Key Insights:** These are the core measure names along with their respective measure values.
 
 ---
+
+--=================================================
+--Magnitude analysis 
+--==================================================
 
 ### Customer Region Distribution
 
