@@ -190,26 +190,24 @@ CUMMULATIVE ANALYSIS
 
 --====================
 
-## 10. Yearly Product Category Performance vs. Historical Averages
-| Order_year | product_category | avg_sales | previous_sales | avg_sales_status | diff_previous_year | previous_sales_status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 2017 | agro industry and commerce | 35076.550000 | NULL | Below the avg | 1998.99 | N/A |
-| 2018 | agro industry and commerce | 35076.550000 | 29179.20 | Above the avg | 26491.91 | profit |
-| 2016 | air conditioning | 17571.886666 | NULL | Below the avg | NULL | N/A |
-| 2017 | air conditioning | 17571.886666 | 1349.29 | Above the avg | 9727.54 | profit |
-| 2018 | air conditioning | 17571.886666 | 27180.21 | Above the avg | -16787.74 | loss |
-| 2017 | art | 11731.665000 | NULL | Below the avg | -20197.86 | N/A |
-| 2018 | art | 11731.665000 | 8981.34 | Above the avg | 12835.86 | profit |
-| 2017 | arts and craftmanship | 899.010000 | NULL | Below the avg | -8829.45 | N/A |
-| 2018 | arts and craftmanship | 899.010000 | 151.89 | Above the avg | 1494.24 | profit |
-| 2016 | audio | 16417.273333 | NULL | Below the avg | -1192.30 | N/A |
-| 2017 | audio | 16417.273333 | 156.99 | Above the avg | -216493.13 | profit |
-| 2018 | audio | 16417.273333 | 17452.67 | Above the avg | 7456.00 | profit |
-| 2016 | auto | 191035.890000 | NULL | Below the avg | 971.27 | N/A |
-| 2017 | auto | 191035.890000 | 1128.26 | Above the avg | 87573.92 | profit |
-| 2018 | auto | 191035.890000 | 233945.80 | Above the avg | 306391.45 | profit |
+### 10 Product Category Yearly Sales & Performance Comparison Report
 
-**Note:** There are a total of 170+ rows, and we are showcasing a sample of 15 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
+| Order_year | product_category_name | avg_sales | previous_sales | avg_sales_status | diff_previous_year | previous_sales_status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 2017 | agro_industry_and_commerce | 36058.735000 | NULL | Below the avg | 1015.19 | N/A |
+| 2018 | agro_industry_and_commerce | 36058.735000 | 29179.20 | Above the avg | 28221.39 | profit |
+| 2016 | air_conditioning | 18139.020000 | NULL | Below the avg | NULL | N/A |
+| 2017 | air_conditioning | 18139.020000 | 1707.09 | Above the avg | 10593.44 | profit |
+| 2018 | air_conditioning | 18139.020000 | 28164.01 | Above the avg | -18392.31 | loss |
+| 2017 | art | 12004.335000 | NULL | Below the avg | -19887.41 | N/A |
+| 2018 | art | 12004.335000 | 9291.79 | Above the avg | 13070.75 | profit |
+| 2017 | arts_and_craftmanship | 899.010000 | NULL | Below the avg | -9139.90 | N/A |
+| 2018 | arts_and_craftmanship | 899.010000 | 151.89 | Above the avg | 1494.24 | profit |
+| 2016 | audio | 16456.573333 | NULL | Below the avg | -1550.10 | N/A |
+| 2017 | audio | 16456.573333 | 156.99 | Above the avg | -225080.85 | profit |
+| 2018 | audio | 16456.573333 | 17570.57 | Above the avg | 7096.20 | profit |
+
+**Note:** There are a total of 170+ rows, and we are showcasing a sample of 12 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
 
 ---===========================================
 
