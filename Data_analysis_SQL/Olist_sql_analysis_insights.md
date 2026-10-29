@@ -151,12 +151,13 @@ CUMMULATIVE ANALYSIS
 
 --==========================================================
 
-## 8. Yearly Order Growth & Cumulative Orders
+### 8. Yearly Orders Running Total & Moving Average Report[cite: 10]
+
 | order_year | number_of_orders | running_orders | moving_avg_orders |
 | :--- | :--- | :--- | :--- |
-| 2016-01-01 | 268 | 268 | 268 |
-| 2017-01-01 | 43309 | 43577 | 21788 |
-| 2018-01-01 | 51511 | 95088 | 31696 |
+| 2016 | 325 | 325 | 325 |
+| 2017 | 44981 | 45306 | 22653 |
+| 2018 | 52730 | 98036 | 32678 |
 
 **Key Insights:**: year by year number of orders,running orders count ,moving avg count. over sales performance increase over the time
 ---
