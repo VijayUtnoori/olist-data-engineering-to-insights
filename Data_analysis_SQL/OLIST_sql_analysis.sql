@@ -12,16 +12,13 @@ SELECT TOP 2 * FROM gold.dim_geolocation
 
 --Analyze how sales change over year in Olist marketplace and count total order and total customer purchased orders 
 
---========================================
---CHANGED CUSTOMER ID TO CUSTOMER UNIQUE ID
---===================================
 SELECT
 	CAST(DATETRUNC(MONTH,O.purchased_at) AS DATE) AS order_year,
 	SUM(I.price) AS total_revenue,
 	COUNT(DISTINCT(O.order_id)) AS total_orders,
 	COUNT(DISTINCT(C.customer_unique_id)) AS total_customer_orders
 FROM gold.fact_orders O
-LEFT JOIN gold.fact_order_items I
+INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
 INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
@@ -31,7 +28,6 @@ ORDER BY DATETRUNC(MONTH,O.purchased_at)
 --=========================
 --Cumulative analysis
 --=========================
-
 --Calculate the total sales per month and the running total and moving average of sales over time
 SELECT
 	purchased_at,
@@ -95,28 +91,26 @@ WITH yearly_product_sales AS(
 SELECT 
 --YEARLY categorization 
 	YEAR(O.purchased_at) AS Order_year,
-	P.product_category,
+	P.product_category_name,
 	SUM(I.price) AS current_sales
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-WHERE product_category IS NOT NULL
-GROUP BY YEAR(O.purchased_at),P.product_category
-),
+WHERE product_category_name IS NOT NULL
+GROUP BY YEAR(O.purchased_at),P.product_category_name),
 calculated_metrics AS(
 SELECT 
 	Order_year,
-	product_category,
+	product_category_name,
 	current_sales,
-	AVG(current_sales) OVER(PARTITION BY product_category) AS avg_sales,
-	LAG(current_sales) OVER(PARTITION BY product_category ORDER BY Order_year) AS previous_sales
-FROM yearly_product_sales
-)
+	AVG(current_sales) OVER(PARTITION BY product_category_name) AS avg_sales,
+	LAG(current_sales) OVER(PARTITION BY product_category_name ORDER BY Order_year) AS previous_sales
+FROM yearly_product_sales)
 SELECT
 	Order_year,
-	product_category,
+	product_category_name,
 	avg_sales,
 	previous_sales,
 	CASE 
@@ -132,7 +126,7 @@ SELECT
 		 ELSE 'no change'
 		 END AS previous_sales_status
 FROM calculated_metrics
-ORDER BY product_category,Order_year
+ORDER BY product_category_name,Order_year
 
 --====================
 --Part to whole analysis
@@ -146,7 +140,7 @@ SELECT
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
-LEFT JOIN gold.dim_customers C
+INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
 GROUP BY customer_region
 )
@@ -162,15 +156,15 @@ ORDER BY total_sales DESC
 WITH product_sales AS(
 SELECT
     TOP 5
-	P.product_category,
+	P.product_category_name,
 	SUM(I.price) AS total_sales
 FROM gold.fact_order_items I
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-GROUP BY P.product_category 
+GROUP BY P.product_category_name 
 )
 SELECT 
-	product_category,
+	product_category_name,
 	total_sales,
 	SUM(total_sales) OVER() AS overall_sales,
 	CONCAT(CAST((total_sales / SUM(total_sales) OVER()) * 100 AS DECIMAL(5,2)), '%') AS contribution
@@ -184,7 +178,7 @@ ORDER BY total_sales DESC
 --Segmnet product sales range and count how many product category fall in that range
 WITH Sales_range AS(
 SELECT 
-P.product_category,
+P.product_category_name,
 CASE 
 	 WHEN I.price<100 THEN 'Below 100'
      WHEN I.price BETWEEN 100 AND 200 THEN '100-200'
@@ -198,7 +192,7 @@ ON I.product_id=P.product_id
 )
 SELECT 
 sales_range,
-COUNT(product_category) AS total_product_count
+COUNT(product_category_name) AS total_product_count
 FROM Sales_range
 GROUP BY sales_range
 ORDER BY total_product_count DESC
@@ -206,37 +200,57 @@ ORDER BY total_product_count DESC
 ---Segment the payment installments and count the installemt fall in that range and there sales
 
 SELECT DISTINCT(payment_installments) FROM gold.fact_payments
-
-WITH installment_range AS (
+--Aggregate items to the order level
+WITH order_item_summery AS(
 SELECT
-payment_installments,
-price,
-CASE WHEN payment_installments =1 THEN '1-installment'
-     WHEN payment_installments BETWEEN 2 AND 6 THEN 'Short term installment(2-6)'
-	 WHEN payment_installments BETWEEN 7 AND 15 THEN 'medium term installment(7-15)'
-	 ELSE 'long term installment (15 or more)'
-	 END AS installment_bucket
-FROM gold.fact_orders O
-INNER JOIN gold.fact_order_items I
-ON O.order_id=I.order_id
-INNER JOIN gold.fact_payments P
-ON I.order_id=P.order_id
+	order_id,
+	SUM(price) AS order_total_price
+FROM gold.fact_order_items
+GROUP BY order_id
 ),
-installment_contribution AS(
+order_payment_summery AS(  --Aggregate payments to the order level
 SELECT
-installment_bucket,
-COUNT(*) AS total_installment_count,
-SUM(price) AS total_sales
-FROM installment_range
-GROUP BY installment_bucket
+	order_id,
+	MAX(payment_installments) AS payment_installments
+FROM gold.fact_payments 
+GROUP BY order_id
+),
+installment_range AS(  --Combine order-level data and create buckets
+SELECT
+O.order_id,
+P.payment_installments,
+I.order_total_price,
+CASE 
+	WHEN P.payment_installments = 1 THEN '1-installment'
+    WHEN P.payment_installments BETWEEN 2 AND 6 THEN 'Short term installment (2-6)'
+    WHEN P.payment_installments BETWEEN 7 AND 15 THEN 'Medium term installment (7-15)'
+    ELSE 'Long term installment (15 or more)'
+    END AS installment_bucket
+FROM gold.fact_orders O
+INNER JOIN order_item_summery I
+ON O.order_id=I.order_id
+INNER JOIN order_payment_summery P
+ON O.order_id=P.order_id
+),
+installment_contribution AS(  ---Aggregate by  bucket
+SELECT 
+        installment_bucket,
+        COUNT(order_id) AS total_order_count,
+        SUM(order_total_price) AS total_sales
+    FROM installment_range
+    GROUP BY installment_bucket
 )
-SELECT
+--Final output with percentage contribution
+SELECT 
 	installment_bucket,
-	total_installment_count,
+	total_order_count,
 	total_sales,
-	CONCAT(CAST((total_sales/SUM(total_sales) OVER())*100 AS DECIMAL(5,2)),'%') AS contribution
+	CONCAT(CAST((total_sales * 100.0 / SUM(total_sales) OVER()) AS DECIMAL(5,2)), '%') AS contribution
 FROM installment_contribution
-ORDER BY total_installment_count DESC;
+ORDER BY total_sales DESC;
+
+
+
 
 --===================
 --Reporting
@@ -259,7 +273,7 @@ SELECT
 FROM gold.fact_order_items I
 INNER JOIN gold.fact_orders O
 ON I.order_id=O.order_id
-LEFT JOIN gold.dim_customers C
+INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
 GROUP BY C.customer_unique_id
 )
@@ -275,6 +289,7 @@ CASE WHEN lifespan>=12 AND total_spending>500 THEN 'VIP_customer'
 	 END AS customer_segmentation
 FROM customer_spending)T
 GROUP BY customer_segmentation 
+ORDER BY total_customers DESC
 
 --=================================================================================
 --VIEW REPORTING
@@ -320,10 +335,12 @@ INNER JOIN gold.fact_order_items I
 ON I.order_id=O.order_id
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-LEFT JOIN gold.dim_customers C
+INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
 WHERE O.purchased_at IS NOT NULL
-),Customer_aggregation AS(
+),
+--Aggregate level
+Customer_aggregation AS(
 SELECT
 	customer_unique_id,
 	customer_state,
@@ -339,6 +356,7 @@ customer_unique_id,
 customer_state,
 customer_region
 )
+---segmentation
 SELECT 
 	customer_unique_id,
 	customer_state,
