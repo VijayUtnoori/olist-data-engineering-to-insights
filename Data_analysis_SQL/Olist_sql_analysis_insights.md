@@ -34,14 +34,16 @@ Only 17 customers VIP customers there  least 12 months history and spending more
 : we can conclude  By this MOST OF THE INSTALLMENT  range bewtween(1 to 6) 37%,36.25%
 
 
-## 3. Product Segmentation by Sales Price Range
+
+### 3. Sales Range & Product Count Distribution Report
+
 | sales_range | total_product_count |
 | :--- | :--- |
-| Below 100 | 72146 |
-| 100-200 | 27101 |
-| 200-500 | 10157 |
-| 500-2000 | 3092 |
-| Above 2000 | 123 |
+| Below 100 | 71099 |
+| 100-200 | 26669 |
+| 200-500 | 10047 |
+| 500-2000 | 3058 |
+| Above 2000 | 121 |
 
 **Note:** Products are segmented into price ranges using conditional logic: `WHEN I.price < 100 THEN 'Below 100'`, `WHEN I.price BETWEEN 100 AND 200 THEN '100-200'`, `WHEN I.price BETWEEN 200 AND 500 THEN '200-500'`, `WHEN I.price BETWEEN 500 AND 2000 THEN '500-2000'`, and `ELSE 'Above 2000'`.
 
