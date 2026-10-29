@@ -79,7 +79,7 @@ with generated sales
 | books_imported | 4509.87 | 126315.40 | 3.57% |
 | la_cuisine | 2054.99 | 126315.40 | 1.63% |
 
-**Key Insights:** : fixed telephony products contribution the most in over sales which 47.17% and followed by office furniture 39.08%
+**Key Insights:** : fixed telephony products contribution the most in over sales which 47.17% and followed by audio 39.08%
 
 ---===================================
 
@@ -222,13 +222,14 @@ REPORTING CUSTOMER LEVEL
 
 --=============================================
 
-## 11. Customer Reporting View Sample
+### Customer Lifetime Value & Behavioral Analysis Report[cite: 18]
+
 | customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_products | total_sales | avg_order_value |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 0000366f3b9a7992bf8c76cfdf3221e2 | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 129.90 | 129.900000 |
-| 0000b84977a49e4a4ce2b2a4ca5be3f | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 18.90 | 18.900000 |
+| 0000b849f77a49e4a4ce2b2a4ca5be3f | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 18.90 | 18.900000 |
 | 0000f46a3911fa3c0805444483337064 | Santa Catarina | South | New customer | 0 | 9 | 1 | 1 | 69.00 | 69.000000 |
-| 0000f6ccb0745a6a4b8865a16c9f078 | Para | North | New customer | 0 | 9 | 1 | 1 | 25.99 | 25.990000 |
-| 004aac84e0df4da2b147fca70cf8255 | Sao Paulo | Southeast | New customer | 0 | 9 | 1 | 1 | 180.00 | 180.000000 |
+| 0000f6ccb0745a6a4b88665a16c9f078 | Para | North | New customer | 0 | 9 | 1 | 1 | 25.99 | 25.990000 |
+| 0004aac84e0df42a2b147fca70cf8255 | Sao Paulo | Southeast | New customer | 0 | 9 | 1 | 1 | 180.00 | 180.000000 |
 
-**Note:** Customers are segmented using the logic: `CASE WHEN lifespan >= 12 AND total_sales > 300 THEN 'VIP_customer' WHEN lifespan >= 12 AND total_sales <= 300 THEN 'Regular customer' ELSE 'New customer'`. Recency is measured in years since the last order.
+**Note:** only shown 5 records ,Customers are segmented using the logic: `CASE WHEN lifespan >= 12 AND total_sales > 300 THEN 'VIP_customer' WHEN lifespan >= 12 AND total_sales <= 300 THEN 'Regular customer' ELSE 'New customer'`. Recency is measured in years since the last order.
