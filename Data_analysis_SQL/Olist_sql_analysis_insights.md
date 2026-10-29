@@ -51,16 +51,17 @@ Only 17 customers VIP customers there  least 12 months history and spending more
 
 --======================
 
-## 4. Customer Regional Contribution
+### 4 Customer Region Sales Contribution Report[cite: 13]
+
 | customer_region | total_sales | overall_sales | contribution |
 | :--- | :--- | :--- | :--- |
-| Southeast | 8534758.30 | 13043848.60 | 65.43% |
-| Central-West | 830206.23 | 13043848.60 | 6.36% |
-| North | 324674.83 | 13043848.60 | 2.49% |
-| South | 1875257.96 | 13043848.60 | 14.38% |
-| Northeast | 1478951.28 | 13043848.60 | 11.34% |
+| Southeast | 8771859.94 | 13411726.58 | 65.40% |
+| South | 1926969.98 | 13411726.58 | 14.37% |
+| Northeast | 1527361.25 | 13411726.58 | 11.39% |
+| Central-West | 853581.82 | 13411726.58 | 6.36% |
+| North | 331953.59 | 13411726.58 | 2.48% |
 
-**Key Insights:**: Southeast region contribute the most overall 65.43% followed by South 14.38%
+**Key Insights:**: Southeast region contribute the most overall 65.40% followed by South 14.37%
 ---
 
 ## 5. Product Category Sales Contribution
