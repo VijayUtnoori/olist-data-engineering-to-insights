@@ -64,16 +64,17 @@ Only 17 customers VIP customers there  least 12 months history and spending more
 **Key Insights:**: Southeast region contribute the most overall 65.40% followed by South 14.37%
 ---
 
-## 5. Product Category Sales Contribution
-| product_category | total_sales | overall_sales | contribution |
-| :--- | :--- | :--- | :--- |
-| computers accessories | 911954.32 | 1260846.23 | 72.33% |
-| audio | 50688.50 | 1260846.23 | 4.02% |
-| office furniture | 273960.70 | 1260846.23 | 21.73% |
-| drinks | 22428.70 | 1260846.23 | 1.78% |
-| arts and craftmanship | 1814.01 | 1260846.23 | 0.14% |
+### 5 Product Category Sales Contribution Report[cite: 14]
 
-**Key Insights:** : computers accessories products contribution the most in over sales which 72.33% and followed by office furniture 21.73%
+| product_category_name | total_sales | overall_sales | contribution |
+| :--- | :--- | :--- | :--- |
+| fixed_telephony | 59583.00 | 126315.40 | 47.17% |
+| audio | 49369.72 | 126315.40 | 39.08% |
+| fashion_male_clothing | 10797.82 | 126315.40 | 8.55% |
+| books_imported | 4509.87 | 126315.40 | 3.57% |
+| la_cuisine | 2054.99 | 126315.40 | 1.63% |
+
+**Key Insights:** : fixed telephony products contribution the most in over sales which 47.17% and followed by office furniture 39.08%
 
 ---===================================
 
