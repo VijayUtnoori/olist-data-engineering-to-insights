@@ -22,16 +22,18 @@ DATA SEGMENTATION
 Only 17 customers VIP customers there  least 12 months history and spending more than R$500
 
 
-  ## 2 Payment Installment Segmentation
-| installment_bucket | total_installment_count | total_sales | contribution |
-| :--- | :--- | :--- | :--- |
-| 1-installment | 56531 | 5131462.25 | 37.65% |
-| Short term installment(2-6) | 42531 | 4967885.27 | 36.45% |
-| medium term installment(7-15) | 14195 | 3493586.68 | 25.64% |
-| long term installment (15 or more) | 111 | 34703.24 | 0.25% |
+### 2.Installment Bucket Analysis Report[cite: 16]
 
-**Key Insights:** The majority of customers complete their payments in a **single installment (58,617)**, closely followed by **short-term installments (44,091)**. Although single installments account for the highest volume of transactions, the total sales generated are nearly identical between single installments (~R$5.34M) and short-term installment plans (~R$5.18M)
-: we can conclude  By this MOST OF THE INSTALLMENT  range bewtween(1 to 6) 37%,36.25%
+| installment_bucket | total_order_count | total_sales | contribution |
+| :--- | :--- | :--- | :--- |
+| Short term installment (2-6) | 38200 | 5067030.04 | 37.78% |
+| 1-installment | 47136 | 4730588.10 | 35.27% |
+| Medium term installment (7-15) | 11845 | 3579079.23 | 26.69% |
+| Long term installment (15 or more) | 79 | 34894.24 | 0.26% |
+
+**Key Insights:** The majority of customers complete their payments in a **Short term installment (5067030)**, closely followed by **1-installment (4730588.10)**. 
+with generated sales
+
 
 
 
