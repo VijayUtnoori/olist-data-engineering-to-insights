@@ -5,12 +5,13 @@
 DATA SEGMENTATION
 
 --======================================
-## 1. Customer Segmentation Breakdown
+### Customer Segmentation Report[cite: 17]
+
 | customer_segmentation | total_customers |
 | :--- | :--- |
-| Regular customer | 100 |
-| VIP_customer | 17 |
-| New customer | 91914 |
+| New customer | 93956 |
+| Regular customer | 105 |
+| VIP_customer | 18 |
 
 **Note:** Spending amount is in Brazilian Real (BRL). Customers are segmented as VIP (at least 12 months history and spending more than R$500), Regular (at least 12 months history and spending R$500 or less), and New (lifespan less than 12 months).
 
