@@ -162,16 +162,27 @@ CUMMULATIVE ANALYSIS
 **Key Insights:**: year by year number of orders,running orders count ,moving avg count. over sales performance increase over the time
 ---
 
-## 9. Distance vs. Freight Cost Analysis
+### 9 Distance Range vs. Freight Value Analysis Report[cite: 11]
+
 | distance_range_start | distance_range_end | total_orders | avg_freight_value | min_freight_value | max_freight_value |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 0 | 50 | 18746 | 11.435982 | 0.00 | 135.44 |
-| 50 | 100 | 10020 | 11.969914 | 0.00 | 105.33 |
-| 100 | 150 | 6560 | 14.165932 | 0.00 | 145.18 |
-| 150 | 200 | 3916 | 15.446519 | 0.00 | 207.78 |
-| 200 | 250 | 4238 | 17.370868 | 0.00 | 321.46 |
+| 0 | 50 | 19304 | 11.410809 | 0.00 | 135.44 |
+| 50 | 100 | 10271 | 12.011942 | 0.00 | 105.33 |
+| 100 | 150 | 6697 | 14.160665 | 0.00 | 145.18 |
+| 150 | 200 | 4005 | 15.572926 | 0.00 | 207.78 |
+| 200 | 250 | 4284 | 17.401122 | 0.00 | 321.46 |
+| 250 | 300 | 6557 | 17.325558 | 0.00 | 177.94 |
+| 300 | 350 | 12020 | 19.009111 | 0.00 | 207.78 |
+| 350 | 400 | 9662 | 19.806445 | 0.00 | 306.06 |
+| 400 | 450 | 7468 | 19.698847 | 0.00 | 322.10 |
+| 450 | 500 | 8990 | 19.508666 | 0.00 | 375.28 |
 
-**Note:** We have a total of 68 rows we taken only 5 rows. From the analysis, i found that as distance increases, the average freight cost also generally increases, while the number of orders tends to decrease for longer distances.
+---
+
+### **Key Insights:**
+* **Total Bins:** There are **69 bins** but displayed only 10 and evaluated in the complete distance distribution analysis[cite: 11].
+* **Distance vs. Order Volume:** Generally, as the delivery distance increases, the volume of total orders tends to decrease, showing that most customer orders are concentrated within closer proximity ranges[cite: 11].
+* **Distance vs. Freight Cost:** As the distance increases, the average freight cost (`avg_freight_value`) generally exhibits an upward trend, reflecting higher shipping expenses for longer-distance deliveries[cite: 11].
 
 --===================
 
