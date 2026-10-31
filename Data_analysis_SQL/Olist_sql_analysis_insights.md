@@ -25,7 +25,7 @@ Only 17 customers VIP customers there  least 12 months history and spending more
 
 ### 2.Installment Bucket Analysis Report[cite: 16]
 
-| installment_bucket | total_order_count | total_sales | contribution |
+| installment_bucket | total_order_count | total_sales_excl_freight_cost | contribution |
 | :--- | :--- | :--- | :--- |
 | Short term installment (2-6) | 38200 | 5067030.04 | 37.78% |
 | 1-installment | 47136 | 4730588.10 | 35.27% |
@@ -202,20 +202,18 @@ CUMMULATIVE ANALYSIS
 
 ### 10 Product Category Yearly Sales & Performance Comparison Report
 
-| Order_year | product_category_name | avg_sales | previous_sales | avg_sales_status | diff_previous_year | previous_sales_status |
+| order_year | product_category | current_year_sales_incl_freight | previous_year_sales_incl_freight | performance_vs_average | yoy_sales_difference | yoy_status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 2017 | agro_industry_and_commerce | 36058.735000 | NULL | Below the avg | 1015.19 | N/A |
-| 2018 | agro_industry_and_commerce | 36058.735000 | 29179.20 | Above the avg | 28221.39 | profit |
-| 2016 | air_conditioning | 18139.020000 | NULL | Below the avg | NULL | N/A |
-| 2017 | air_conditioning | 18139.020000 | 1707.09 | Above the avg | 10593.44 | profit |
-| 2018 | air_conditioning | 18139.020000 | 28164.01 | Above the avg | -18392.31 | loss |
-| 2017 | art | 12004.335000 | NULL | Below the avg | -19887.41 | N/A |
-| 2018 | art | 12004.335000 | 9291.79 | Above the avg | 13070.75 | profit |
-| 2017 | arts_and_craftmanship | 899.010000 | NULL | Below the avg | -9139.90 | N/A |
-| 2018 | arts_and_craftmanship | 899.010000 | 151.89 | Above the avg | 1494.24 | profit |
-| 2016 | audio | 16456.573333 | NULL | Below the avg | -1550.10 | N/A |
-| 2017 | audio | 16456.573333 | 156.99 | Above the avg | -225080.85 | profit |
-| 2018 | audio | 16456.573333 | 17570.57 | Above the avg | 7096.20 | profit |
+| 2017 | agro_industry_and_commerce | 38949.925000 | NULL | Below the avg | 231.96 | N/A |
+| 2018 | agro_industry_and_commerce | 38949.925000 | 31111.89 | Above the avg | 29077.38 | profit |
+| 2016 | air_conditioning | 20361.103333 | NULL | Below the avg | NULL | N/A |
+| 2017 | air_conditioning | 20361.103333 | 1904.91 | Above the avg | 10922.85 | profit |
+| 2018 | air_conditioning | 20361.103333 | 30879.93 | Above the avg | -18489.49 | loss |
+| 2017 | art | 14005.380000 | NULL | Below the avg | -20811.71 | N/A |
+| 2018 | art | 14005.380000 | 10300.18 | Above the avg | 15735.88 | profit |
+| 2017 | arts_and_craftmanship | 1074.960000 | NULL | Below the avg | -10124.96 | N/A |
+| 2018 | arts_and_craftmanship | 1074.960000 | 175.22 | Above the avg | 1799.48 | profit |
+| 2016 | audio | 18338.250000 | NULL | Below the avg | -1721.88 | N/A |
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 12 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
 
