@@ -14,7 +14,8 @@ SELECT TOP 2 * FROM gold.dim_geolocation
 
 SELECT
 	CAST(DATETRUNC(MONTH,O.purchased_at) AS DATE) AS order_year,
-	SUM(I.price) AS total_revenue,
+	SUM(price) AS total_revenue_without_freight_cost,
+	SUM(total_item_value) AS total_sales_with_freight_cost,
 	COUNT(DISTINCT(O.order_id)) AS total_orders,
 	COUNT(DISTINCT(C.customer_unique_id)) AS total_customer_orders
 FROM gold.fact_orders O
@@ -32,12 +33,14 @@ ORDER BY DATETRUNC(MONTH,O.purchased_at)
 SELECT
 	purchased_at,
 	total_sales,
-	SUM(total_sales) OVER(ORDER BY purchased_at ASC) AS Running_total,
+	SUM(total_sales_without_freight_cost) OVER(ORDER BY purchased_at ASC) AS Running_total_without_freight_cost,
+	SUM(total_sales) OVER(ORDER BY purchased_at ASC) AS Running_total_with_freight_cost,
 	ROUND(AVG(total_sales) OVER(ORDER BY purchased_at ASC),1) AS moving_average
 FROM(
 SELECT
 	CAST(DATETRUNC(MONTH,O.purchased_at) AS DATE) AS purchased_at,
-	SUM(I.price) AS total_sales
+	SUM(total_item_value) AS total_sales,
+	SUM(price) AS total_sales_without_freight_cost
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
@@ -91,52 +94,53 @@ WITH yearly_product_sales AS(
 SELECT 
 --YEARLY categorization 
 	YEAR(O.purchased_at) AS Order_year,
-	P.product_category_name,
-	SUM(I.price) AS current_sales
+	P.product_category,
+	SUM(total_item_value) AS current_sales_incl_freight_cost
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-WHERE product_category_name IS NOT NULL
-GROUP BY YEAR(O.purchased_at),P.product_category_name),
+WHERE product_category IS NOT NULL
+GROUP BY YEAR(O.purchased_at),P.product_category),
 calculated_metrics AS(
 SELECT 
 	Order_year,
-	product_category_name,
-	current_sales,
-	AVG(current_sales) OVER(PARTITION BY product_category_name) AS avg_sales,
-	LAG(current_sales) OVER(PARTITION BY product_category_name ORDER BY Order_year) AS previous_sales
+	product_category,
+	current_sales_incl_freight_cost,
+	AVG(current_sales_incl_freight_cost) OVER(PARTITION BY product_category) AS avg_sales_incl_freight_cost,
+	LAG(current_sales_incl_freight_cost) OVER(PARTITION BY product_category ORDER BY Order_year) AS previous_sales_incl_freight_cost
 FROM yearly_product_sales)
 SELECT
 	Order_year,
-	product_category_name,
-	avg_sales,
-	previous_sales,
+	product_category,
+	avg_sales_incl_freight_cost,
+	previous_sales_incl_freight_cost,
 	CASE 
-	     WHEN current_sales>avg_sales THEN 'Above the avg'
-		 WHEN current_sales<avg_sales THEN 'Below the avg'
+	     WHEN current_sales_incl_freight_cost>avg_sales_incl_freight_cost THEN 'Above the avg'
+		 WHEN current_sales_incl_freight_cost<avg_sales_incl_freight_cost THEN 'Below the avg'
 		 ELSE 'avg'
 		 END AS avg_sales_status,
-	current_sales-LAG(current_sales) OVER(ORDER BY Order_year) AS diff_previous_year,
+	current_sales_incl_freight_cost-LAG(current_sales_incl_freight_cost) OVER(ORDER BY Order_year) AS diff_previous_year,
 	CASE
-	     WHEN previous_sales IS NULL THEN 'N/A'
-	     WHEN current_sales>previous_sales THEN 'profit'
-		 WHEN current_sales<previous_sales THEN 'loss'
+	     WHEN previous_sales_incl_freight_cost IS NULL THEN 'N/A'
+	     WHEN current_sales_incl_freight_cost>previous_sales_incl_freight_cost THEN 'profit'
+		 WHEN current_sales_incl_freight_cost<previous_sales_incl_freight_cost THEN 'loss'
 		 ELSE 'no change'
 		 END AS previous_sales_status
 FROM calculated_metrics
-ORDER BY product_category_name,Order_year
+ORDER BY product_category,Order_year
 
 --====================
 --Part to whole analysis
 --======================
 
 --Which customer region contribute the over all sales
+
 WITH Region_sales AS(
 SELECT 
     customer_region,
-	SUM(I.price) AS total_sales
+	SUM(I.total_item_value) AS 	total_revenue_with_freight_cost
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
@@ -146,30 +150,35 @@ GROUP BY customer_region
 )
 SELECT
 	customer_region,
-	total_sales,
-	SUM(total_sales) OVER() AS overall_sales,
-	CONCAT(CAST((total_sales/SUM(total_sales) OVER())*100 AS DECIMAL (5,2)), '%') AS contribution
+	total_revenue_with_freight_cost,
+	SUM(total_revenue_with_freight_cost) OVER() AS overall_revenue_with_freight_cost,
+	CONCAT(CAST((total_revenue_with_freight_cost/SUM(total_revenue_with_freight_cost) OVER())*100 AS DECIMAL (5,2)), '%') AS contribution
 FROM Region_sales
-ORDER BY total_sales DESC
+ORDER BY total_revenue_with_freight_cost DESC
+
+
+--======================
 
 ---Which product category contribute the most in over all sales
 WITH product_sales AS(
 SELECT
     TOP 5
-	P.product_category_name,
-	SUM(I.price) AS total_sales
+	P.product_category,
+	SUM(i.price) AS total_revenue_without_freight,
+	SUM(total_item_value) AS total_revenue_with_freight_cost
 FROM gold.fact_order_items I
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-GROUP BY P.product_category_name 
+GROUP BY P.product_category 
 )
 SELECT 
-	product_category_name,
-	total_sales,
-	SUM(total_sales) OVER() AS overall_sales,
-	CONCAT(CAST((total_sales / SUM(total_sales) OVER()) * 100 AS DECIMAL(5,2)), '%') AS contribution
+	product_category,
+	total_revenue_without_freight,
+	total_revenue_with_freight_cost,
+	SUM(total_revenue_with_freight_cost) OVER() AS overall_total_revenue_with_freight_cost,
+	CONCAT(CAST((total_revenue_with_freight_cost / SUM(total_revenue_with_freight_cost) OVER()) * 100 AS DECIMAL(5,2)), '%') AS contribution
 FROM product_sales
-ORDER BY total_sales DESC
+ORDER BY total_revenue_with_freight_cost DESC
 
 --========================
 --Data Segmentation
