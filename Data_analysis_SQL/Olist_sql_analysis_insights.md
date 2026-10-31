@@ -72,15 +72,15 @@ with generated sales
 
 ### 5 Product Category Sales Contribution Report
 
-| product_category_name | total_sales | overall_sales | contribution |
-| :--- | :--- | :--- | :--- |
-| fixed_telephony | 59583.00 | 126315.40 | 47.17% |
-| audio | 49369.72 | 126315.40 | 39.08% |
-| fashion_male_clothing | 10797.82 | 126315.40 | 8.55% |
-| books_imported | 4509.87 | 126315.40 | 3.57% |
-| la_cuisine | 2054.99 | 126315.40 | 1.63% |
+| product_category | total_revenue_without_freight | total_revenue_incl_freight | total_marketplace_revenue | percentage_contribution |
+| :--- | :--- | :--- | :--- | :--- |
+| fixed_telephony | 59583.00 | 64220.81 | 139815.31 | 45.93% |
+| audio | 49369.72 | 55014.75 | 139815.31 | 39.35% |
+| fashion_male_clothing | 10797.82 | 12950.23 | 139815.31 | 9.26% |
+| books_imported | 4509.87 | 5240.98 | 139815.31 | 3.75% |
+| la_cuisine | 2054.99 | 2388.54 | 139815.31 | 1.71% |
 
-**Key Insights:** : fixed telephony products contribution the most in over sales which 47.17% and followed by audio 39.08%
+**Key Insights:** : fixed telephony products contribution the most in over sales which 45.93% and followed by audio 39.35%
 
 ---===================================
 
