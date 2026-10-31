@@ -56,20 +56,21 @@ with generated sales
 
 --======================
 
-### 4 Customer Region Sales Contribution Report[cite: 13]
 
-| customer_region | total_sales | overall_sales | contribution |
+### 4. Regional Sales Contribution (Gross Merchandise Value)
+
+| customer_region | region_revenue_incl_freight | total_marketplace_revenue | percentage_contribution |
 | :--- | :--- | :--- | :--- |
-| Southeast | 8771859.94 | 13411726.58 | 65.40% |
-| South | 1926969.98 | 13411726.58 | 14.37% |
-| Northeast | 1527361.25 | 13411726.58 | 11.39% |
-| Central-West | 853581.82 | 13411726.58 | 6.36% |
-| North | 331953.59 | 13411726.58 | 2.48% |
+| Southeast | 10097773.38 | 15630505.12 | 64.60% |
+| South | 2264330.47 | 15630505.12 | 14.49% |
+| Northeast | 1857982.65 | 15630505.12 | 11.89% |
+| Central-West | 1003227.05 | 15630505.12 | 6.42% |
+| North | 407191.57 | 15630505.12 | 2.61% |
 
-**Key Insights:**: Southeast region contribute the most overall 65.40% followed by South 14.37%
+**Key Insights:**: Southeast region contribute the most overall 65.60% followed by South 14.49%
 ---
 
-### 5 Product Category Sales Contribution Report[cite: 14]
+### 5 Product Category Sales Contribution Report
 
 | product_category_name | total_sales | overall_sales | contribution |
 | :--- | :--- | :--- | :--- |
@@ -160,7 +161,7 @@ CUMMULATIVE ANALYSIS
 
 --==========================================================
 
-### 8. Yearly Orders Running Total & Moving Average Report[cite: 10]
+### 8. Yearly Orders Running Total & Moving Average Report
 
 | order_year | number_of_orders | running_orders | moving_avg_orders |
 | :--- | :--- | :--- | :--- |
@@ -171,7 +172,7 @@ CUMMULATIVE ANALYSIS
 **Key Insights:**: year by year number of orders,running orders count ,moving avg count. over sales performance increase over the time
 ---
 
-### 9 Distance Range vs. Freight Value Analysis Report[cite: 11]
+### 9 Distance Range vs. Freight Value Analysis Report
 
 | distance_range_start | distance_range_end | total_orders | avg_freight_value | min_freight_value | max_freight_value |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -224,7 +225,7 @@ REPORTING CUSTOMER LEVEL
 
 --=============================================
 
-### Customer Lifetime Value & Behavioral Analysis Report[cite: 18]
+### Customer Lifetime Value & Behavioral Analysis Report
 
 | customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_products | total_sales | avg_order_value |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
