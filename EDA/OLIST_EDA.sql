@@ -33,7 +33,7 @@ SELECT DISTINCT payment_type FROM gold.fact_payments
 
 
 --customer_region analysis 
-SELECT customer_region,COUNT(customer_id) AS No_of_customers FROM gold.dim_customers
+SELECT customer_region,COUNT(customer_unique_id) AS No_of_customers FROM gold.dim_customers
 GROUP BY customer_region
 ORDER BY No_of_customers DESC
 
@@ -121,7 +121,7 @@ FROM gold.fact_order_items
 --Total customer by region
 SELECT 
 	customer_region,
-	COUNT(customer_id) AS NumberOfCustomers
+	COUNT(customer_unique_id) AS NumberOfCustomers
 FROM gold.dim_customers
 GROUP BY customer_region
 ORDER BY NumberOfCustomers DESC
@@ -285,7 +285,8 @@ WHERE ranking <= 2;
 
 --top 3 customers by spending 
 SELECT TOP 3
-    C.customer_id,    C.customer_state,
+    C.customer_unique_id,
+    C.customer_state,
     SUM(price) AS TotalSaleswithout_FreightCost,
     SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items AS I
@@ -294,10 +295,19 @@ INNER JOIN gold.fact_orders AS O
 INNER JOIN gold.dim_customers AS C
     ON O.customer_id = C.customer_id
 GROUP BY
-    C.customer_id,
+    C.customer_unique_id,
     C.customer_state
 ORDER BY
     TotalSaleswithout_FreightCost DESC;
+
+
+
+
+
+
+
+
+
 
 
 
