@@ -37,11 +37,11 @@
 
 | customer_region | NumberOfCustomers |
 | :--- | :--- |
-| Southeast | 68266 |
-| South | 14148 |
-| Northeast | 9394 |
-| Central-West | 5782 |
-| North | 1851 |
+| Southeast | 65888|
+| South | 13687 |
+| Northeast | 9134 |
+| Central-West | 5593 |
+| North | 1794 |
 
 **Key Insights:** There are a total of 5 regions in Brazil. The majority of customers are concentrated in the Southeast, while the North region has the least number of customers.
 
