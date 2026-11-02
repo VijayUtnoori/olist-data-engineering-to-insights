@@ -16,11 +16,19 @@ Usage:
 -- ==========================================================================================
 -- Create Dimension: gold.dim_customers
 -- =============================================================================
-CREATE OR ALTER VIEW  gold.dim_customers AS(
+USE Olist_DataWarehouse
+--=======================
+--CUSTOMER
+--========================
+
+CREATE OR ALTER VIEW  gold.dim_customers AS
+WITH duplicate_removeal AS(
 SELECT
     ROW_NUMBER() OVER(ORDER BY C.customer_id) AS customer_sk,
     C.customer_id,
     C.customer_unique_id,
+    --Removed duplicates customer_unique_ids 
+    ROW_NUMBER() OVER(PARTITION BY C.customer_unique_id ORDER BY C.customer_unique_id) AS Ranking,
     C.customer_zip_code_prefix,
     C.customer_city,
     C.customer_state,
@@ -66,10 +74,23 @@ FROM Olist_DataWarehouse.silver.olist_customers C
 LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
 ON C.customer_zip_code_prefix=G.geolocation_zip_code_prefix
 )
+SELECT
+    customer_sk,
+    customer_id,
+    customer_unique_id,
+    customer_zip_code_prefix,
+    customer_city,
+    customer_state,
+    customer_region,
+    customer_lat,
+    customer_lng
+FROM duplicate_removeal
+WHERE Ranking=1
 
--- =============================================================================
--- Create Dimension: gold.dim_geolocation
--- =============================================================================
+
+--============================
+--GEOLOCATION
+--=======================
 CREATE OR ALTER VIEW gold.dim_geolocation AS(
 SELECT
     ROW_NUMBER() OVER(ORDER BY geolocation_zip_code_prefix) AS geolocation_sk,
@@ -116,9 +137,9 @@ SELECT
     END AS geolocation_region
 FROM Olist_DataWarehouse.silver.olist_geolocation
 )
--- =============================================================================
--- Create Dimension: gold.dim_seller
--- ===========================================================================================
+---===================================
+--SELLER
+--==========================
 CREATE OR ALTER VIEW  gold.dim_sellers AS(
 SELECT
     ROW_NUMBER() OVER(ORDER BY S.seller_id) AS seller_sk,
@@ -168,40 +189,43 @@ FROM Olist_DataWarehouse.silver.olist_sellers S
 LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
 ON S.seller_zip_code_prefix=G.geolocation_zip_code_prefix
 )
--- ===========================================================================================
--- Create Dimension: gold.dim_products
--- =============================================================================
-CREATE OR ALTER VIEW gold.dim_products AS
+--==========================
+--PRODUCT
+--
+SELECT TOP 2 * FROM gold.dim_products
+DROP VIEW gold.dim_products
+CREATE OR ALTER VIEW gold.dim_products AS(
 SELECT * FROM (
-  SELECT 
-    ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
-    product_id,
-    REPLACE(product_category_name, '_', ' ') AS product_category,
-    product_description_length,
-    product_photos_qty,
-    CAST(ROUND(product_weight_g / 1000.0, 2) AS FLOAT) AS weight_kg,
-    product_height_cm,
-    product_width_cm,
-    CAST(ROUND((product_length_cm * product_height_cm * product_width_cm), 2) AS FLOAT) AS product_volume_cm,
-    CASE 
-      WHEN product_weight_g / 1000.0 >= 30 THEN 'Bulky'
-      WHEN product_weight_g / 1000.0 >= 10 THEN 'Large'
-      WHEN product_weight_g / 1000.0 >= 5 THEN 'Medium'
-      ELSE 'Small'
-    END AS product_size_category
-  FROM Olist_DataWarehouse.silver.olist_products
-) t
-WHERE weight_kg > 0;
+SELECT 
+  ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
+  product_id,
+  product_category_name AS product_category,
+  product_description_length,
+  product_photos_qty,
+  CAST(ROUND(product_weight_g / 1000.0, 2) AS FLOAT) AS weight_kg,
+  product_height_cm,
+  product_width_cm,
+  CAST(ROUND((product_length_cm * product_height_cm * product_width_cm), 2) AS FLOAT) AS product_volume_cm,
+  CASE 
+    WHEN product_weight_g / 1000.0 >= 30 THEN 'Bulky'
+    WHEN product_weight_g / 1000.0 >= 10 THEN 'Large'
+    WHEN product_weight_g / 1000.0 >= 5 THEN 'Medium'
+    ELSE 'Small'
+  END AS product_size_category
+FROM Olist_DataWarehouse.silver.olist_products)t
+WHERE weight_kg>0)
 
--- =============================================================================
--- Create Dimension: gold.fact_orders
--- =============================================================================
+---=============
+--ORDER TABLE
+
 CREATE OR ALTER VIEW gold.fact_orders AS(
 SELECT 
 --serogate key
    ROW_NUMBER() OVER (ORDER BY order_purchase_timestamp, order_id) AS order_sk,
+   CAST(FORMAT(order_purchase_timestamp,'yyyyMMdd') AS INT)AS purchase_date_key,
    order_id,
-   customer_id,
+   O.customer_id,
+   C.customer_unique_id,
    order_status, 
     -- Order Timeline Milestones
    order_purchase_timestamp AS purchased_at,
@@ -214,11 +238,14 @@ SELECT
    DATEDIFF(DAY, order_delivered_customer_date, order_estimated_delivery_date) AS delivery_variance_days,
    DATEDIFF(DAY, order_purchase_timestamp, order_estimated_delivery_date) AS estimated_delivery_days,
    DATEDIFF(HOUR, order_purchase_timestamp, order_approved_at) AS approval_delay_hours
-FROM Olist_DataWarehouse.silver.olist_orders);
+FROM Olist_DataWarehouse.silver.olist_orders O
+LEFT JOIN gold.dim_customers C
+ON C.customer_id=O.customer_id 
+);
 
--- =============================================================================
--- Create Dimension: gold.fact_reviews
--- =============================================================================
+---====
+--REVIEWS
+DROP VIEW gold.fact_reviews
 CREATE VIEW gold.fact_reviews AS(
 SELECT 
     -- Review Metrics
@@ -238,9 +265,8 @@ SELECT
 FROM Olist_DataWarehouse.silver.olist_order_reviews);
 
 
--- =============================================================================
--- Create Dimension: gold.fact_payments
--- =============================================================================
+---======================
+--PAYMENT
 CREATE OR ALTER VIEW gold.fact_payments AS
 SELECT
     -- Surrogate key
@@ -258,13 +284,15 @@ SELECT
     END AS payment_status
 FROM Olist_DataWarehouse.silver.olist_order_payments;
 
--- =============================================================================
--- Create Dimension: gold.fact_order_items
--- =============================================================================
-CREATE VIEW gold.fact_order_items AS
+--=====================
+--ORDER ITEMS
+
+DROP VIEW gold.fact_order_items
+
+CREATE OR ALTER VIEW gold.fact_order_items AS
 SELECT
     -- Unique Integer Surrogate Key
-    ROW_NUMBER() OVER(
+    ROW_NUMBER() OVER (
         ORDER BY i.shipping_limit_date, i.order_id, i.order_item_id
     ) AS order_item_sk,
     -- Business / Natural Keys
@@ -273,23 +301,28 @@ SELECT
     i.product_id,
     i.seller_id,
     -- Date Keys & Timestamps
-    CAST(FORMAT(i.shipping_limit_date, 'yyyyMMdd') AS INT) AS shipping_limit_date_key,
+    CAST(CONVERT(CHAR(8), i.shipping_limit_date, 112) AS INT)
+        AS shipping_limit_date_key,
     i.shipping_limit_date,
     -- Base Financial Measures
     i.price,
     i.freight_value,
     -- Derived Financial & Freight Metrics
-    (i.price + i.freight_value) AS total_item_value,  
-    ROUND((i.freight_value / NULLIF(i.price, 0)) * 100, 2 ) AS freight_ratio_pct,
-    CASE 
-        WHEN (i.freight_value / NULLIF(i.price, 0)) >= 0.30 THEN 1 
-        ELSE 0 
+    (i.price + i.freight_value) AS total_item_value,
+    ROUND(
+        (i.freight_value / NULLIF(i.price, 0)) * 100,
+        2 ) AS freight_ratio_pct,
+    CASE
+        WHEN (i.freight_value / NULLIF(i.price, 0)) >= 0.30
+            THEN 1
+        ELSE 0
     END AS is_high_freight
-FROM Olist_DataWarehouse.silver.olist_order_items i;
+FROM silver.olist_order_items AS i
+INNER JOIN silver.olist_orders AS o
+    ON i.order_id = o.order_id;
 
--- =============================================================================
--- Create Dimension: gold.dim_date
--- =============================================================================
+--==================
+--DIM_DATE
 
 CREATE OR ALTER VIEW gold.dim_date AS
 WITH N AS (
@@ -318,10 +351,11 @@ WHERE full_date <= '2018-12-31';
 
 SELECT * FROM gold.dim_date
 
--- =============================================================================
--- Create Dimension: gold.vw_order_item_logistics
--- =============================================================================
 
+
+DROP VIEW gold.vw_order_item_logistics
+
+----
 CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
 SELECT
     -- Order and Item Information
@@ -369,13 +403,9 @@ WHERE
     AND c.customer_lng BETWEEN -180 AND 180
     AND s.seller_lat BETWEEN -90 AND 90
     AND s.seller_lng BETWEEN -180 AND 180;
-
 ==================================================================================================================================================================
                                                            ================================
 ==================================================================================================================================================================
-
-
-
 
 
 
