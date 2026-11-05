@@ -7,6 +7,7 @@
 * **Magnitude Analysis:** Evaluated volume distributions across review scores, payment tiers, order statuses, and regional spend.
 * **Rankings (Top-N):** Extracted top-performing products, revenue-driving regions, and state-level top orders using window functions (`ROW_NUMBER`).
 USE Olist_DataWarehouse
+USE Olist_DataWarehouse
 --========================
 --DATA BASE EXPLORATION
 --=======================
@@ -94,7 +95,7 @@ UNION ALL
 SELECT 'Total Unique Customers' AS Measure_name ,COUNT(DISTINCT(customer_unique_id)) AS measure_name 
 FROM gold.dim_customers
 UNION ALL
-SELECT 'Total reviews' AS Measure_name, COUNT(review_id) AS Measure_value  FROM gold.fact_reviews
+SELECT 'Total reviews count' AS Measure_name, COUNT(review_id) AS Measure_value  FROM gold.fact_reviews
 UNION ALL
 SELECT 'Distinct customers orders'AS Measure_name,COUNT(DISTINCT(customer_id)) AS Measure_value FROM gold.fact_orders
 UNION ALL
@@ -155,10 +156,12 @@ ORDER BY Count_payment_status ASC
 --Overall_item_value by each order_item
 SELECT 
 	order_item_id,
-	SUM(total_item_value) AS TotalValueIncludingFreight
+	SUM(total_item_value) AS Total_Value_Incl_Freight
 FROM gold.fact_order_items
 GROUP BY order_item_id
-ORDER BY TotalValueIncludingFreight DESC
+ORDER BY Total_Value_Incl_Freight DESC
+
+USE Olist_DataWarehouse
 
 --Count total order status
 SELECT
@@ -203,14 +206,14 @@ SELECT
 	C.customer_state,
 	C.customer_region,
 	SUM(I.price) AS Total_price,
-    SUM(total_item_value) AS TotalValueIncludingFreight
+    SUM(total_item_value) AS Total_Value_Incl_Freight
 FROM gold.fact_order_items I
 INNER JOIN gold.fact_orders O
 ON I.order_id=O.order_id
 INNER JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
 GROUP BY C.customer_state,C.customer_region
-ORDER BY TotalValueIncludingFreight DESC
+ORDER BY Total_Value_Incl_Freight DESC
 
 
 --=======================================================
@@ -220,25 +223,25 @@ ORDER BY TotalValueIncludingFreight DESC
 SELECT TOP 2 * FROM gold.dim_products
 SELECT TOP 5
 P.product_id,
-P.product_category_name,
+P.product_category,
 SUM(O.price) AS total_price,
 SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items O
 LEFT JOIN gold.dim_products P
 ON O.product_id=P.product_id
-GROUP BY P.product_id,P.product_category_name
+GROUP BY P.product_id,P.product_category
 ORDER BY total_price DESC
 
 
 --Top 5 worst product which generate the highest revenue
 SELECT TOP 5
-P.product_category_name,
+P.product_category,
 SUM(O.price) AS total_price,
 SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items O
 LEFT JOIN gold.dim_products P
 ON O.product_id=P.product_id
-GROUP BY P.product_category_name
+GROUP BY P.product_category
 ORDER BY total_price ASC
 
 -- Top 3 customer regions generating the highest revenue
@@ -248,9 +251,9 @@ SELECT TOP 3
     SUM(I.price) AS total_revenue,
     SUM(total_item_value) AS TotalValueIncludingFreight
 FROM gold.fact_order_items AS I
-INNER JOIN gold.fact_orders AS O
+LEFT JOIN gold.fact_orders AS O
     ON I.order_id = O.order_id
-INNER JOIN gold.dim_customers AS C
+LEFT JOIN gold.dim_customers AS C
     ON O.customer_id = C.customer_id
 GROUP BY
     C.customer_region
@@ -266,9 +269,9 @@ WITH OrderTotals AS (
         SUM(I.price) AS order_total
     
     FROM gold.fact_order_items I
-    INNER JOIN gold.fact_orders O 
+    LEFT JOIN gold.fact_orders O 
         ON I.order_id = O.order_id
-    INNER JOIN gold.dim_customers C 
+    LEFT JOIN gold.dim_customers C 
         ON O.customer_id = C.customer_id
     GROUP BY
 		O.order_id,
@@ -287,10 +290,10 @@ WHERE ranking <= 2;
 SELECT TOP 3
     C.customer_unique_id,
     C.customer_state,
-    SUM(price) AS TotalSaleswithout_FreightCost,
-    SUM(total_item_value) AS TotalValueIncludingFreight
+    SUM(price) AS Total_Sales_without_Freight_Cost,
+    SUM(total_item_value) AS Total_Value_Incl_Freight_cost
 FROM gold.fact_order_items AS I
-INNER JOIN gold.fact_orders AS O
+LEFT JOIN gold.fact_orders AS O
     ON I.order_id = O.order_id
 INNER JOIN gold.dim_customers AS C
     ON O.customer_id = C.customer_id
@@ -298,7 +301,14 @@ GROUP BY
     C.customer_unique_id,
     C.customer_state
 ORDER BY
-    TotalSaleswithout_FreightCost DESC;
+    Total_Sales_without_Freight_Cost DESC;
+
+
+
+
+
+
+
 
 
 
