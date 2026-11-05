@@ -357,52 +357,76 @@ DROP VIEW gold.vw_order_item_logistics
 
 ----
 CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
+
 SELECT
-    -- Order and Item Information
-    o.order_id,
+    -- Order and item information
+    oi.order_id,
     oi.order_item_id,
     o.customer_id,
     oi.product_id,
     oi.seller_id,
-    -- Customer Coordinates
+    -- Customer coordinates
     c.customer_lat,
     c.customer_lng,
-    -- Seller Coordinates
+    -- Seller coordinates
     s.seller_lat,
     s.seller_lng,
-    -- Distance in Kilometers
-    2 * 6371.0 * ASIN(
-        SQRT(
-            CASE
-                WHEN h.a > 1 THEN 1.0
-                WHEN h.a < 0 THEN 0.0
-                ELSE h.a
-            END)) AS distance_km
-FROM gold.fact_orders AS o
-INNER JOIN gold.fact_order_items AS oi
-    ON o.order_id = oi.order_id
-INNER JOIN gold.dim_customers AS c
+    -- Distance in kilometers
+    CASE
+        WHEN c.customer_lat BETWEEN -90 AND 90
+         AND c.customer_lng BETWEEN -180 AND 180
+         AND s.seller_lat BETWEEN -90 AND 90
+         AND s.seller_lng BETWEEN -180 AND 180
+        THEN
+            2 * 6371.0 * ASIN(
+                SQRT(
+                    CASE
+                        WHEN h.a > 1 THEN 1.0
+                        WHEN h.a < 0 THEN 0.0
+                        ELSE h.a
+                    END  ))
+        ELSE NULL
+    END AS distance_km,
+    -- Distance availability status
+    CASE
+        WHEN o.order_id IS NULL
+            THEN 'Missing Order'
+        WHEN c.customer_id IS NULL
+            THEN 'Missing Customer Record'
+        WHEN s.seller_id IS NULL
+            THEN 'Missing Seller Record'
+        WHEN c.customer_lat IS NULL
+          OR c.customer_lng IS NULL
+            THEN 'Missing Customer Coordinates'
+        WHEN s.seller_lat IS NULL
+          OR s.seller_lng IS NULL
+            THEN 'Missing Seller Coordinates'
+        WHEN c.customer_lat NOT BETWEEN -90 AND 90
+          OR c.customer_lng NOT BETWEEN -180 AND 180
+            THEN 'Invalid Customer Coordinates'
+        WHEN s.seller_lat NOT BETWEEN -90 AND 90
+          OR s.seller_lng NOT BETWEEN -180 AND 180
+            THEN 'Invalid Seller Coordinates'
+        ELSE 'Valid Distance'
+    END AS distance_status
+
+FROM gold.fact_order_items oi
+LEFT JOIN gold.fact_orders o
+    ON oi.order_id = o.order_id
+LEFT JOIN gold.dim_customers c
     ON o.customer_id = c.customer_id
-INNER JOIN gold.dim_sellers AS s
+LEFT JOIN gold.dim_sellers s
     ON oi.seller_id = s.seller_id
 CROSS APPLY (
     SELECT
         POWER(
-            SIN(RADIANS(s.seller_lat - c.customer_lat) / 2), 2 )
-        + COS(RADIANS(c.customer_lat))
+            SIN(RADIANS(s.seller_lat - c.customer_lat) / 2),
+            2)
+        +
+        COS(RADIANS(c.customer_lat))
         * COS(RADIANS(s.seller_lat))
         * POWER(
-            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2), 2
-        ) AS a) AS h
-WHERE
-    c.customer_lat IS NOT NULL
-    AND c.customer_lng IS NOT NULL
-    AND s.seller_lat IS NOT NULL
-    AND s.seller_lng IS NOT NULL
-    AND c.customer_lat BETWEEN -90 AND 90
-    AND c.customer_lng BETWEEN -180 AND 180
-    AND s.seller_lat BETWEEN -90 AND 90
-    AND s.seller_lng BETWEEN -180 AND 180;
+            SIN(RADIANS(s.seller_lng - c.customer_lng) / 2),2 ) AS a) h;
 ==================================================================================================================================================================
                                                            ================================
 ==================================================================================================================================================================
