@@ -146,7 +146,7 @@
 
 ### Customer Region Total Spend
 
-| customer_region | TotalValueIncludingFreight |
+| customer_region | Total_Value_Incl_Freight_cost |
 | :--- | :--- |
 | Southeast | 10097773.38 |
 | South | 2264330.47 |
@@ -159,9 +159,9 @@
 ---
 
 
-### 2. Customer State & Regional Performance Report
+###  Customer State & Regional Performance Report
 
-| customer_state | customer_region | Total_price | TotalValueIncludingFreight |
+| customer_state | customer_region | Total_price | Total_Value_Incl_Freight_cost |
 | :--- | :--- | :--- | :--- |
 | Sao Paulo | Southeast | 5131750.85 | 5839570.76 |
 | Rio de Janeiro | Southeast | 1804719.42 | 2106752.76 |
@@ -207,7 +207,7 @@ Ranking
 
 ### Lowest 5 Product Categories by Revenue
 
-| product_category_name | total_price | TotalValueIncludingFreight |
+| product_category | total_price | Total_Value_Incl_Freight_cost |
 | :--- | :--- | :--- |
 | security_and_services | 283.29 | 324.51 |
 | fashion_childrens_clothing | 569.85 | 665.36 |
@@ -221,7 +221,7 @@ Ranking
 
 ### Customer Total Revenue by Region
 
-| customer_region | total_revenue | TotalValueIncludingFreight |
+| customer_region | total_revenue | Total_Value_Incl_Freight_cost |
 | :--- | :--- | :--- |
 | Southeast | 8771859.94 | 10097773.38 |
 | South | 1926969.98 | 2264330.47 |
@@ -247,7 +247,7 @@ Ranking
 
 ### Top Customers by Sales & Freight Value
 
-| customer_id | customer_state | TotalSaleswithout_FreightCost | TotalValueIncludingFreight |
+| customer_id | customer_state | TotalSales_without_Freight_Cost | Total_Value_Incl_Freight_cost |
 | :--- | :--- | :--- | :--- |
 | 1617b1357756262bfa56ab541c47bc16 | Rio de Janeiro | 13440.00 | 13664.08 |
 | ec5b2ba62e574342386871631fafd3fc | Espirito Santo | 7160.00 | 7274.88 |
