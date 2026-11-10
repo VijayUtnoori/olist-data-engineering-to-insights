@@ -2,103 +2,108 @@
 
 The Silver layer contains cleaned, standardized, and validated data transformed from the Bronze layer. The main objective is to improve data quality, maintain consistency, handle missing values, and prepare the data for Gold-layer analytics.
 
----
+## 1. Customers (`silver.olist_customers`)
 
-## 1. `silver.olist_customers`
+- Removed quotation marks and trimmed whitespace from customer IDs.
+- Standardized customer city names and state abbreviations.
+- Validated `customer_id` as NOT NULL and unique.
+- Allowed duplicate `customer_unique_id` values because one unique customer can have multiple customer IDs.
+- **Grain:** One row per `customer_id`.
 
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| All string columns | Extra double quotes (`"`) in text fields. | Removed unnecessary double-quote characters. |
-| `customer_unique_id` | Missing values and multiple records associated with the same unique customer. | Filtered out NULL identifiers and retained the latest customer record based on the most recent purchase date. |
-| `customer_city` | Leading and trailing whitespace. | Trimmed unnecessary whitespace. |
-| `customer_state` | State abbreviations such as `SP` and `RJ`. | Standardized state codes into full state names, such as `Sao Paulo` and `Rio de Janeiro`. |
+## 2. Geolocation (`silver.olist_geolocation`)
 
----
+- Converted ZIP prefixes and latitude/longitude into appropriate numeric data types.
+- Standardized city names by removing accents and converting to lowercase.
+- Standardized Brazilian state abbreviations into full state names.
+- Removed invalid geographic coordinates.
+- Aggregated latitude and longitude using `AVG()` for each ZIP prefix.
+- Validated ZIP prefix uniqueness, missing coordinates and Bronze-to-Silver coordinate reconciliation.
+- **Grain:** One row per ZIP prefix.
+- **Final records:** 19,010.
 
-## 2. `silver.olist_geolocation`
+## 3. Sellers (`silver.olist_sellers`)
 
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `geolocation_zip_code_prefix` | Multiple records for the same ZIP-code prefix. | Deduplicated records, retaining one representative record per ZIP prefix using alphabetical city ordering. |
-| `geolocation_lat`, `geolocation_lng` | Text data types, invalid values, and coordinates outside the selected geographic boundaries. | Converted coordinates to decimal types and filtered invalid coordinates using the configured Brazil bounds: latitude `-33.75` to `5.25`, longitude `-73.98` to `-34.79`. |
-| `geolocation_city` | Inconsistent casing and Portuguese accents. | Removed accents, normalized text to ASCII characters, and converted city names to lowercase. |
-| `geolocation_state` | Two-letter state abbreviations. | Standardized state codes into full state names. |
+- Removed quotation marks and trimmed seller IDs and ZIP prefixes.
+- Standardized seller city names using the geolocation table.
+- Used the original seller city as a fallback when geolocation data was unavailable.
+- Converted Brazilian state abbreviations into full state names.
+- Validated seller ID uniqueness and ZIP-prefix relationships.
+- **Grain:** One row per `seller_id`.
 
----
+## 4. Products (`silver.olist_products`)
 
-## 3. `silver.olist_order_items`
+- Cleaned product IDs and converted numeric attributes into appropriate data types.
+- Translated Portuguese product categories into English using the category translation table.
+- Used the original category as a fallback when English translation was unavailable.
+- Handled missing numeric attributes without automatically replacing NULL values with zero.
+- Validated product ID uniqueness and category translation table uniqueness.
+- **Grain:** One row per `product_id`.
 
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `order_id`, `product_id`, `seller_id` | Extra double quotes in identifier columns. | Removed unnecessary double-quote characters. |
-| `order_item_id` | Stored as text. | Converted to integer. |
-| `shipping_limit_date` | Text format, fractional-second precision, and invalid shipping deadlines preceding the order purchase timestamp. | Converted to a datetime type with the configured precision and filtered records where the shipping limit preceded the purchase timestamp. |
-| `price`, `freight_value` | Text data types, invalid values, and non-positive monetary amounts. | Converted to decimal types and filtered records where `price <= 0` or `freight_value <= 0`. |
+## 5. Orders (`silver.olist_orders`)
 
----
+- Cleaned order IDs and customer IDs.
+- Standardized order status into lowercase.
+- Converted order timestamps into `DATETIME2` and estimated delivery dates into `DATE`.
+- Applied mandatory field validation:
+  - `order_id` must not be NULL or empty.
+  - `order_purchase_timestamp` must not be NULL.
+  - `order_delivered_customer_date` must not be NULL.
+- Applied chronological validation:
+  - Purchase must not occur after approval.
+  - Approval must not occur after carrier handoff, when both exist.
+  - Carrier handoff must not occur after customer delivery, when both exist.
+- Preserved NULL approval and carrier timestamps.
+- Separated invalid records into `silver.olist_orders_rejected`, including rejection reasons.
+- **Grain:** One row per `order_id`.
+- **Expected valid records:** 95,103.
+- **Rejected records:** 4,338.
 
-## 4. `silver.olist_order_payments`
+## 6. Order Items (`silver.olist_order_items`)
 
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `order_id` | Extra double quotes. | Removed unnecessary double-quote characters. |
-| `payment_sequential`, `payment_installments` | Stored as text. | Converted to integer types. |
-| `payment_type` | Inconsistent casing, Portuguese terminology (`boleto`), and undefined categories (`not_defined`). | Normalized text to lowercase, replaced `boleto` with `bank_slip`, and mapped `not_defined` to `unknown`. |
-| `payment_value` | Stored as text. | Converted to a decimal type. |
+- Cleaned order, product and seller IDs.
+- Converted item IDs into integers and monetary values into decimal data types.
+- Validated relationships with Silver Orders, Products and Sellers.
+- Applied data-quality rules:
+  - Mandatory order, item, product and seller IDs.
+  - Price must be greater than zero.
+  - Freight value must be zero or greater.
+  - Shipping limit date must not be NULL.
+  - Shipping limit date must not precede purchase timestamp.
+- Separated invalid records into `silver.olist_order_items_rejected`.
+- Preserved rejection reasons for future investigation.
+- **Grain:** One row per `(order_id, order_item_id)`.
+- **Bronze records:** 112,650.
+- **Rejected item records:** 4,049.
+- **Expected valid item records:** 108,601.
 
----
+## 7. Rejected Data Summary
 
-## 5. `silver.olist_order_reviews`
+| Rejected table | Records |
+|---|---:|
+| `silver.olist_orders_rejected` | 4,338 |
+| `silver.olist_order_items_rejected` | 4,049 |
 
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `review_id` | Extra double quotes and duplicate records for the same review identifier. | Removed unnecessary quotes and deduplicated records, retaining the latest record based on the review creation date. |
-| `order_id` | Extra double quotes. | Removed unnecessary double-quote characters. |
-| `review_score` | Text data type and invalid ratings. | Converted to integer and filtered out scores less than or equal to zero. |
-| `review_comment_title` | Missing review titles (`NULL` values). | Replaced missing titles with `Not submited` so that missing titles are explicitly identified. |
-| `review_comment_message` | Missing review messages (`NULL` values). | Replaced missing messages with `Not Commented` so that missing comments are explicitly identified. |
-| `review_creation_date`, `review_answer_timestamp` | Text data types and invalid date sequences. | Converted to appropriate date/datetime types and filtered records where the review creation date occurred after the answer timestamp. |
+### Rejected Order Items – Financial Summary
 
-**Note:** `Not submited` and `Not Commented` are placeholders for missing information; they do not represent actual customer feedback.
+| Metric | Amount (BRL) |
+|---|---:|
+| Rejected item price | 546,802.11 |
+| Rejected freight | 86,266.78 |
+| Total rejected value | 633,068.89 |
 
----
+*Rejected monetary value represents the value associated with excluded records, not necessarily lost revenue.*
 
-## 6. `silver.olist_orders`
+## 8. Silver Layer Completion
 
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `order_id`, `customer_id` | Extra double quotes. | Removed unnecessary double-quote characters. |
-| `order_status` | Inconsistent casing and surrounding whitespace. | Trimmed whitespace and converted status values to lowercase. |
-| Order milestone timestamps | Text data types, missing timestamps, and invalid chronological sequences. | Converted timestamps to datetime types, removed records missing required milestone timestamps, and enforced the chronological sequence: purchase → approval → carrier delivery → customer delivery. |
-| `order_estimated_delivery_date` | Required date-only representation for the estimated delivery date. | Converted to the `DATE` data type. |
+- Bronze layer preserved without modification.
+- Silver tables cleaned, standardized and validated.
+- Table grains and key uniqueness checked.
+- Referential integrity investigated.
+- Rejected records preserved separately with rejection reasons.
+- Original source records retained for auditability.
 
-**Note:** Filtering orders with missing milestone timestamps excludes incomplete orders and may affect analyses of cancelled orders and delivery performance.
+**Next Phase:** Gold Layer – Dimensional Modeling, Fact Tables, Dimension Tables and Business-Ready Data for Power BI.
 
----
-
-## 7. `silver.olist_products`
-
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `product_id` | Extra double quotes. | Removed unnecessary double-quote characters. |
-| `product_category_name` | Portuguese category names, missing values, and redundant name-length field. | Standardized category names using the English translation dataset, normalized text, mapped missing categories to `unknown`, and removed the redundant `product_name_lenght` column. |
-| `product_description_length` | Misspelled source column name and missing values. | Corrected the column name from `product_description_lenght`, converted it to integer, and replaced missing values with `0`. |
-| `product_photos_qty` | Text data type and missing values. | Converted to integer and replaced missing values with `0`. |
-| `product_weight_g`, `product_length_cm`, `product_height_cm`, `product_width_cm` | Text data types and missing measurements. | Converted to numeric types and replaced missing values with `0`. |
-
-**Note:** Zero-filled measurements indicate missing source values, not necessarily actual zero-weight or zero-sized products.
-
----
-
-## 8. `silver.olist_sellers`
-
-| Column | Issue Identified | How It Was Resolved |
-|---|---|---|
-| `seller_id`, `seller_zip_code_prefix` | Extra double quotes. | Removed unnecessary double-quote characters. |
-| `seller_city` | Inconsistent casing, Portuguese accents, and extra quotes. | Used cleaned geolocation data joined by ZIP-code prefix to standardize city names, with fallback text normalization where required. |
-| `seller_state` | Two-letter state abbreviations. | Standardized state codes into full state names using the configured state-mapping logic. |
-
----
 
 ## Summary
 
