@@ -124,4 +124,29 @@ CREATE TABLE silver.olist_orders(
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+-----
+CREATE TABLE Olist_DataWarehouse.silver.olist_order_items_rejected (
+    order_id VARCHAR(50),
+    order_item_id INT,
+    product_id VARCHAR(50),
+    seller_id VARCHAR(50),
+    shipping_limit_date DATETIME2(0),
+    price DECIMAL(10,2),
+    freight_value DECIMAL(10,2),
+    rejection_reason NVARCHAR(500)
+);
+
+--
+CREATE TABLE Olist_DataWarehouse.silver.olist_orders_rejected (
+    order_id VARCHAR(50),
+    customer_id VARCHAR(50),
+    order_status VARCHAR(30),
+    order_purchase_timestamp DATETIME2(0),
+    order_approved_at DATETIME2(0),
+    order_delivered_carrier_date DATETIME2(0),
+    order_delivered_customer_date DATETIME2(0),
+    order_estimated_delivery_date DATE,
+    rejection_reason NVARCHAR(500)
+);
+
 
