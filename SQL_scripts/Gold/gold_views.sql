@@ -1,34 +1,16 @@
-/*
-=========================================================================================
-DDL Script: Create Gold Views
-===============================================================================
-Script Purpose:
-    This script creates views for the Gold layer in the data warehouse. 
-    The Gold layer represents the final dimension and fact tables (Star Schema)
-
-    Each view performs transformations and combines data from the Silver layer 
-    to produce a clean, enriched, and business-ready dataset.
-
-Usage:
-    - These views can be queried directly for analytics and reporting.
-=====================================================================================
-*/
--- ==========================================================================================
--- Create Dimension: gold.dim_customers
--- =============================================================================
 USE Olist_DataWarehouse
---=======================
+--==========================================
 --CUSTOMER
 --========================
+DROP VIEW gold.dim_customers
+SELECT TOP 3 * FROM gold.dim_customers
 
-CREATE OR ALTER VIEW  gold.dim_customers AS
-WITH duplicate_removeal AS(
+CREATE OR ALTER VIEW gold.dim_customers AS
+WITH customer_view AS(
 SELECT
-    ROW_NUMBER() OVER(ORDER BY C.customer_id) AS customer_sk,
+    ROW_NUMBER() OVER(ORDER BY C.customer_id) AS customer_key,
     C.customer_id,
     C.customer_unique_id,
-    --Removed duplicates customer_unique_ids 
-    ROW_NUMBER() OVER(PARTITION BY C.customer_unique_id ORDER BY C.customer_unique_id) AS Ranking,
     C.customer_zip_code_prefix,
     C.customer_city,
     C.customer_state,
@@ -75,7 +57,7 @@ LEFT JOIN Olist_DataWarehouse.silver.olist_geolocation G
 ON C.customer_zip_code_prefix=G.geolocation_zip_code_prefix
 )
 SELECT
-    customer_sk,
+    customer_key,
     customer_id,
     customer_unique_id,
     customer_zip_code_prefix,
@@ -84,65 +66,33 @@ SELECT
     customer_region,
     customer_lat,
     customer_lng
-FROM duplicate_removeal
-WHERE Ranking=1
-
+FROM customer_view
 
 --============================
 --GEOLOCATION
 --=======================
+DROP VIEW gold.dim_geolocation
+SELECT TOP 3 * FROM gold.dim_geolocation
+
 CREATE OR ALTER VIEW gold.dim_geolocation AS(
 SELECT
-    ROW_NUMBER() OVER(ORDER BY geolocation_zip_code_prefix) AS geolocation_sk,
+    ROW_NUMBER() OVER(ORDER BY geolocation_zip_code_prefix) AS geolocation_key,
     geolocation_zip_code_prefix,
     geolocation_lat,
     geolocation_lng,
     geolocation_city,
-    geolocation_state,
--- Derived Geographic Region
-    CASE geolocation_state
-        -- Southeast
-        WHEN 'Sao Paulo' THEN 'Southeast'
-        WHEN 'Rio de Janeiro' THEN 'Southeast'
-        WHEN 'Minas Gerais' THEN 'Southeast'
-        WHEN 'Espirito Santo' THEN 'Southeast'
-        -- South
-        WHEN 'Parana' THEN 'South'
-        WHEN 'Rio Grande do Sul' THEN 'South'
-        WHEN 'Santa Catarina' THEN 'South'
-        -- Northeast
-        WHEN 'Bahia' THEN 'Northeast'
-        WHEN 'Pernambuco' THEN 'Northeast'
-        WHEN 'Ceara' THEN 'Northeast'
-        WHEN 'Maranhao' THEN 'Northeast'
-        WHEN 'Paraiba' THEN 'Northeast'
-        WHEN 'Rio Grande do Norte' THEN 'Northeast'
-        WHEN 'Alagoas' THEN 'Northeast'
-        WHEN 'Piaui' THEN 'Northeast'
-        WHEN 'Sergipe' THEN 'Northeast'
-        -- North
-        WHEN 'Amazonas' THEN 'North'
-        WHEN 'Para' THEN 'North'
-        WHEN 'Acre' THEN 'North'
-        WHEN 'Rondonia' THEN 'North'
-        WHEN 'Roraima' THEN 'North'
-        WHEN 'Amapa' THEN 'North'
-        WHEN 'Tocantins' THEN 'North'
-        --Central-West (Midwest)
-        WHEN 'Federal District' THEN 'Central-West'
-        WHEN 'Goias' THEN 'Central-West'
-        WHEN 'Mato Grosso' THEN 'Central-West'
-        WHEN 'Mato Grosso do Sul' THEN 'Central-West'        
-        ELSE 'Unknown'
-    END AS geolocation_region
+    geolocation_state
 FROM Olist_DataWarehouse.silver.olist_geolocation
 )
 ---===================================
 --SELLER
 --==========================
+DROP VIEW gold.dim_sellers
+SELECT TOP 3 * FROM gold.dim_sellers
+
 CREATE OR ALTER VIEW  gold.dim_sellers AS(
 SELECT
-    ROW_NUMBER() OVER(ORDER BY S.seller_id) AS seller_sk,
+    ROW_NUMBER() OVER(ORDER BY S.seller_id) AS seller_key,
     S.seller_id,
     S.seller_zip_code_prefix,
     S.seller_city,
@@ -191,20 +141,19 @@ ON S.seller_zip_code_prefix=G.geolocation_zip_code_prefix
 )
 --==========================
 --PRODUCT
---
+--=======================================
 SELECT TOP 2 * FROM gold.dim_products
 DROP VIEW gold.dim_products
+
 CREATE OR ALTER VIEW gold.dim_products AS(
 SELECT * FROM (
 SELECT 
-  ROW_NUMBER() OVER(ORDER BY product_id) AS product_sk,
+  ROW_NUMBER() OVER(ORDER BY product_id) AS product_key,
   product_id,
-  product_category_name AS product_category,
+  REPLACE(product_category_name,'_',' ') AS product_category,
   product_description_length,
   product_photos_qty,
   CAST(ROUND(product_weight_g / 1000.0, 2) AS FLOAT) AS weight_kg,
-  product_height_cm,
-  product_width_cm,
   CAST(ROUND((product_length_cm * product_height_cm * product_width_cm), 2) AS FLOAT) AS product_volume_cm,
   CASE 
     WHEN product_weight_g / 1000.0 >= 30 THEN 'Bulky'
@@ -215,17 +164,21 @@ SELECT
 FROM Olist_DataWarehouse.silver.olist_products)t
 WHERE weight_kg>0)
 
----=============
+---====================================
 --ORDER TABLE
+--=============================
+SELECT TOP 3 * FROM gold.fact_orders
+DROP VIEW gold.fact_orders
 
 CREATE OR ALTER VIEW gold.fact_orders AS(
 SELECT 
 --serogate key
-   ROW_NUMBER() OVER (ORDER BY order_purchase_timestamp, order_id) AS order_sk,
+   ROW_NUMBER() OVER (ORDER BY order_purchase_timestamp, order_id) AS order_key,
    CAST(FORMAT(order_purchase_timestamp,'yyyyMMdd') AS INT)AS purchase_date_key,
    order_id,
    O.customer_id,
    C.customer_unique_id,
+   C.customer_key,
    order_status, 
     -- Order Timeline Milestones
    order_purchase_timestamp AS purchased_at,
@@ -242,16 +195,17 @@ FROM Olist_DataWarehouse.silver.olist_orders O
 LEFT JOIN gold.dim_customers C
 ON C.customer_id=O.customer_id 
 );
-
----====
+---=============================
 --REVIEWS
+--================================
 DROP VIEW gold.fact_reviews
 CREATE VIEW gold.fact_reviews AS(
 SELECT 
     -- Review Metrics
-    ROW_NUMBER() OVER(ORDER BY review_id) AS review_sk,
+    ROW_NUMBER() OVER(ORDER BY review_id) AS review_key,
     review_id,
-    order_id,
+    R.order_id,
+    O.order_key,
     review_score,
     review_creation_date AS created_at,
     review_answer_timestamp AS answered_at, 
@@ -262,16 +216,22 @@ SELECT
         ELSE 'Unreviewed'
     END AS score_status, 
     DATEDIFF(DAY,review_creation_date,review_answer_timestamp) AS replay_days
-FROM Olist_DataWarehouse.silver.olist_order_reviews);
+FROM Olist_DataWarehouse.silver.olist_order_reviews R
+INNER JOIN gold.fact_orders O
+ON R.order_id=O.order_id
+);
 
 
 ---======================
 --PAYMENT
-CREATE OR ALTER VIEW gold.fact_payments AS
+--============================
+DROP VIEW gold.fact_payments
+CREATE OR ALTER VIEW gold.fact_payments AS(
 SELECT
     -- Surrogate key
-    ROW_NUMBER() OVER ( ORDER BY order_id, payment_sequential ) AS payment_sk,--give unique combination
-    order_id,
+    ROW_NUMBER() OVER ( ORDER BY P.order_id, P.payment_sequential ) AS payment_key,--give unique combination
+    P.order_id,
+    O.order_key,
     payment_sequential,
     payment_type,
     payment_installments,
@@ -282,21 +242,27 @@ SELECT
         WHEN payment_value >= 500 THEN 'Medium payment value'
         ELSE 'Low payment value'
     END AS payment_status
-FROM Olist_DataWarehouse.silver.olist_order_payments;
+FROM Olist_DataWarehouse.silver.olist_order_payments P
+INNER JOIN gold.fact_orders O
+ON P.order_id=O.order_id
+);
 
 --=====================
 --ORDER ITEMS
+--===============================
 
-DROP VIEW gold.fact_order_items
-
+DROP VIEW gold.fact_order_items;
 CREATE OR ALTER VIEW gold.fact_order_items AS
 SELECT
     -- Unique Integer Surrogate Key
     ROW_NUMBER() OVER (
         ORDER BY i.shipping_limit_date, i.order_id, i.order_item_id
-    ) AS order_item_sk,
+    ) AS order_item_key,
     -- Business / Natural Keys
     i.order_id,
+    S.seller_key,
+    P.product_key,
+    R.order_key,
     i.order_item_id,
     i.product_id,
     i.seller_id,
@@ -318,11 +284,17 @@ SELECT
         ELSE 0
     END AS is_high_freight
 FROM silver.olist_order_items AS i
-INNER JOIN silver.olist_orders AS o
-    ON i.order_id = o.order_id;
+LEFT JOIN gold.dim_sellers S
+    ON i.seller_id=S.seller_id
+LEFT JOIN gold.dim_products P
+    ON i.product_id=P.product_id
+LEFT JOIN gold.fact_orders R
+    ON i.order_id=R.order_id
+
 
 --==================
 --DIM_DATE
+---=============================
 
 CREATE OR ALTER VIEW gold.dim_date AS
 WITH N AS (
@@ -349,13 +321,13 @@ SELECT
 FROM D
 WHERE full_date <= '2018-12-31';
 
-SELECT * FROM gold.dim_date
-
-
 
 DROP VIEW gold.vw_order_item_logistics
 
-----
+----======================================================
+--order_item_logistics
+---=====================================================
+
 CREATE OR ALTER VIEW gold.vw_order_item_logistics AS
 
 SELECT
@@ -427,9 +399,29 @@ CROSS APPLY (
         * COS(RADIANS(s.seller_lat))
         * POWER(
             SIN(RADIANS(s.seller_lng - c.customer_lng) / 2),2 ) AS a) h;
-==================================================================================================================================================================
-                                                           ================================
-==================================================================================================================================================================
+
+
+--=================================
+--olist_orders_droped
+--=====================================
+CREATE VIEW gold.olist_orders_droped AS
+            SELECT
+                order_id,
+                customer_id,
+                order_status,
+                order_purchase_timestamp,
+                order_approved_at,
+                order_delivered_carrier_date,
+                order_delivered_customer_date,
+                order_estimated_delivery_date,
+                rejection_reason
+            FROM silver.olist_orders_rejected
+
+
+
+
+
+
 
 
 
