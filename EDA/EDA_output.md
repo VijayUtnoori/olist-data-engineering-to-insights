@@ -10,20 +10,18 @@
 
 | Measure_name | Measure_value |
 | :--- | :--- |
-| **Avg payment value** | 160.99 |
-| **Total payment value** | 16008872.12 |
-| **Total Customer Records** | 96096.00 |
-| **Total Unique Customers** | 96096.00 |
-| **Total reviews count** | 98410.00 |
-| **Distinct customers orders** | 98036.00 |
-| **Total number of sellers** | 3093.00 |
-| **Total number unique products** | 32940.00 |
-| **Total number of unique order items** | 21.00 |
-| **Total sales exluding Freight Charges** | 13591643.70 |
-| **Total Value Including Freight Charges** | 15843553.24 |
-| **Total Deliverd Sales Including Freight Charges** | 15208510.38 |
-| **Total non Deliverd Sales Including Freight Charges** | 421994.74 |
-| **Total Freight Charges** | 2251909.54 |
+| Avg payment value | 160.59 |
+| Total payment value | 15,705,288.03 |
+| Total Customer Records | 99,441.00 |
+| Total Unique Customers | 96,096.00 |
+| Total reviews count | 96,801.00 |
+| Distinct customers orders | 97,796.00 |
+| Total number of sellers | 3,093.00 |
+| Total number unique products | 32,940.00 |
+| Total number of unique order items | 21.00 |
+| Total sales | 13,435,474.68 |
+| Total Value Including Freight Charges | 15,664,156.25 |
+| Total Freight Charges | 2,228,681.57 |
 
 **Key Insights:** These are the core measure names along with their respective measure values.
 
@@ -39,11 +37,11 @@
 
 | customer_region | NumberOfCustomers |
 | :--- | :--- |
-| Southeast | 65888|
-| South | 13687 |
-| Northeast | 9134 |
-| Central-West | 5593 |
-| North | 1794 |
+| Southeast | 68,266 |
+| South | 14,148 |
+| Northeast | 9,394 |
+| Central-West | 5,782 |
+| North | 1,851 |
 
 **Key Insights:** There are a total of 5 regions in Brazil. The majority of customers are concentrated in the Southeast, while the North region has the least number of customers.
 
@@ -53,9 +51,9 @@
 
 | score_status | Count_score_status |
 | :--- | :--- |
-| Excellent_score | 56910 |
-| Average_score | 27104 |
-| Low_score | 14396 |
+| Excellent_score | 56,415 |
+| Average_score | 26,826 |
+| Low_score | 13,560 |
 
 **Key Insights:** Most reviews fall under the excellent score category (ratings 5). Average scores (rating 4 and 3) account for 27,104 reviews, and low scores (ratings 1 and 2) account for 14,396 reviews.
 
@@ -65,10 +63,10 @@
 
 | payment_type | Count_payment_type |
 | :--- | :--- |
-| credit_card | 76795 |
-| bank_slip | 19784 |
-| voucher | 5775 |
-| debit_card | 1529 |
+| credit_card | 75,647 |
+| bank_slip | 19,343 |
+| voucher | 5,678 |
+| debit_card | 1,491 |
 | unknown | 3 |
 
 **Key Insights:** Credit cards heavily dominate over other payment types, whereas debit cards represent the least used common payment type.
@@ -79,9 +77,9 @@
 
 | payment_status | Count_payment_status |
 | :--- | :--- |
-| High payment value | 1150 |
-| Medium payment value | 3113 |
-| Low payment value | 99623 |
+| High payment value | 1,108 |
+| Medium payment value | 3,056 |
+| Low payment value | 97,998 |
 
 **Key Insights:** The maximum transactions fall under the low payment value range (0–499), followed by medium payment values (500–999), with high payment values (1000 and above) recording 1,150 transactions.
 
