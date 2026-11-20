@@ -33,7 +33,7 @@
 
 --==================================================
 
-### Customer Region Distribution
+### Customer Count Distribution by Customer Region
 
 | customer_region | NumberOfCustomers |
 | :--- | :--- |
@@ -47,7 +47,7 @@
 
 ---
 
-### Review Score Status Breakdown
+### Review Score Status count analysis
 
 | score_status | Count_score_status |
 | :--- | :--- |
@@ -55,7 +55,7 @@
 | Average_score | 26,826 |
 | Low_score | 13,560 |
 
-**Key Insights:** Most reviews fall under the excellent score category (ratings 5). Average scores (rating 4 and 3) account for 27,104 reviews, and low scores (ratings 1 and 2) account for 14,396 reviews.
+**Key Insights:** Most reviews fall under the excellent score category (ratings 5). Average scores (rating 4 and 3) account for 27,104 reviews, and low scores (ratings 1 and 2) account for 13,560 reviews.
 
 ---
 
@@ -73,7 +73,7 @@
 
 ---
 
-### Payment Value Status Breakdown
+### Payment Value Status count analysis
 
 | payment_status | Count_payment_status |
 | :--- | :--- |
@@ -81,7 +81,7 @@
 | Medium payment value | 3,056 |
 | Low payment value | 97,998 |
 
-**Key Insights:** The maximum transactions fall under the low payment value range (0–499), followed by medium payment values (500–999), with high payment values (1000 and above) recording 1,150 transactions.
+**Key Insights:** The maximum transactions fall under the low payment value range (0–499), followed by medium payment values (500–999), with high payment values (1000 and above)
 
 ---
 
@@ -98,8 +98,9 @@
 | created | 5 |
 | approved | 2 |
 
+**Key Insights:**: In total order most of the orders are deliverd 
 
-### 7. Product Catalog Distribution by Size Category
+###  Product Catalog Distribution by Size Category
 
 | product_size_category | product_count |
 | :--- | :--- |
@@ -108,13 +109,12 @@
 | Medium | 2,291 |
 | Small | 28,743 |
 
-**Key Insights:**
-* **Small-Parcel Dominance:** `Small` items account for ~87.3% (`28,743` out of `32,940` unique products) of the catalog, which helps streamline standard courier shipping and warehouse storage[cite: 7].
-* **Minimal Oversized Inventory:** `Bulky` products represent less than 0.5% (`144` items) of the total product catalog[cite: 7].
+**Key Insights:**: Segmented the product size in 4  bucket most of the product fall under the small size of products 
+
 
 ---
 
-### 8. Seller Distribution by Region
+### Seller Distribution by Region
 
 | seller_region | Number_of_sellers |
 | :--- | :--- |
@@ -124,15 +124,14 @@
 | Northeast | 57 |
 | North | 4 |
 
-**Key Insights:**
-* **Severe Supply-Side Centralization:** Together, the **Southeast** (`2,264`) and **South** (`688`) house ~95.4% of all `3,093` sellers[cite: 8].
-* **Cross-Regional Shipping Dependency:** While the **Northeast** has `9,394` customers, it only has `57` local sellers—meaning most orders in the Northeast and North (`4` sellers) must be shipped long-distance from the Southeast/South, driving up freight costs and delivery times[cite: 2, 8].
+**Key Insights:**: Total we have 3093 sellers most of seller concentrated in southeast region followed by south
+
 
 ---
 
-### 9. Overall Item Value by Customer Region
+###  Overall Item Value by Customer Region
 
-| customer_region | overall_item_value |
+| customer_region | overall_sales |
 | :--- | :--- |
 | Southeast | 10,098,715.61 |
 | South | 2,274,622.32 |
@@ -140,9 +139,8 @@
 | Central-West | 1,014,351.65 |
 | North | 408,153.04 |
 
-**Key Insights:**
-* **Primary Revenue Engine:** The **Southeast** generates ~64.5% (`10,098,715.61` out of `15,664,156.25`) of total platform value[cite: 9].
-* **Higher Average Order Value in Underserved Regions:** Although the **North** (`1,851` customers) and **Northeast** (`9,394` customers) represent smaller customer segments, their per-customer value (`220.50` and `198.88` respectively) is noticeably higher than the **Southeast** (`147.93`), largely driven by higher freight charges and larger basket sizes[cite: 2, 9].
+**Key Insights:**: Overall Item Value by Customer Region most of customer overall_sales generated from southeast we can say like we have more seller in that region
+
 
 --------------------------------------
 
@@ -181,27 +179,22 @@
 
 **Key Insights:** Sao Paulo ranks 1st in total sales across Brazil, while Roraima records the lowest.
 
----
-
 ---=======================================
 
 Ranking
 
 --=====================================
 
-**Key Insights:** Top 5 individual products ranked by category revenue from top to bottom.
-
----
-
 ### Lowest 5 Product Categories by Revenue
 
-| product_category | total_price | Total_Value_Incl_Freight_cost |
+| product_category | total_price | TotalValueIncludingFreight |
 | :--- | :--- | :--- |
-| security_and_services | 283.29 | 324.51 |
-| fashion_childrens_clothing | 569.85 | 665.36 |
-| cds_dvds_musicals | 730.00 | 954.99 |
-| home_comfort_2 | 760.27 | 1170.58 |
-| flowers | 1110.04 | 1598.91 |
+| security and services | 283.29 | 324.51 |
+| fashion childrens clothes | 569.85 | 665.36 |
+| cds dvds musicals | 730.00 | 954.99 |
+| home comfort 2 | 760.27 | 1,170.58 |
+| flowers | 1,110.04 | 1,598.91 |
+
 
 **Key Insights:** The lowest-performing product categories by total revenue.
 
@@ -209,11 +202,11 @@ Ranking
 
 ### Customer Total Revenue by Region
 
-| customer_region | total_revenue | Total_Value_Incl_Freight_cost |
+| customer_region | total_revenue | TotalValueIncludingFreight |
 | :--- | :--- | :--- |
-| Southeast | 8771859.94 | 10097773.38 |
-| South | 1926969.98 | 2264330.47 |
-| Northeast | 1527361.25 | 1857982.65 |
+| Southeast | 8,769,267.31 | 10,098,715.61 |
+| South | 1,935,163.84 | 2,274,622.32 |
+| Northeast | 1,535,501.42 | 1,868,313.63 |
 
 **Key Insights:** The Southeast customer region generates the highest total revenue.
 
@@ -235,10 +228,10 @@ Ranking
 
 ### Top Customers by Sales & Freight Value
 
-| customer_id | customer_state | TotalSales_without_Freight_Cost | Total_Value_Incl_Freight_cost |
+| customer_unique_id | customer_state | Total_Sales_without_Freight_Cost | Total_Value_Incl_Freight_cost |
 | :--- | :--- | :--- | :--- |
-| 1617b1357756262bfa56ab541c47bc16 | Rio de Janeiro | 13440.00 | 13664.08 |
-| ec5b2ba62e574342386871631fafd3fc | Espirito Santo | 7160.00 | 7274.88 |
-| c6e2731c5b391845f6800c97401a43a9 | Mato Grosso do Sul | 6735.00 | 6929.31 |
+| 0a0a92112bd4c708ca5fde585afaa872 | Rio de Janeiro | 13,440.00 | 13,664.08 |
+| da122df9eeddfedc1dc1f5349a1a690c | Rio de Janeiro | 7,388.00 | 7,571.63 |
+| 763c8b1c9c68a0229c42c9fc6f662b93 | Espirito Santo | 7,160.00 | 7,274.88 |
 
 **Key Insights:** Top spending customers with Rio de Janeiro leading the top state in this segment.
