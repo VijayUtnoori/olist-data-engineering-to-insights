@@ -77,7 +77,7 @@ CHANGE OVER TIME
 
 
 
-# 5. Monthly Sales and Order Trends
+### 5. Monthly Sales and Order Trends
 
 | order_year | total_revenue_without_freight_cost | total_sales_with_freight_cost | total_orders | total_customer_orders |
 | :--- | :--- | :--- | :--- | :--- |
