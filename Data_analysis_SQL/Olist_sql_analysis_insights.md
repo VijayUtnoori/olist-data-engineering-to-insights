@@ -9,9 +9,9 @@ DATA SEGMENTATION
 
 | customer_segmentation | total_customers |
 | :--- | :--- |
-| New customer | 93956 |
-| Regular customer | 105 |
-| VIP_customer | 18 |
+| New customer | 94,302 |
+| Regular customer | 107 |
+| VIP_customer | 19 |
 
 **Note:** Spending amount is in Brazilian Real (BRL). Customers are segmented as VIP (at least 12 months history and spending more than R$500), Regular (at least 12 months history and spending R$500 or less), and New (lifespan less than 12 months).
 
@@ -20,19 +20,19 @@ DATA SEGMENTATION
 - **1 BRL to INR:** ~₹18.81 INR
 
 **Key Insights**:Most of the customers fall under 'New' lifespan less than 12 months and spending R$500 or less
-Only 17 customers VIP customers there  least 12 months history and spending more than R$500
+Only 19 customers VIP customers there  least 12 months history and spending more than R$500
 
 
 ### 2.Installment Bucket Analysis Report[cite: 16]
 
-| installment_bucket | total_order_count | total_sales_excl_freight_cost | contribution |
+| installment_bucket | total_order_count | total_sales | contribution |
 | :--- | :--- | :--- | :--- |
-| Short term installment (2-6) | 38200 | 5067030.04 | 37.78% |
-| 1-installment | 47136 | 4730588.10 | 35.27% |
-| Medium term installment (7-15) | 11845 | 3579079.23 | 26.69% |
-| Long term installment (15 or more) | 79 | 34894.24 | 0.26% |
+| Short term installment (2-6) | 38,416 | 5,090,004.47 | 37.88% |
+| 1-installment | 47,256 | 4,737,352.69 | 35.26% |
+| Medium term installment (7-15) | 11,871 | 3,572,837.94 | 26.59% |
+| Long term installment (15 or more) | 81 | 35,279.58 | 0.26% |
 
-**Key Insights:** The majority of customers complete their payments in a **Short term installment (5067030)**, closely followed by **1-installment (4730588.10)**. 
+**Key Insights:** The majority of customers complete their payments in a **Short term installment (5,090,0047)**, closely followed by **1-installment (4737353.69)**. 
 with generated sales
 
 
@@ -42,11 +42,11 @@ with generated sales
 
 | sales_range | total_product_count |
 | :--- | :--- |
-| Below 100 | 71099 |
-| 100-200 | 26669 |
-| 200-500 | 10047 |
-| 500-2000 | 3058 |
-| Above 2000 | 121 |
+| Below 100 | 71,352 |
+| 100-200 | 26,802 |
+| 200-500 | 10,066 |
+| 500-2000 | 3,051 |
+| Above 2000 | 122 |
 
 **Note:** Products are segmented into price ranges using conditional logic: `WHEN I.price < 100 THEN 'Below 100'`, `WHEN I.price BETWEEN 100 AND 200 THEN '100-200'`, `WHEN I.price BETWEEN 200 AND 500 THEN '200-500'`, `WHEN I.price BETWEEN 500 AND 2000 THEN '500-2000'`, and `ELSE 'Above 2000'`.
 
@@ -59,28 +59,28 @@ with generated sales
 
 ### 4. Regional Sales Contribution (Gross Merchandise Value)
 
-| customer_region | region_revenue_incl_freight | total_marketplace_revenue | percentage_contribution |
+| customer_region | total_revenue_with_freight_cost | overall_revenue_with_freight_cost | contribution |
 | :--- | :--- | :--- | :--- |
-| Southeast | 10097773.38 | 15630505.12 | 64.60% |
-| South | 2264330.47 | 15630505.12 | 14.49% |
-| Northeast | 1857982.65 | 15630505.12 | 11.89% |
-| Central-West | 1003227.05 | 15630505.12 | 6.42% |
-| North | 407191.57 | 15630505.12 | 2.61% |
+| Southeast | 10,098,715.61 | 15,664,156.25 | 64.47% |
+| South | 2,274,622.32 | 15,664,156.25 | 14.52% |
+| Northeast | 1,868,313.63 | 15,664,156.25 | 11.93% |
+| Central-West | 1,014,351.65 | 15,664,156.25 | 6.48% |
+| North | 408,153.04 | 15,664,156.25 | 2.61% |
 
-**Key Insights:**: Southeast region contribute the most overall 65.60% followed by South 14.49%
+**Key Insights:**: Southeast region contribute the most overall 64.47% followed by South 14.52%
 ---
 
 ### 5 Product Category Sales Contribution Report
 
-| product_category | total_revenue_without_freight | total_revenue_incl_freight | total_marketplace_revenue | percentage_contribution |
+| product_category | total_revenue_without_freight | total_revenue_with_freight_cost | overall_total_revenue_with_freight_cost | contribution |
 | :--- | :--- | :--- | :--- | :--- |
-| fixed_telephony | 59583.00 | 64220.81 | 139815.31 | 45.93% |
-| audio | 49369.72 | 55014.75 | 139815.31 | 39.35% |
-| fashion_male_clothing | 10797.82 | 12950.23 | 139815.31 | 9.26% |
-| books_imported | 4509.87 | 5240.98 | 139815.31 | 3.75% |
-| la_cuisine | 2054.99 | 2388.54 | 139815.31 | 1.71% |
+| computers accessories | 904,350.45 | 1,050,521.96 | 1,477,200.77 | 71.12% |
+| office furniture | 272,626.27 | 340,844.02 | 1,477,200.77 | 23.07% |
+| audio | 49,968.71 | 55,636.03 | 1,477,200.77 | 3.77% |
+| drinks | 22,291.21 | 28,014.62 | 1,477,200.77 | 1.90% |
+| arts and craftmanship | 1,814.01 | 2,184.14 | 1,477,200.77 | 0.15% |
 
-**Key Insights:** : fixed telephony products contribution the most in over sales which 45.93% and followed by audio 39.35%
+**Key Insights:** : computer accessories products contribution the most in over sales which 71.12 and followed by office furniture 23.07%
 
 ---===================================
 
@@ -126,32 +126,32 @@ CHANGE OVER TIME
 
 ## 7. Monthly Sales Trends Cumulative Sales and Moving Averages
 
-| order_month | monthly_sales_with_freight | cumulative_revenue_excl_freight | cumulative_gmv_incl_freight | running_average_monthly_sales |
+| purchased_at | total_sales | Running_total_without_freight_cost | Running_total_with_freight_cost | moving_average |
 | :--- | :--- | :--- | :--- | :--- |
-| 2016-09-01 | 354.75 | 267.36 | 354.75 | 354.800000 |
-| 2016-10-01 | 56150.00 | 49188.08 | 56504.75 | 28252.400000 |
-| 2016-12-01 | 19.62 | 49198.98 | 56524.37 | 18841.500000 |
-| 2017-01-01 | 136866.91 | 169237.31 | 193391.28 | 48347.800000 |
-| 2017-02-01 | 283856.96 | 414449.30 | 477248.24 | 95449.600000 |
-| 2017-03-01 | 431934.52 | 788704.60 | 909182.76 | 151530.500000 |
-| 2017-04-01 | 410101.13 | 1146801.31 | 1319283.89 | 188469.100000 |
-| 2017-05-01 | 584414.11 | 1651365.65 | 1903698.00 | 237962.300000 |
-| 2017-06-01 | 502237.54 | 2083791.85 | 2405935.54 | 267326.200000 |
-| 2017-07-01 | 581029.96 | 2578696.32 | 2986965.50 | 298696.600000 |
-| 2017-08-01 | 667276.76 | 3151896.71 | 3654242.26 | 332203.800000 |
-| 2017-09-01 | 717292.20 | 3773484.47 | 4371534.46 | 364294.500000 |
-| 2017-10-01 | 769312.37 | 4437703.90 | 5140846.83 | 395449.800000 |
-| 2017-11-01 | 1178737.40 | 5447602.97 | 6319584.23 | 451398.900000 |
-| 2017-12-01 | 862982.52 | 6191042.46 | 7182566.75 | 478837.800000 |
-| 2018-01-01 | 1104249.64 | 7138600.43 | 8286816.39 | 517926.000000 |
-| 2018-02-01 | 984404.01 | 7980549.88 | 9271220.40 | 545365.900000 |
-| 2018-03-01 | 1155055.29 | 8963718.32 | 10426275.69 | 579237.500000 |
-| 2018-04-01 | 1099241.68 | 9908693.15 | 11525517.37 | 606606.200000 |
-| 2018-05-01 | 1137002.00 | 10894213.90 | 12662519.37 | 633126.000000 |
-| 2018-06-01 | 1003221.87 | 11742930.69 | 13665741.24 | 650749.600000 |
-| 2018-07-01 | 973491.28 | 12566931.05 | 14639232.52 | 665419.700000 |
-| 2018-08-01 | 991106.14 | 13411581.58 | 15630338.66 | 679579.900000 |
-| 2018-09-01 | 166.46 | 13411726.58 | 15630505.12 | 651271.000000 |
+| 2016-09-01 | 211.29 | 132.39 | 211.29 | 211.300000 |
+| 2016-10-01 | 53,926.82 | 46,974.42 | 54,138.11 | 27,069.100000 |
+| 2016-12-01 | 19.62 | 46,985.32 | 54,157.73 | 18,052.600000 |
+| 2017-01-01 | 136,607.73 | 166,818.14 | 190,765.46 | 47,691.400000 |
+| 2017-02-01 | 283,750.28 | 412,025.59 | 474,515.74 | 94,903.100000 |
+| 2017-03-01 | 430,478.25 | 784,965.45 | 904,993.99 | 150,832.300000 |
+| 2017-04-01 | 411,335.38 | 1,143,981.42 | 1,316,329.37 | 188,047.100000 |
+| 2017-05-01 | 583,334.74 | 1,647,809.06 | 1,899,664.11 | 237,458.000000 |
+| 2017-06-01 | 492,119.62 | 2,070,276.02 | 2,391,783.73 | 265,753.700000 |
+| 2017-07-01 | 577,118.11 | 2,561,303.39 | 2,968,901.84 | 296,890.200000 |
+| 2017-08-01 | 666,433.95 | 3,133,757.34 | 3,635,335.79 | 330,485.100000 |
+| 2017-09-01 | 715,551.65 | 3,753,803.72 | 4,350,887.44 | 362,574.000000 |
+| 2017-10-01 | 766,409.72 | 4,415,522.81 | 5,117,297.16 | 393,638.200000 |
+| 2017-11-01 | 1,167,377.71 | 5,415,355.39 | 6,284,674.87 | 448,905.300000 |
+| 2017-12-01 | 859,395.47 | 6,155,526.43 | 7,144,070.34 | 476,271.400000 |
+| 2018-01-01 | 1,099,166.29 | 7,098,605.61 | 8,243,236.63 | 515,202.300000 |
+| 2018-02-01 | 983,152.31 | 7,939,435.85 | 9,226,388.94 | 542,728.800000 |
+| 2018-03-01 | 1,152,567.15 | 8,920,350.46 | 10,378,956.09 | 576,608.700000 |
+| 2018-04-01 | 1,121,710.64 | 9,884,733.28 | 11,500,666.73 | 605,298.200000 |
+| 2018-05-01 | 1,144,433.93 | 10,876,338.38 | 12,645,100.66 | 632,255.000000 |
+| 2018-06-01 | 1,016,620.35 | 11,736,387.92 | 13,661,721.01 | 650,558.100000 |
+| 2018-07-01 | 1,014,623.96 | 12,594,642.37 | 14,676,344.97 | 667,106.600000 |
+| 2018-08-01 | 987,644.82 | 13,435,329.68 | 15,663,989.79 | 681,043.000000 |
+| 2018-09-01 | 166.46 | 13,435,474.68 | 15,664,156.25 | 652,673.200000 |
 
 **Key Insights:**:Each monthly sales with freight cost by year, cumulative revenue exclude freight,cumulative include freight cost and running average monthly sales
 
@@ -165,9 +165,9 @@ CUMMULATIVE ANALYSIS
 
 | order_year | number_of_orders | running_orders | moving_avg_orders |
 | :--- | :--- | :--- | :--- |
-| 2016 | 325 | 325 | 325 |
-| 2017 | 44981 | 45306 | 22653 |
-| 2018 | 52730 | 98036 | 32678 |
+| 2016 | 316 | 316 | 316 |
+| 2017 | 44,433 | 44,749 | 22,374 |
+| 2018 | 53,047 | 97,796 | 32,598 |
 
 **Key Insights:**: year by year number of orders,running orders count ,moving avg count. over sales performance increase over the time
 ---
@@ -176,23 +176,23 @@ CUMMULATIVE ANALYSIS
 
 | distance_range_start | distance_range_end | total_orders | avg_freight_value | min_freight_value | max_freight_value |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 0 | 50 | 19304 | 11.410809 | 0.00 | 135.44 |
-| 50 | 100 | 10271 | 12.011942 | 0.00 | 105.33 |
-| 100 | 150 | 6697 | 14.160665 | 0.00 | 145.18 |
-| 150 | 200 | 4005 | 15.572926 | 0.00 | 207.78 |
-| 200 | 250 | 4284 | 17.401122 | 0.00 | 321.46 |
-| 250 | 300 | 6557 | 17.325558 | 0.00 | 177.94 |
-| 300 | 350 | 12020 | 19.009111 | 0.00 | 207.78 |
-| 350 | 400 | 9662 | 19.806445 | 0.00 | 306.06 |
-| 400 | 450 | 7468 | 19.698847 | 0.00 | 322.10 |
-| 450 | 500 | 8990 | 19.508666 | 0.00 | 375.28 |
+| 0 | 50 | 19,262 | 11.411089 | 0.00 | 135.44 |
+| 50 | 100 | 10,242 | 11.996929 | 0.00 | 105.33 |
+| 100 | 150 | 6,658 | 14.214137 | 0.00 | 145.18 |
+| 150 | 200 | 3,990 | 15.550814 | 0.00 | 207.78 |
+| 200 | 250 | 4,325 | 17.411179 | 0.00 | 321.46 |
+| 250 | 300 | 6,449 | 17.354476 | 0.00 | 162.92 |
+| 300 | 350 | 12,292 | 18.950122 | 0.00 | 207.78 |
+| 350 | 400 | 9,680 | 19.858177 | 0.00 | 306.06 |
+| 400 | 450 | 7,467 | 19.752936 | 0.00 | 375.28 |
+| 450 | 500 | 9,036 | 19.442563 | 0.00 | 375.28 |
 
 ---
 
 ### **Key Insights:**
-* **Total Bins:** There are **69 bins** but displayed only 10 and evaluated in the complete distance distribution analysis[cite: 11].
-* **Distance vs. Order Volume:** Generally, as the delivery distance increases, the volume of total orders tends to decrease, showing that most customer orders are concentrated within closer proximity ranges[cite: 11].
-* **Distance vs. Freight Cost:** As the distance increases, the average freight cost (`avg_freight_value`) generally exhibits an upward trend, reflecting higher shipping expenses for longer-distance deliveries[cite: 11].
+* **Total Bins:** There are **69 bins** but displayed only 10 and evaluated in the complete distance distribution analysis.
+* **Distance vs. Order Volume:** Generally, as the delivery distance increases, the volume of total orders tends to decrease, showing that most customer orders are concentrated within closer proximity ranges.
+* **Distance vs. Freight Cost:** As the distance increases, the average freight cost (`avg_freight_value`) generally exhibits an upward trend, reflecting higher shipping expenses for longer-distance deliveries.
 
 --===================
 
@@ -202,20 +202,21 @@ CUMMULATIVE ANALYSIS
 
 ### 10 Product Category Yearly Sales & Performance Comparison Report
 
-| order_year | product_category | current_year_sales_incl_freight | previous_year_sales_incl_freight | performance_vs_average | yoy_sales_difference | yoy_status |
+| Order_year | product_category | avg_sales_incl_freight_cost | previous_sales_incl_freight_cost | avg_sales_status | diff_previous_year | previous_sales_status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 2017 | agro_industry_and_commerce | 38949.925000 | NULL | Below the avg | 231.96 | N/A |
-| 2018 | agro_industry_and_commerce | 38949.925000 | 31111.89 | Above the avg | 29077.38 | profit |
-| 2016 | air_conditioning | 20361.103333 | NULL | Below the avg | NULL | N/A |
-| 2017 | air_conditioning | 20361.103333 | 1904.91 | Above the avg | 10922.85 | profit |
-| 2018 | air_conditioning | 20361.103333 | 30879.93 | Above the avg | -18489.49 | loss |
-| 2017 | art | 14005.380000 | NULL | Below the avg | -20811.71 | N/A |
-| 2018 | art | 14005.380000 | 10300.18 | Above the avg | 15735.88 | profit |
-| 2017 | arts_and_craftmanship | 1074.960000 | NULL | Below the avg | -10124.96 | N/A |
-| 2018 | arts_and_craftmanship | 1074.960000 | 175.22 | Above the avg | 1799.48 | profit |
-| 2016 | audio | 18338.250000 | NULL | Below the avg | -1721.88 | N/A |
+| 2017 | agro industry and commerce | 39,063.295000 | NULL | Below the avg | 231.96 | N/A |
+| 2018 | agro industry and commerce | 39,063.295000 | 31,111.89 | Above the avg | 29,548.62 | profit |
+| 2016 | air conditioning | 20,469.470000 | NULL | Below the avg | NULL | N/A |
+| 2017 | air conditioning | 20,469.470000 | 1,904.91 | Above the avg | 10,922.85 | profit |
+| 2018 | air conditioning | 20,469.470000 | 30,879.93 | Above the avg | -18,391.13 | loss |
+| 2017 | art | 13,883.130000 | NULL | Below the avg | -20,811.71 | N/A |
+| 2018 | art | 13,883.130000 | 10,300.18 | Above the avg | 15,457.16 | profit |
+| 2017 | arts and craftmanship | 1,092.070000 | NULL | Below the avg | -10,124.96 | N/A |
+| 2018 | arts and craftmanship | 1,092.070000 | 175.22 | Above the avg | 1,833.70 | profit |
+| 2016 | audio | 18,545.343333 | NULL | Below the avg | -1,721.88 | N/A |
 
-**Note:** There are a total of 170+ rows, and we are showcasing a sample of 12 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
+
+**Note:** There are a total of 170+ rows, and we are showcasing a sample of 10 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
 
 ---===========================================
 
@@ -225,12 +226,12 @@ REPORTING CUSTOMER LEVEL
 
 ### Customer Lifetime Value & Behavioral Analysis Report
 
-| customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_products | total_sales | avg_order_value |
+| customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_product | total_sales | avg_order_value |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 0000366f3b9a7992bf8c76cfdf3221e2 | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 129.90 | 129.900000 |
 | 0000b849f77a49e4a4ce2b2a4ca5be3f | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 18.90 | 18.900000 |
-| 0000f46a3911fa3c0805444483337064 | Santa Catarina | South | New customer | 0 | 9 | 1 | 1 | 69.00 | 69.000000 |
+| 0000f46a3911fa3c080544483337064 | Santa Catarina | South | New customer | 0 | 9 | 1 | 1 | 69.00 | 69.000000 |
 | 0000f6ccb0745a6a4b88665a16c9f078 | Para | North | New customer | 0 | 9 | 1 | 1 | 25.99 | 25.990000 |
-| 0004aac84e0df42a2b147fca70cf8255 | Sao Paulo | Southeast | New customer | 0 | 9 | 1 | 1 | 180.00 | 180.000000 |
+| 0004aac84e0df4da2b147fca70cf8255 | Sao Paulo | Southeast | New customer | 0 | 9 | 1 | 1 | 180.00 | 180.000000 |
 
 **Note:** only shown 5 records ,Customers are segmented using the logic: `CASE WHEN lifespan >= 12 AND total_sales > 300 THEN 'VIP_customer' WHEN lifespan >= 12 AND total_sales <= 300 THEN 'Regular customer' ELSE 'New customer'`. Recency is measured in years since the last order.
