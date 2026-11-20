@@ -139,7 +139,7 @@
 | Central-West | 1,014,351.65 |
 | North | 408,153.04 |
 
-**Key Insights:**: Overall Item Value by Customer Region most of customer overall_sales generated from southeast we can say like we have more seller in that region
+**Key Insights:**: Overall Item Value by Customer Region most of customer overall_sales generated from southeast we can observed that most of seller concentrated in that southeast region
 
 
 --------------------------------------
