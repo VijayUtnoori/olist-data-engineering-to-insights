@@ -98,65 +98,53 @@
 | created | 5 |
 | approved | 2 |
 
----
 
-### Overall Item Value by Order Item Position
+### 7. Product Catalog Distribution by Size Category
 
-| order_item_id | overall_item_values |
+| product_size_category | product_count |
 | :--- | :--- |
-| 1 | 14230791.09 |
-| 2 | 1001841.91 |
-| 3 | 217770.86 |
-| 4 | 91389.89 |
-| 5 | 42616.51 |
-| 6 | 24120.05 |
-| 7 | 6917.92 |
-| 8 | 5148.76 |
-| 9 | 2798.41 |
-| 10 | 2436.39 |
-| 11 | 1318.29 |
-| 12 | 822.36 |
-| 13 | 513.84 |
-| 14 | 476.46 |
-| 15 | 366.26 |
-| 16 | 232.35 |
-| 17 | 232.35 |
-| 18 | 232.35 |
-| 19 | 232.35 |
-| 20 | 232.35 |
-| 21 | 14.37 |
+| Bulky | 144 |
+| Large | 1,762 |
+| Medium | 2,291 |
+| Small | 28,743 |
 
-**Key Insights:** Most purchased items correspond to order item ID 1, while ID 21 has the least. *(Note: Item names is not avaliable).*
+**Key Insights:**
+* **Small-Parcel Dominance:** `Small` items account for ~87.3% (`28,743` out of `32,940` unique products) of the catalog, which helps streamline standard courier shipping and warehouse storage[cite: 7].
+* **Minimal Oversized Inventory:** `Bulky` products represent less than 0.5% (`144` items) of the total product catalog[cite: 7].
 
 ---
 
-### Seller Region Distribution
+### 8. Seller Distribution by Region
 
 | seller_region | Number_of_sellers |
 | :--- | :--- |
-| Southeast | 2265 |
+| Southeast | 2,264 |
 | South | 688 |
 | Central-West | 80 |
-| Northeast | 56 |
+| Northeast | 57 |
 | North | 4 |
 
-**Key Insights:** There are 5 regions across Brazil; most sellers originate from the Southeast while the North region has the fewest.
+**Key Insights:**
+* **Severe Supply-Side Centralization:** Together, the **Southeast** (`2,264`) and **South** (`688`) house ~95.4% of all `3,093` sellers[cite: 8].
+* **Cross-Regional Shipping Dependency:** While the **Northeast** has `9,394` customers, it only has `57` local sellers—meaning most orders in the Northeast and North (`4` sellers) must be shipped long-distance from the Southeast/South, driving up freight costs and delivery times[cite: 2, 8].
 
 ---
 
-### Customer Region Total Spend
+### 9. Overall Item Value by Customer Region
 
-| customer_region | Total_Value_Incl_Freight_cost |
+| customer_region | overall_item_value |
 | :--- | :--- |
-| Southeast | 10097773.38 |
-| South | 2264330.47 |
-| Northeast | 1857982.65 |
-| Central-West | 1003227.05 |
-| North | 407191.55 |
+| Southeast | 10,098,715.61 |
+| South | 2,274,622.32 |
+| Northeast | 1,868,313.63 |
+| Central-West | 1,014,351.65 |
+| North | 408,153.04 |
 
-**Key Insights:** Overall item value combines price and freight cost. The highest spending is generated in the Southeast region.
+**Key Insights:**
+* **Primary Revenue Engine:** The **Southeast** generates ~64.5% (`10,098,715.61` out of `15,664,156.25`) of total platform value[cite: 9].
+* **Higher Average Order Value in Underserved Regions:** Although the **North** (`1,851` customers) and **Northeast** (`9,394` customers) represent smaller customer segments, their per-customer value (`220.50` and `198.88` respectively) is noticeably higher than the **Southeast** (`147.93`), largely driven by higher freight charges and larger basket sizes[cite: 2, 9].
 
----
+--------------------------------------
 
 
 ###  Customer State & Regional Performance Report
