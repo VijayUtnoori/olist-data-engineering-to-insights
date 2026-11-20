@@ -5,7 +5,7 @@
 DATA SEGMENTATION
 
 --======================================
-### Customer Segmentation Report[cite: 17]
+### Customer Segmentation Report
 
 | customer_segmentation | total_customers |
 | :--- | :--- |
@@ -23,7 +23,7 @@ DATA SEGMENTATION
 Only 19 customers VIP customers there  least 12 months history and spending more than R$500
 
 
-### 2.Installment Bucket Analysis Report[cite: 16]
+### 2.Installment Bucket Analysis Report
 
 | installment_bucket | total_order_count | total_sales | contribution |
 | :--- | :--- | :--- | :--- |
