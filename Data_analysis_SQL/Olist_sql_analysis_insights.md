@@ -68,19 +68,6 @@ with generated sales
 | North | 408,153.04 | 15,664,156.25 | 2.61% |
 
 **Key Insights:**: Southeast region contribute the most overall 64.47% followed by South 14.52%
----
-
-### 5 Product Category Sales Contribution Report
-
-| product_category | total_revenue_without_freight | total_revenue_with_freight_cost | overall_total_revenue_with_freight_cost | contribution |
-| :--- | :--- | :--- | :--- | :--- |
-| computers accessories | 904,350.45 | 1,050,521.96 | 1,477,200.77 | 71.12% |
-| office furniture | 272,626.27 | 340,844.02 | 1,477,200.77 | 23.07% |
-| audio | 49,968.71 | 55,636.03 | 1,477,200.77 | 3.77% |
-| drinks | 22,291.21 | 28,014.62 | 1,477,200.77 | 1.90% |
-| arts and craftmanship | 1,814.01 | 2,184.14 | 1,477,200.77 | 0.15% |
-
-**Key Insights:** : computer accessories products contribution the most in over sales which 71.12 and followed by office furniture 23.07%
 
 ---===================================
 
@@ -90,7 +77,7 @@ CHANGE OVER TIME
 
 
 
-# 6. Monthly Sales and Order Trends
+# 5. Monthly Sales and Order Trends
 
 | order_year | total_revenue_without_freight_cost | total_sales_with_freight_cost | total_orders | total_customer_orders |
 | :--- | :--- | :--- | :--- | :--- |
@@ -124,7 +111,7 @@ CHANGE OVER TIME
 
 
 
-## 7. Monthly Sales Trends Cumulative Sales and Moving Averages
+## 6. Monthly Sales Trends Cumulative Sales and Moving Averages
 
 | purchased_at | total_sales | Running_total_without_freight_cost | Running_total_with_freight_cost | moving_average |
 | :--- | :--- | :--- | :--- | :--- |
@@ -161,7 +148,7 @@ CUMMULATIVE ANALYSIS
 
 --==========================================================
 
-### 8. Yearly Orders Running Total & Moving Average Report
+### 7. Yearly Orders Running Total & Moving Average Report
 
 | order_year | number_of_orders | running_orders | moving_avg_orders |
 | :--- | :--- | :--- | :--- |
@@ -172,7 +159,7 @@ CUMMULATIVE ANALYSIS
 **Key Insights:**: year by year number of orders,running orders count ,moving avg count. over sales performance increase over the time
 ---
 
-### 9 Distance Range vs. Freight Value Analysis Report
+### 8 Distance Range vs. Freight Value Analysis Report
 
 | distance_range_start | distance_range_end | total_orders | avg_freight_value | min_freight_value | max_freight_value |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -200,7 +187,7 @@ CUMMULATIVE ANALYSIS
 
 --====================
 
-### 10 Product Category Yearly Sales & Performance Comparison Report
+### 9 Product Category Yearly Sales & Performance Comparison Report
 
 | Order_year | product_category | avg_sales_incl_freight_cost | previous_sales_incl_freight_cost | avg_sales_status | diff_previous_year | previous_sales_status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -224,7 +211,7 @@ REPORTING CUSTOMER LEVEL
 
 --=============================================
 
-### Customer Lifetime Value & Behavioral Analysis Report
+### 10 Customer Lifetime Value & Behavioral Analysis Report
 
 | customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_product | total_sales | avg_order_value |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
