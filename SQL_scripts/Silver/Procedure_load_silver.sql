@@ -364,16 +364,15 @@ BEGIN
      SET @end_time=GETDATE();
 		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 		PRINT'------'
-    ----========================
-    --order
-    --===============
+        ---=============================
+        --orders
+        --==============================
     SET @start_time=GETDATE();
-    PRINT'>>TRUNCATE TABLE:silver.olist_orders'
+    PRINT'>>TRUNCATE TABLE:silver.olist_order_items'
 	TRUNCATE TABLE silver.olist_orders;
-	PRINT'>>INSERTING DATA INTO:silver.olist_orders';
-    --Cleaning
-        WITH converted_orders AS (
-            SELECT
+	PRINT'>>INSERTING DATA INTO:silver.olist_order_items';
+        WITH converted_orders AS
+        (SELECT
                 NULLIF(REPLACE(TRIM(order_id), '"', ''), '') AS order_id,
                 NULLIF(REPLACE(TRIM(customer_id), '"', ''), '') AS customer_id,
                 LOWER(TRIM(order_status)) AS order_status,
@@ -388,8 +387,8 @@ BEGIN
                 TRY_CAST(order_estimated_delivery_date AS DATE)
                     AS order_estimated_delivery_date
             FROM Olist_DataWarehouse.bronze.olist_orders)
-            --adding
-        INSERT INTO Olist_DataWarehouse.silver.olist_orders (
+        INSERT INTO Olist_DataWarehouse.silver.olist_orders
+        (
             order_id,
             customer_id,
             order_status,
@@ -408,245 +407,96 @@ BEGIN
             order_delivered_customer_date,
             order_estimated_delivery_date
         FROM converted_orders
-        --data quality check
         WHERE
-            --Mandatory fields
             order_id IS NOT NULL
-            AND order_purchase_timestamp IS NOT NULL
-            AND order_delivered_customer_date IS NOT NULL
-            --Purchase must not occur after approval
-            AND NOT(
-                order_approved_at IS NOT NULL
-                AND order_purchase_timestamp > order_approved_at)
-            -- Approval must not occur after carrier date
-            AND NOT(
+            -- Purchase must not occur after approval
+            AND NOT (
+                order_purchase_timestamp IS NOT NULL
+                AND order_approved_at IS NOT NULL
+                AND CAST(order_purchase_timestamp AS DATE)
+                    > CAST(order_approved_at AS DATE))
+            -- Purchase must not occur after shipped
+            AND NOT (
+                order_purchase_timestamp IS NOT NULL
+                AND order_delivered_carrier_date IS NOT NULL
+                AND CAST(order_purchase_timestamp AS DATE)
+                    > CAST(order_delivered_carrier_date AS DATE))
+            -- Purchase must not occur after delivered
+            AND NOT (
+                order_purchase_timestamp IS NOT NULL
+                AND order_delivered_customer_date IS NOT NULL
+                AND CAST(order_purchase_timestamp AS DATE)
+                    > CAST(order_delivered_customer_date AS DATE))
+            -- Approval must not occur after shipped
+            AND NOT (
                 order_approved_at IS NOT NULL
                 AND order_delivered_carrier_date IS NOT NULL
-                AND order_approved_at > order_delivered_carrier_date)
-            -- Carrier date must not occur after delivery
-            AND NOT(
+                AND CAST(order_approved_at AS DATE)
+                    > CAST(order_delivered_carrier_date AS DATE))
+            -- Approval must not occur after delivered
+            AND NOT (
+                order_approved_at IS NOT NULL
+                AND order_delivered_customer_date IS NOT NULL
+                AND CAST(order_approved_at AS DATE)
+                    > CAST(order_delivered_customer_date AS DATE))
+            -- Shipped must not occur after delivered
+            AND NOT (
                 order_delivered_carrier_date IS NOT NULL
-                AND order_delivered_carrier_date > order_delivered_customer_date);
-         SET @end_time=GETDATE();
-		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
-		PRINT'------'
----===================================================
---ORDER REJECTED(they not follow the rules (keeping in separete table))
---======================================
-    SET @start_time=GETDATE();
-    PRINT'>>TRUNCATE TABLE:silver.olist_orders'
-	TRUNCATE TABLE silver.olist_orders_rejected;
-	PRINT'>>INSERTING DATA INTO:silver.olist_orders';
-        WITH converted_orders AS (
-            SELECT
-                NULLIF(REPLACE(TRIM(order_id), '"', ''), '') AS order_id,
-                NULLIF(REPLACE(TRIM(customer_id), '"', ''), '') AS customer_id,
-                LOWER(TRIM(order_status)) AS order_status,
-                TRY_CAST(order_purchase_timestamp AS DATETIME2(0))
-                    AS order_purchase_timestamp,
-                TRY_CAST(order_approved_at AS DATETIME2(0))
-                    AS order_approved_at,
-                TRY_CAST(order_delivered_carrier_date AS DATETIME2(0))
-                    AS order_delivered_carrier_date,
-                TRY_CAST(order_delivered_customer_date AS DATETIME2(0))
-                    AS order_delivered_customer_date,
-                TRY_CAST(order_estimated_delivery_date AS DATE)
-                    AS order_estimated_delivery_date
-            FROM Olist_DataWarehouse.bronze.olist_orders),
-        rejected_orders AS (
-            SELECT *,
-                NULLIF(CONCAT_WS('; ',
-                    CASE WHEN order_id IS NULL
-                        THEN 'Missing order ID' END,
-                    CASE WHEN order_purchase_timestamp IS NULL
-                        THEN 'Missing purchase timestamp' END,
-                    CASE WHEN order_delivered_customer_date IS NULL
-                        THEN 'Missing delivery timestamp' END,
-                    CASE WHEN order_approved_at IS NOT NULL
-                          AND order_purchase_timestamp IS NOT NULL
-                          AND order_purchase_timestamp > order_approved_at
-                        THEN 'Purchase after approval' END,
-                    CASE WHEN order_approved_at IS NOT NULL
-                          AND order_delivered_carrier_date IS NOT NULL
-                          AND order_approved_at > order_delivered_carrier_date
-                        THEN 'Approval after carrier handoff' END,
-                    CASE WHEN order_delivered_carrier_date IS NOT NULL
-                          AND order_delivered_customer_date IS NOT NULL
-                          AND order_delivered_carrier_date > order_delivered_customer_date
-                        THEN 'Carrier handoff after delivery' END ), '') AS rejection_reason
-            FROM converted_orders)
-        INSERT INTO Olist_DataWarehouse.silver.olist_orders_rejected (
-            order_id,
-            customer_id,
-            order_status,
-            order_purchase_timestamp,
-            order_approved_at,
-            order_delivered_carrier_date,
-            order_delivered_customer_date,
-            order_estimated_delivery_date,
-            rejection_reason)
-        SELECT
-            order_id,
-            customer_id,
-            order_status,
-            order_purchase_timestamp,
-            order_approved_at,
-            order_delivered_carrier_date,
-            order_delivered_customer_date,
-            order_estimated_delivery_date,
-            rejection_reason
-        FROM rejected_orders
-        WHERE rejection_reason IS NOT NULL;
-        SET @end_time=GETDATE();
-		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
-		PRINT'------'
---==============================
---order_items
---=================================
+                AND order_delivered_customer_date IS NOT NULL
+                AND CAST(order_delivered_carrier_date AS DATE)
+                    > CAST(order_delivered_customer_date AS DATE))
+            -- Estimated delivery must not be before shipped
+            AND NOT (
+                order_estimated_delivery_date IS NOT NULL
+                AND order_delivered_carrier_date IS NOT NULL
+                AND order_estimated_delivery_date
+                    < CAST(order_delivered_carrier_date AS DATE));
+            SET @end_time=GETDATE();
+		    PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
+		    PRINT'------'
+
+     --======================================
+     --order_item
+     --=======================================
     SET @start_time=GETDATE();
     PRINT'>>TRUNCATE TABLE:silver.olist_order_items'
 	TRUNCATE TABLE silver.olist_order_items;
 	PRINT'>>INSERTING DATA INTO:silver.olist_order_items';
-        WITH converted_items AS (
+        WITH converted_order_items AS
+        (
             SELECT
-                NULLIF(REPLACE(TRIM(oi.order_id), '"', ''), '') AS order_id,
-                TRY_CAST(oi.order_item_id AS INT) AS order_item_id,
-                NULLIF(REPLACE(TRIM(oi.product_id), '"', ''), '') AS product_id,
-                NULLIF(REPLACE(TRIM(oi.seller_id), '"', ''), '') AS seller_id,
-                TRY_CAST(oi.shipping_limit_date AS DATETIME2(0))
+                NULLIF(REPLACE(TRIM(order_id), '"', ''), '') AS order_id,
+                TRY_CAST(order_item_id AS INT) AS order_item_id,
+                NULLIF(REPLACE(TRIM(product_id), '"', ''), '') AS product_id,
+                NULLIF(REPLACE(TRIM(seller_id), '"', ''), '') AS seller_id,
+                TRY_CAST(shipping_limit_date AS DATETIME2(0))
                     AS shipping_limit_date,
-                TRY_CAST(oi.price AS DECIMAL(10,2)) AS price,
-                TRY_CAST(oi.freight_value AS DECIMAL(10,2)) AS freight_value,
-                TRY_CAST(o.order_purchase_timestamp AS DATETIME2(0))
-                    AS order_purchase_timestamp
-            FROM Olist_DataWarehouse.bronze.olist_order_items oi
-            LEFT JOIN Olist_DataWarehouse.bronze.olist_orders o
-                ON REPLACE(TRIM(oi.order_id), '"', '') =
-                   REPLACE(TRIM(o.order_id), '"', ''))
-        INSERT INTO Olist_DataWarehouse.silver.olist_order_items (
+                TRY_CAST(price AS DECIMAL(10,2)) AS price,
+                TRY_CAST(freight_value AS DECIMAL(10,2)) AS freight_value
+            FROM Olist_DataWarehouse.bronze.olist_order_items)
+        INSERT INTO Olist_DataWarehouse.silver.olist_order_items
+        (
             order_id,
             order_item_id,
             product_id,
             seller_id,
             shipping_limit_date,
             price,
-            freight_value)
+            freight_value )
         SELECT
-            i.order_id,
-            i.order_item_id,
-            i.product_id,
-            i.seller_id,
-            i.shipping_limit_date,
-            i.price,
-            i.freight_value
-        FROM converted_items i
+            oi.order_id,
+            oi.order_item_id,
+            oi.product_id,
+            oi.seller_id,
+            oi.shipping_limit_date,
+            oi.price,
+            oi.freight_value
+        FROM converted_order_items oi
         INNER JOIN Olist_DataWarehouse.silver.olist_orders o
-            ON i.order_id = o.order_id
-        INNER JOIN Olist_DataWarehouse.silver.olist_products p
-            ON i.product_id = p.product_id
-        INNER JOIN Olist_DataWarehouse.silver.olist_sellers s
-            ON i.seller_id = s.seller_id
-        WHERE
-            -- 1. Mandatory identifiers
-            i.order_id IS NOT NULL
-            AND i.order_item_id IS NOT NULL
-            AND i.product_id IS NOT NULL
-            AND i.seller_id IS NOT NULL
-            -- 2. Mandatory shipping information
-            AND i.shipping_limit_date IS NOT NULL
-            AND i.order_purchase_timestamp IS NOT NULL
-            -- 3. Price and freight validation
-            AND i.price > 0
-            AND i.freight_value >= 0
-            -- 4. Shipping date validation
-            AND i.shipping_limit_date >= i.order_purchase_timestamp;
-            SET @end_time=GETDATE();
+            ON oi.order_id = o.order_id;
+        SET @end_time=GETDATE();
 		    PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
 		    PRINT'------'
-    ---==============================================================
-    --order rejected(they not follow the order table (keeping in separete table)
-    ---========================================
-    SET @start_time=GETDATE();
-    PRINT'>>TRUNCATE TABLE:silver.olist_orders'
-	TRUNCATE TABLE silver.olist_order_items_rejected;
-	PRINT'>>INSERTING DATA INTO:silver.olist_orders>>';
-        WITH converted_items AS (
-            SELECT
-                NULLIF(REPLACE(TRIM(oi.order_id), '"', ''), '') AS order_id,
-                TRY_CAST(oi.order_item_id AS INT) AS order_item_id,
-                NULLIF(REPLACE(TRIM(oi.product_id), '"', ''), '') AS product_id,
-                NULLIF(REPLACE(TRIM(oi.seller_id), '"', ''), '') AS seller_id,
-                TRY_CAST(oi.shipping_limit_date AS DATETIME2(0))
-                    AS shipping_limit_date,
-                TRY_CAST(oi.price AS DECIMAL(10,2)) AS price,
-                TRY_CAST(oi.freight_value AS DECIMAL(10,2)) AS freight_value,
-                TRY_CAST(o.order_purchase_timestamp AS DATETIME2(0))
-                    AS order_purchase_timestamp
-            FROM Olist_DataWarehouse.bronze.olist_order_items oi
-            LEFT JOIN Olist_DataWarehouse.bronze.olist_orders o
-                ON REPLACE(TRIM(oi.order_id), '"', '') =
-                   REPLACE(TRIM(o.order_id), '"', '')),
-        rejected_items AS (
-            SELECT
-                i.*,
-                NULLIF(CONCAT_WS('; ',
-                     CASE WHEN i.order_id IS NULL
-                        THEN 'Missing order ID' END,
-                    CASE WHEN i.order_item_id IS NULL
-                        THEN 'Missing order item ID' END,
-                    CASE WHEN i.product_id IS NULL
-                        THEN 'Missing product ID' END,
-                    CASE WHEN i.seller_id IS NULL
-                        THEN 'Missing seller ID' END,
-                    CASE WHEN o.order_id IS NULL
-                        THEN 'Order belongs to rejected or missing Silver order' END,
-                    CASE WHEN p.product_id IS NULL
-                        THEN 'Unmatched product ID' END,
-                    CASE WHEN s.seller_id IS NULL
-                        THEN 'Unmatched seller ID' END,
-                    CASE WHEN i.shipping_limit_date IS NULL
-                        THEN 'Missing or invalid shipping date' END,
-                    CASE WHEN i.order_purchase_timestamp IS NULL
-                        THEN 'Missing or invalid purchase timestamp' END,
-                    CASE WHEN i.price IS NULL OR i.price <= 0
-                        THEN 'Invalid price' END,
-                    CASE WHEN i.freight_value IS NULL OR i.freight_value < 0
-                        THEN 'Invalid freight value' END,
-                    CASE WHEN i.shipping_limit_date IS NOT NULL
-                          AND i.order_purchase_timestamp IS NOT NULL
-                          AND i.shipping_limit_date < i.order_purchase_timestamp
-                        THEN 'Shipping limit before purchase' END
-                ), '') AS rejection_reason
-            FROM converted_items i
-            LEFT JOIN Olist_DataWarehouse.silver.olist_orders o
-                ON i.order_id = o.order_id
-            LEFT JOIN Olist_DataWarehouse.silver.olist_products p
-                ON i.product_id = p.product_id
-            LEFT JOIN Olist_DataWarehouse.silver.olist_sellers s
-                ON i.seller_id = s.seller_id)
-        INSERT INTO Olist_DataWarehouse.silver.olist_order_items_rejected (
-            order_id,
-            order_item_id,
-            product_id,
-            seller_id,
-            shipping_limit_date,
-            price,
-            freight_value,
-            rejection_reason)
-        SELECT
-            order_id,
-            order_item_id,
-            product_id,
-            seller_id,
-            shipping_limit_date,
-            price,
-            freight_value,
-            rejection_reason
-        FROM rejected_items
-        WHERE rejection_reason IS NOT NULL;
-        SET @end_time=GETDATE();
-		PRINT'>>LOAD DURATION: '+ CAST(DATEDIFF(second,@start_time,@end_time) AS NVARCHAR)+'second';
-		PRINT'------'
             --try catch block if any error occur show the error details
     END TRY
         BEGIN CATCH
@@ -658,7 +508,7 @@ BEGIN
             PRINT'============================================';
         END CATCH
   END;
-  EXEC silver.loaded_silver
- 
+
+   EXEC silver.loaded_silver
 
 
