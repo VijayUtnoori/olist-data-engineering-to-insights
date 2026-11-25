@@ -17,3 +17,27 @@
 | :--- | :--- | :--- |
 | **PY Total Revenue** | Calculates total revenue for the prior calendar year relative to the active year slicer selection. | <pre>PY Total Revenue = <br>VAR SelectedYear = SELECTEDVALUE('gold dim_date'[year])<br>RETURN<br>IF(<br>    NOT ISBLANK(SelectedYear),<br>    CALCULATE(<br>        [Total Revenue],<br>        REMOVEFILTERS('gold dim_date'),<br>        'gold dim_date'[year] = SelectedYear - 1<br>    )<br>)</pre> |
 | **PY % Of Total** | Computes each product category's share of total Prior Year revenue by removing product-level filters in the denominator. | <pre>PY % Of Total = <br>VAR PY_All_Sales = CALCULATE([PY Total Revenue], ALL('gold dim_products'))<br>RETURN<br>DIVIDE([PY Total Revenue], PY_All_Sales)</pre> |
+
+
+
+--=============================================================
+
+
+## Page 2:Olist Marketplace Customer Analytics
+**Focus:** Customer lifetime value (CLV), repeat purchase behavior, regional revenue concentration (Southeast Brazil), and cross-grain customer penetration across product categories and sellers.
+
+### Core Customer & Regional KPIs
+| Measure Name | Business Purpose | DAX Formula |
+| :--- | :--- | :--- |
+| **Unique Customers** | Counts distinct active buyers who placed orders by activating bi-directional filtering from `fact_orders` to `dim_customers`. | <pre>Unique Customers = <br>CALCULATE(<br>    DISTINCTCOUNT('gold dim_customers'[customer_unique_id]),<br>    CROSSFILTER('gold fact_orders'[customer_key], 'gold dim_customers'[customer_key], Both)<br>)</pre> |
+| **CLV** *(Customer Lifetime Value)* | Average gross revenue generated per unique active customer. | `CLV = DIVIDE([Total Revenue], [Unique Customers])` |
+| **Repeat Customer Rate %** | Percentage of unique customers who placed more than one order, calculated via virtual table iteration (`ADDCOLUMNS` + `FILTER`). | <pre>Repeat Customer Rate % = <br>VAR CustomerOrders = <br>    ADDCOLUMNS(VALUES('gold dim_customers'[customer_unique_id]), "ordercount", [Total Order Placed])<br>VAR RepeatCustomers = <br>    COUNTROWS(FILTER(CustomerOrders, [ordercount] > 1))<br>RETURN<br>DIVIDE(RepeatCustomers, [Unique Customers])</pre> |
+| **SouthEast Region Revenue Share %** | Share of total marketplace revenue originating from customers in the Southeast region. | <pre>SouthEast Region Revenue Share % = <br>DIVIDE(<br>    CALCULATE([Total Revenue], 'gold dim_customers'[customer_region] = "Southeast"),<br>    [Total Revenue]<br>)</pre> |
+
+### Cross-Grain Customer Reach (Product & Seller Level)
+| Measure Name | Business Purpose | DAX Formula |
+| :--- | :--- | :--- |
+| **Customer(Item Level)** | Bridges line-item dimensions (`dim_products`, `dim_sellers`) to `dim_customers` by chaining two `CROSSFILTER` modifiers across `fact_order_items` and `fact_orders`. | <pre>Customer(Item Level) = <br>CALCULATE(<br>    DISTINCTCOUNT('gold dim_customers'[customer_unique_id]),<br>    CROSSFILTER('gold fact_order_items'[order_key], 'gold fact_orders'[order_key], Both),<br>    CROSSFILTER('gold fact_orders'[customer_key], 'gold dim_customers'[customer_key], Both)<br>)</pre> |
+| **Revenue per bayer** | Average item-level revenue generated per unique buyer within a given product or seller context. | `Revenue per bayer = DIVIDE([Total Revenue], [Customer(Item Level)])` |
+| **Category Customer Share %** | Percentage of total item-level buyers who purchased from a specific product category. | <pre>Category Customer Share % = <br>DIVIDE(<br>    [Customer(Item Level)],<br>    CALCULATE([Customer(Item Level)], ALL('gold dim_products'))<br>)</pre> |
+| **Seller Customer Share %** | Percentage of total item-level buyers who purchased from a specific seller. | <pre>Seller Customer Share % = <br>DIVIDE(<br>    [Customer(Item Level)],<br>    CALCULATE([Customer(Item Level)], ALL('gold dim_sellers'))<br>)</pre> |
