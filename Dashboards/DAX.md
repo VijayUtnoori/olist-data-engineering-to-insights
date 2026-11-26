@@ -4,17 +4,11 @@
 ### Core KPIs & Dynamic Parameters
 | Measure / Parameter | Business Purpose | DAX Formula |
 | :--- | :--- | :--- |
-| **Total Revenue** | Gross marketplace revenue generated across all sold order items. |
-`Total Revenue = 
-CALCULATE(
-    SUM('gold fact_order_items'[total_item_value]),
-    KEEPFILTERS(NOT('gold fact_orders'[order_status] IN {"canceled", "unavailable"}))
-)` |
-
-| **Est. Profit** | Simulated gross profit calculated dynamically using a What-If parameter for assumed margin %. | `Est.Profit = [Total Revenue] * 'Assumed Margin %'[Assumed Margin % Value]` |
-| **Total Order Placed** | Total count of unique customer orders placed on the platform. | `Total Order Placed = DISTINCTCOUNT('gold fact_orders'[order_key])` |
-| **Total Customers** | Count of distinct end-customers (`customer_unique_id` prevents double-counting repeat buyers). | `Total Customers = DISTINCTCOUNT('gold dim_customers'[customer_unique_id])` |
-| **Seller Count** | Total number of active sellers registered in the marketplace dimension. | `Seller Count = DISTINCTCOUNT('gold dim_sellers'[seller_key])` |
+| **Total Revenue** | Realized marketplace revenue generated across fulfilled/active order items (excluding `canceled` and `unavailable` orders). | `Total Revenue = CALCULATE(SUM('gold fact_order_items'[total_item_value]), KEEPFILTERS(NOT('gold fact_orders'[order_status] IN {"canceled", "unavailable"})))` |
+| **Est. Profit** | Simulated realized profit calculated dynamically using a What-If parameter for assumed margin %. | `Est.Profit = [Total Revenue] * 'Assumed Margin %'[Assumed Margin % Value]` |
+| **Total Order Placed** | Total count of unique customer orders placed on the platform (gross demand including canceled/unavailable orders). | `Total Order Placed = DISTINCTCOUNT('gold fact_orders'[order_key])` |
+| **Total Customers** | Count of distinct end-customers (`customer_unique_id` prevents double-counting repeat buyers across filtered orders). | `Total Customers = CALCULATE(DISTINCTCOUNT('gold dim_customers'[customer_unique_id]), CROSSFILTER('gold fact_orders'[customer_key], 'gold dim_customers'[customer_key], Both))` |
+| **Seller Count** | Total number of active sellers fulfilling orders within the selected filter context (using bidirectional cross-filtering). | `Seller Count = CALCULATE(DISTINCTCOUNT('gold dim_sellers'[seller_key]), CROSSFILTER('gold fact_order_items'[order_key], 'gold fact_orders'[order_key], Both), CROSSFILTER('gold fact_order_items'[seller_key], 'gold dim_sellers'[seller_key], Both))` |
 | **Order Count By Products** | Count of distinct orders containing specific products (evaluated at the line-item grain). | `Order Count By Products = DISTINCTCOUNT('gold fact_order_items'[order_id])` |
 | **Metric Selector** *(Field Parameter)* | Allows report users to toggle visuals dynamically between **Total Revenue** and **Est. Profit**. | `Metric Selector = { ("Est. Profit", NAMEOF('All Measures'[Est.Profit]), 0), ("Revenue", NAMEOF('All Measures'[Total Revenue]), 1) }` |
 
