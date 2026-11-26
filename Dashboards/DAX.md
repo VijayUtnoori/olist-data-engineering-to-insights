@@ -9,6 +9,7 @@ CALCULATE(
     SUM('gold fact_order_items'[total_item_value]),
     KEEPFILTERS(NOT('gold fact_orders'[order_status] IN {"canceled", "unavailable"}))
 )` |
+
 | **Est. Profit** | Simulated gross profit calculated dynamically using a What-If parameter for assumed margin %. | `Est.Profit = [Total Revenue] * 'Assumed Margin %'[Assumed Margin % Value]` |
 | **Total Order Placed** | Total count of unique customer orders placed on the platform. | `Total Order Placed = DISTINCTCOUNT('gold fact_orders'[order_key])` |
 | **Total Customers** | Count of distinct end-customers (`customer_unique_id` prevents double-counting repeat buyers). | `Total Customers = DISTINCTCOUNT('gold dim_customers'[customer_unique_id])` |
