@@ -45,15 +45,16 @@
 
 **Focus:** Customer review sentiment (CSAT vs. negative review rates), survey response times, and the impact of late deliveries, shipping distance tiers, and freight costs on customer ratings.
 
-### Core CSAT & Review KPIs
+### Customer Satisfaction & Review Metrics
 | Measure Name | Business Purpose | DAX Formula |
 | :--- | :--- | :--- |
-| **Overall CSAT %** | Percentage of total reviews with positive scores (4 or 5 stars). | `Overall CSAT % = DIVIDE([Review count 4 & 5], [Total review count])` |
-| **Negative Review %** | Percentage of total reviews with poor scores (1 or 2 stars). | `Negative Review % = DIVIDE([Review Count 1 & 2], [Total review count])` |
-| **Late Delivery Impact %** | Share of all negative reviews (1 & 2 stars) that came from orders delivered late. | `Late Delivery Impact % = DIVIDE([Late orders review count], [Review Count 1 & 2])` |
+| **Overall CSAT %** | Percentage of total reviews with positive scores (4 or 5 stars), anchored across all star ratings via `REMOVEFILTERS` so cross-filtering individual rating slices does not inflate ratios above 100%. | `Overall CSAT % = DIVIDE([Review count 4 & 5], CALCULATE([Total review count], REMOVEFILTERS('gold fact_reviews'[review_score])))` |
+| **Low Review %** *(formerly Negative Review %)* | Percentage of total reviews with poor scores (1 or 2 stars), anchored across all star ratings via `REMOVEFILTERS` while preserving delivery status and year filters. | `Low Review % = DIVIDE([Review Count 1 & 2], CALCULATE([Total review count], REMOVEFILTERS('gold fact_reviews'[review_score])))` |
+| **Late Delivery Impact %** | Share of all negative reviews (1 & 2 stars) that came from orders delivered after the estimated delivery date. | `Late Delivery Impact % = DIVIDE([Late orders review count], [Review Count 1 & 2])` |
 | **Avg. Survey Response Days** | Average number of days customers take to submit a survey after receiving the review prompt. | `Avg. Survey Response Days = AVERAGE('gold fact_reviews'[replay_days])` |
 | **5 Star Review Count** | Total count of top-rated (5-star) customer reviews. | `5 Star Review Count = CALCULATE(COUNT('gold fact_reviews'[review_score]), 'gold fact_reviews'[review_score] = 5)` |
 | **Review count** | Total count of submitted review scores in the active filter context. | `Review count = COUNT('gold fact_reviews'[review_score])` |
+
 
 ### Cross-Grain Logistics & Freight Impact Measures
 | Measure Name | Business Purpose | DAX Formula |
