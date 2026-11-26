@@ -32,7 +32,18 @@
 | **Unique Customers** | Counts distinct active buyers who placed orders by activating bi-directional filtering from `fact_orders` to `dim_customers`. | <pre>Unique Customers = <br>CALCULATE(<br>    DISTINCTCOUNT('gold dim_customers'[customer_unique_id]),<br>    CROSSFILTER('gold fact_orders'[customer_key], 'gold dim_customers'[customer_key], Both)<br>)</pre> |
 | **CLV** *(Customer Lifetime Value)* | Average gross revenue generated per unique active customer. | `CLV = DIVIDE([Total Revenue], [Unique Customers])` |
 | **Repeat Customer Rate %** | Percentage of unique customers who placed more than one order, calculated via virtual table iteration (`ADDCOLUMNS` + `FILTER`). | <pre>Repeat Customer Rate % = <br>VAR CustomerOrders = <br>    ADDCOLUMNS(VALUES('gold dim_customers'[customer_unique_id]), "ordercount", [Total Order Placed])<br>VAR RepeatCustomers = <br>    COUNTROWS(FILTER(CustomerOrders, [ordercount] > 1))<br>RETURN<br>DIVIDE(RepeatCustomers, [Unique Customers])</pre> |
-| **SouthEast Region Revenue Share %** | Share of total marketplace revenue originating from customers in the Southeast region. | <pre>SouthEast Region Revenue Share % = <br>DIVIDE(<br>    CALCULATE([Total Revenue], 'gold dim_customers'[customer_region] = "Southeast"),<br>    [Total Revenue]<br>)</pre> |
+| **SouthEast Region Revenue Share %** | Share of total marketplace revenue originating from customers in the Southeast region. | SouthEast Region Revenue Share % = 
+DIVIDE(
+    CALCULATE(
+        [Total Revenue],
+        'gold dim_customers'[customer_region] = "Southeast"
+    ),
+    CALCULATE(
+        [Total Revenue],
+        REMOVEFILTERS('gold dim_customers'[customer_region], 'gold dim_customers'[customer_state])
+    )
+)
+|
 
 ### Cross-Grain Customer Reach (Product & Seller Level)
 | Measure Name | Business Purpose | DAX Formula |
