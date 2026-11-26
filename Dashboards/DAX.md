@@ -4,7 +4,8 @@
 ### Core KPIs & Dynamic Parameters
 | Measure / Parameter | Business Purpose | DAX Formula |
 | :--- | :--- | :--- |
-| **Total Revenue** | Gross marketplace revenue generated across all sold order items. | `Total Revenue = 
+| **Total Revenue** | Gross marketplace revenue generated across all sold order items. |
+`Total Revenue = 
 CALCULATE(
     SUM('gold fact_order_items'[total_item_value]),
     KEEPFILTERS(NOT('gold fact_orders'[order_status] IN {"canceled", "unavailable"}))
