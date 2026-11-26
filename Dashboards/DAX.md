@@ -48,10 +48,10 @@ DIVIDE(
 ### Cross-Grain Customer Reach (Product & Seller Level)
 | Measure Name | Business Purpose | DAX Formula |
 | :--- | :--- | :--- |
-| **Customer(Item Level)** | Bridges line-item dimensions (`dim_products`, `dim_sellers`) to `dim_customers` by chaining two `CROSSFILTER` modifiers across `fact_order_items` and `fact_orders`. | <pre>Customer(Item Level) = <br>CALCULATE(<br>    DISTINCTCOUNT('gold dim_customers'[customer_unique_id]),<br>    CROSSFILTER('gold fact_order_items'[order_key], 'gold fact_orders'[order_key], Both),<br>    CROSSFILTER('gold fact_orders'[customer_key], 'gold dim_customers'[customer_key], Both)<br>)</pre> |
-| **Revenue per bayer** | Average item-level revenue generated per unique buyer within a given product or seller context. | `Revenue per bayer = DIVIDE([Total Revenue], [Customer(Item Level)])` |
-| **Category Customer Share %** | Percentage of total item-level buyers who purchased from a specific product category. | <pre>Category Customer Share % = <br>DIVIDE(<br>    [Customer(Item Level)],<br>    CALCULATE([Customer(Item Level)], ALL('gold dim_products'))<br>)</pre> |
-| **Seller Customer Share %** | Percentage of total item-level buyers who purchased from a specific seller. | <pre>Seller Customer Share % = <br>DIVIDE(<br>    [Customer(Item Level)],<br>    CALCULATE([Customer(Item Level)], ALL('gold dim_sellers'))<br>)</pre> |
+| **Customer(Item Level)** | Bridges line-item dimensions (`dim_products`, `dim_sellers`) to `dim_customers` by chaining two `CROSSFILTER` modifiers across `fact_order_items` and `fact_orders`. | `Customer(Item Level) = CALCULATE(DISTINCTCOUNT('gold dim_customers'[customer_unique_id]), CROSSFILTER('gold fact_order_items'[order_key], 'gold fact_orders'[order_key], Both), CROSSFILTER('gold fact_orders'[customer_key], 'gold dim_customers'[customer_key], Both))` |
+| **Revenue per bayer** *(UI Display: Revenue Per Buyer)* | Average realized item-level revenue generated per unique buyer within a given product or seller context (inherits `canceled`/`unavailable` exclusion from `[Total Revenue]`). | `Revenue per bayer = DIVIDE([Total Revenue], [Customer(Item Level)])` |
+| **Category Customer Share %** | Percentage of total item-level buyers who purchased from a specific product category (anchored across all products via `REMOVEFILTERS` while preserving active Year/Region filters). | `Category Customer Share % = DIVIDE([Customer(Item Level)], CALCULATE([Customer(Item Level)], REMOVEFILTERS('gold dim_products')))` |
+| **Seller Customer Share %** | Percentage of total item-level buyers who purchased from a specific seller or seller state (anchored across all sellers via `REMOVEFILTERS` while preserving active Year/Region filters). | `Seller Customer Share % = DIVIDE([Customer(Item Level)], CALCULATE([Customer(Item Level)], REMOVEFILTERS('gold dim_sellers')))` |
 
 
 
