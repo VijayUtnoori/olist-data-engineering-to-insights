@@ -132,13 +132,14 @@
 
 ###  Overall Item Value by Customer Region
 
-| customer_region | overall_sales |
+| customer_region | overall_item_value |
 | :--- | :--- |
-| Southeast | 10,098,715.61 |
-| South | 2,274,622.32 |
-| Northeast | 1,868,313.63 |
-| Central-West | 1,014,351.65 |
-| North | 408,153.04 |
+| Southeast | 10028216.93 |
+| South | 2257428.17 |
+| Northeast | 1860097.40 |
+| Central-West | 1005042.03 |
+| North | 407486.00 |
+
 
 **Key Insights:**: Overall Item Value by Customer Region most of customer overall_sales generated from southeast we can observed that most of seller concentrated in that southeast region
 
