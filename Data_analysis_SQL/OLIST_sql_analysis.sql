@@ -17,12 +17,14 @@ SELECT
 	SUM(price) AS total_revenue_without_freight_cost,
 	SUM(total_item_value) AS total_sales_with_freight_cost,
 	COUNT(DISTINCT(O.order_id)) AS total_orders,
-	COUNT(DISTINCT(C.customer_unique_id)) AS total_customer_orders
+	COUNT(DISTINCT(C.customer_unique_id)) AS total_customer_orders,
+	ROUND(SUM(total_item_value)*0.25,2) AS Est_profit
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
-INNER JOIN gold.dim_customers C
+LEFT JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
+WHERE order_status NOT IN ('canceled','unavailable')
 GROUP BY DATETRUNC(MONTH,O.purchased_at)
 ORDER BY DATETRUNC(MONTH,O.purchased_at)
 
@@ -35,7 +37,8 @@ SELECT
 	total_sales,
 	SUM(total_sales_without_freight_cost) OVER(ORDER BY purchased_at ASC) AS Running_total_without_freight_cost,
 	SUM(total_sales) OVER(ORDER BY purchased_at ASC) AS Running_total_with_freight_cost,
-	ROUND(AVG(total_sales) OVER(ORDER BY purchased_at ASC),1) AS moving_average
+	ROUND(AVG(total_sales) OVER(ORDER BY purchased_at ASC),1) AS moving_average,
+	SUM(total_sales) OVER(ORDER BY purchased_at ASC)*0.25 Running_Est_profit
 FROM(
 SELECT
 	CAST(DATETRUNC(MONTH,O.purchased_at) AS DATE) AS purchased_at,
@@ -44,6 +47,8 @@ SELECT
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
+--EXCLUDE cancelled and unavailable orders 
+WHERE order_status NOT IN ('canceled','unavailable')
 GROUP BY DATETRUNC(MONTH,O.purchased_at)
 )t
 ORDER BY purchased_at ASC
@@ -75,7 +80,7 @@ SELECT
 	MIN(I.freight_value) AS min_freight_value,
 	MAX(I.freight_value) AS max_freight_value
 FROM gold.fact_orders O
-INNER JOIN gold.fact_order_items I  --make sure that only take the match found
+LEFT JOIN gold.fact_order_items I  --make sure that only take the match found
 ON O.order_id=I.order_id
 INNER JOIN gold.vw_order_item_logistics L
 ON I.order_id=L.order_id
@@ -97,37 +102,46 @@ SELECT
 	P.product_category,
 	SUM(total_item_value) AS current_sales_incl_freight_cost
 FROM gold.fact_orders O
-INNER JOIN gold.fact_order_items I
+
+
+LEFT JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-WHERE product_category IS NOT NULL
+
+--EXCLUDE cancelled and unavailable orders
+WHERE product_category IS NOT NULL AND order_status NOT IN ('canceled','unavailable')
 GROUP BY YEAR(O.purchased_at),P.product_category),
+
+
 calculated_metrics AS(
 SELECT 
 	Order_year,
 	product_category,
 	current_sales_incl_freight_cost,
+	--find the overall average of that product
 	AVG(current_sales_incl_freight_cost) OVER(PARTITION BY product_category) AS avg_sales_incl_freight_cost,
 	LAG(current_sales_incl_freight_cost) OVER(PARTITION BY product_category ORDER BY Order_year) AS previous_sales_incl_freight_cost
 FROM yearly_product_sales)
+
 SELECT
 	Order_year,
 	product_category,
 	avg_sales_incl_freight_cost,
 	previous_sales_incl_freight_cost,
+	--find the difference and categorize the profit,loss,no change buckets
 	CASE 
 	     WHEN current_sales_incl_freight_cost>avg_sales_incl_freight_cost THEN 'Above the avg'
 		 WHEN current_sales_incl_freight_cost<avg_sales_incl_freight_cost THEN 'Below the avg'
 		 ELSE 'avg'
 		 END AS avg_sales_status,
-	current_sales_incl_freight_cost-LAG(current_sales_incl_freight_cost) OVER(ORDER BY Order_year) AS diff_previous_year,
+	current_sales_incl_freight_cost-previous_sales_incl_freight_cost AS diff_previous_year,
 	CASE
-	     WHEN previous_sales_incl_freight_cost IS NULL THEN 'N/A'
 	     WHEN current_sales_incl_freight_cost>previous_sales_incl_freight_cost THEN 'profit'
 		 WHEN current_sales_incl_freight_cost<previous_sales_incl_freight_cost THEN 'loss'
 		 ELSE 'no change'
 		 END AS previous_sales_status
+
 FROM calculated_metrics
 ORDER BY product_category,Order_year
 
@@ -144,10 +158,12 @@ SELECT
 FROM gold.fact_orders O
 INNER JOIN gold.fact_order_items I
 ON O.order_id=I.order_id
-INNER JOIN gold.dim_customers C
+LEFT JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
-GROUP BY customer_region
-)
+WHERE order_status NOT IN ('canceled','unavailable')
+GROUP BY customer_region)
+
+
 SELECT
 	customer_region,
 	total_revenue_with_freight_cost,
@@ -156,21 +172,22 @@ SELECT
 FROM Region_sales
 ORDER BY total_revenue_with_freight_cost DESC
 
-
---======================
-
----Which product category contribute the most in over all sales
+--Which product category contribute the most in over all sales
 WITH product_sales AS(
-SELECT
-    TOP 5
+SELECT 
 	P.product_category,
 	SUM(i.price) AS total_revenue_without_freight,
 	SUM(total_item_value) AS total_revenue_with_freight_cost
-FROM gold.fact_order_items I
+
+FROM gold.fact_orders O 
+LEFT JOIN gold.fact_order_items I
+ON O.order_id=I.order_id
 INNER JOIN gold.dim_products P
 ON I.product_id=P.product_id
-GROUP BY P.product_category 
-)
+--exclude the cancelled and unavailable orders 
+WHERE order_status NOT IN ('canceled','unavailable')
+GROUP BY P.product_category )
+
 SELECT 
 	product_category,
 	total_revenue_without_freight,
@@ -187,7 +204,7 @@ ORDER BY total_revenue_with_freight_cost DESC
 --Segmnet product sales range and count how many product category fall in that range
 WITH Sales_range AS(
 SELECT 
-P.product_category_name,
+P.product_category,
 CASE 
 	 WHEN I.price<100 THEN 'Below 100'
      WHEN I.price BETWEEN 100 AND 200 THEN '100-200'
@@ -201,65 +218,10 @@ ON I.product_id=P.product_id
 )
 SELECT 
 sales_range,
-COUNT(product_category_name) AS total_product_count
+COUNT(product_category) AS total_product_count
 FROM Sales_range
 GROUP BY sales_range
 ORDER BY total_product_count DESC
-
----Segment the payment installments and count the installemt fall in that range and there sales
-
-SELECT DISTINCT(payment_installments) FROM gold.fact_payments
---Aggregate items to the order level
-WITH order_item_summery AS(
-SELECT
-	order_id,
-	SUM(price) AS order_total_price
-FROM gold.fact_order_items
-GROUP BY order_id
-),
-order_payment_summery AS(  --Aggregate payments to the order level
-SELECT
-	order_id,
-	MAX(payment_installments) AS payment_installments
-FROM gold.fact_payments 
-GROUP BY order_id
-),
-installment_range AS(  --Combine order-level data and create buckets
-SELECT
-O.order_id,
-P.payment_installments,
-I.order_total_price,
-CASE 
-	WHEN P.payment_installments = 1 THEN '1-installment'
-    WHEN P.payment_installments BETWEEN 2 AND 6 THEN 'Short term installment (2-6)'
-    WHEN P.payment_installments BETWEEN 7 AND 15 THEN 'Medium term installment (7-15)'
-    ELSE 'Long term installment (15 or more)'
-    END AS installment_bucket
-FROM gold.fact_orders O
-INNER JOIN order_item_summery I
-ON O.order_id=I.order_id
-INNER JOIN order_payment_summery P
-ON O.order_id=P.order_id
-),
-installment_contribution AS(  ---Aggregate by  bucket
-SELECT 
-        installment_bucket,
-        COUNT(order_id) AS total_order_count,
-        SUM(order_total_price) AS total_sales
-    FROM installment_range
-    GROUP BY installment_bucket
-)
---Final output with percentage contribution
-SELECT 
-	installment_bucket,
-	total_order_count,
-	total_sales,
-	CONCAT(CAST((total_sales * 100.0 / SUM(total_sales) OVER()) AS DECIMAL(5,2)), '%') AS contribution
-FROM installment_contribution
-ORDER BY total_sales DESC;
-
-
-
 
 --===================
 --Reporting
@@ -272,117 +234,39 @@ ORDER BY total_sales DESC;
 And find the total number of customers by each group
 */
 
-WITH customer_spending AS(
-SELECT 
-	C.customer_unique_id,
-	SUM(I.price) AS total_spending,
-	MIN(O.purchased_at) AS first_purchase,
-	MAX(O.purchased_at) AS last_purchase,
-	DATEDIFF(MONTH,MIN(O.purchased_at),MAX(O.purchased_at)) AS lifespan
-FROM gold.fact_order_items I
-INNER JOIN gold.fact_orders O
-ON I.order_id=O.order_id
-INNER JOIN gold.dim_customers C
-ON O.customer_id=C.customer_id
-GROUP BY C.customer_unique_id
+WITH customer_spending AS (
+    SELECT 
+        C.customer_unique_id,
+        SUM(I.price) AS total_spending,
+        DATEDIFF(DAY, MIN(O.purchased_at), MAX(O.purchased_at)) AS lifespan_days
+    FROM gold.fact_order_items I
+    IN JOIN gold.fact_orders O
+        ON I.order_id = O.order_id
+    LEFT JOIN gold.dim_customers C
+        ON O.customer_id = C.customer_id
+    WHERE O.order_status NOT IN ('canceled', 'unavailable')
+    GROUP BY C.customer_unique_id
 )
 SELECT
-customer_segmentation,
-COUNT(customer_unique_id) AS total_customers
-FROM(
-SELECT 
-customer_unique_id,
-CASE WHEN lifespan>=12 AND total_spending>500 THEN 'VIP_customer'
-	 WHEN lifespan>=12 AND total_spending<=500 THEN 'Regular customer'
-	 ELSE 'New customer'
-	 END AS customer_segmentation
-FROM customer_spending)T
-GROUP BY customer_segmentation 
-ORDER BY total_customers DESC
+    customer_segmentation,
+    COUNT(customer_unique_id) AS total_customers
+FROM (
+    SELECT 
+        customer_unique_id,
+        CASE 
+            WHEN lifespan_days >= 365 AND total_spending > 500 THEN 'VIP_customer'
+            WHEN lifespan_days >= 365 AND total_spending <= 500 THEN 'Regular customer'
+            ELSE 'New_Customer'
+        END AS customer_segmentation
+    FROM customer_spending
+) T
+GROUP BY customer_segmentation
+ORDER BY total_customers DESC;
 
---=================================================================================
---VIEW REPORTING
-/*
-Customer Report
-===================================================================================
 
-Purpose:
-  - This report consolidates key customer metrics and behaviors
 
-Highlights:
-  1. Gathers essential fields such as customer_id,customer_unique_id, customer_region
-  2. Segments customers into categories (VIP, Regular, New) and age groups.
-  3. Aggregates customer-level metrics:
-     - total orders
-     - total sales
-     - total products
-     - lifespan (in months)
-  4. Calculates valuable KPIs:
-     - recency (YEARS since last order)
-     - average order value
-     - average monthly spend
-	 */
 
---=================================================
 
-WITH Customer_details AS(
-SELECT 
---Gather all of those details
-	C.customer_unique_id,
-	O.order_id,
-	P.product_id,
-	O.order_status,
-	I.price,
-	I.total_item_value,
-	C.customer_state,
-	C.customer_region,
-	O.purchased_at,
-	O.delivered_at,
-	DATEDIFF(DAY,O.purchased_at,O.delivered_at) AS Days_to_deliver
-FROM gold.fact_orders O
-INNER JOIN gold.fact_order_items I
-ON I.order_id=O.order_id
-INNER JOIN gold.dim_products P
-ON I.product_id=P.product_id
-INNER JOIN gold.dim_customers C
-ON O.customer_id=C.customer_id
-WHERE O.purchased_at IS NOT NULL
-),
---Aggregate level
-Customer_aggregation AS(
-SELECT
-	customer_unique_id,
-	customer_state,
-	customer_region,
-	COUNT(DISTINCT(order_id)) AS total_orders,
-	SUM(price) AS total_sales,
-	COUNT(DISTINCT(product_id)) AS total_product,
-	DATEDIFF(MONTH,MIN(purchased_at),MAX(purchased_at)) AS lifespan,
-	MAX(purchased_at) AS last_purchase
-FROM Customer_details 
-GROUP BY 
-customer_unique_id,
-customer_state,
-customer_region
-)
----segmentation
-SELECT 
-	customer_unique_id,
-	customer_state,
-	customer_region,
-	CASE WHEN lifespan>=12 AND total_sales>300 THEN 'VIP_customer'
-		 WHEN lifespan>=12 AND total_sales<=300 THEN 'Regular customer'
-		 ELSE 'New customer'
-	END AS customer_segmentation,
-	lifespan,
-    DATEDIFF(YEAR,last_purchase,GETDATE()) AS recency,
-	total_orders,
-	total_product,
-	total_sales,
-	CASE WHEN total_orders = 0 THEN 0
-		ELSE total_sales/total_orders
-    END AS avg_order_value -- (Total sales /total no of orders)
-FROM Customer_aggregation
 
 
 
