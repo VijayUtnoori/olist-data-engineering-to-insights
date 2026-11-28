@@ -6,7 +6,8 @@
 * **Core Measures:** Consolidated executive KPIs (reviews, order volumes, revenue totals, and active entity counts).
 * **Magnitude Analysis:** Evaluated volume distributions across review scores, payment tiers, order statuses, and regional spend.
 * **Rankings (Top-N):** Extracted top-performing products, revenue-driving regions, and state-level top orders using window functions (`ROW_NUMBER`).
-USE Olist_DataWarehouse
+
+	
 USE Olist_DataWarehouse
 --========================
 --DATA BASE EXPLORATION
@@ -27,7 +28,7 @@ USE Olist_DataWarehouse
 SELECT DISTINCT customer_state FROM gold.dim_customers
 
 --explore all product categorys 
-SELECT DISTINCT product_category_name FROM gold.dim_products
+SELECT DISTINCT product_category FROM gold.dim_products
 
 --explore all payment types 
 SELECT DISTINCT payment_type FROM gold.fact_payments
@@ -45,8 +46,8 @@ ORDER BY No_of_sellers DESC
 
 --Number of categorys analysis
 
-SELECT TOP 10 product_category_name,COUNT(product_category_name) AS No_of_categorys FROM gold.dim_products 
-GROUP BY product_category_name
+SELECT TOP 10 product_category,COUNT(product_category) AS No_of_categorys FROM gold.dim_products 
+GROUP BY product_category
 ORDER BY No_of_categorys DESC 
 
 ---=======================
@@ -76,7 +77,7 @@ SELECT
 FROM gold.fact_orders;
 
 
-
+USE Olist_DataWarehouse
 --===============================
 --MEASURES EXPLORATION REPORT
 --================================
@@ -87,8 +88,6 @@ GROUP BY order_id)
 SELECT
 'Avg payment value'AS Measure_name ,AVG(total_payment_value) AS Measure_value
 FROM orders
-UNION ALL
-SELECT 'Total payment value'AS Measure_name,SUM(payment_value) AS Measure_value FROM gold.fact_payments
 UNION ALL
 SELECT 'Total Customer Records'AS Measure_name,COUNT(customer_id) AS Measure_value FROM gold.dim_customers
 UNION ALL
@@ -102,19 +101,39 @@ UNION ALL
 SELECT 'Total number of sellers' AS Measure_name,COUNT(seller_id) AS measure_value
 FROM gold.dim_sellers
 UNION ALL
-SELECT 'Total number unique products'AS Measure_name,COUNT(DISTINCT(product_id)) AS Measure_value FROM gold.dim_products
+SELECT 'Total number unique products category s'AS Measure_name,COUNT(DISTINCT(product_category)) AS Measure_value FROM gold.dim_products
 UNION ALL
 SELECT 'Total number of unique order items' AS Measure_name,COUNT(DISTINCT(order_item_id)) AS measure_name 
 FROM gold.fact_order_items
 UNION ALL
-SELECT 'Total sales' AS Measure_name,SUM(price) AS measure_name 
-FROM gold.fact_order_items
+SELECT 
+    'Total Revenue Including Freight Charges' AS Measure_name,
+    ROUND(SUM(I.total_item_value), 2) AS Measure_value
+FROM gold.fact_orders O
+LEFT JOIN gold.fact_order_items I
+    ON O.order_id = I.order_id
+WHERE O.order_status NOT IN ('canceled', 'unavailable');
 UNION ALL
-SELECT 'Total Value Including Freight Charges' AS Measure_name,SUM(total_item_value) AS measure_name 
-FROM gold.fact_order_items
+SELECT 'Total Revenue excluding Freight Charges' AS Measure_name,SUM(I.price) AS measure_name 
+FROM gold.fact_orders O
+LEFT JOIN gold.fact_order_items I
+ON O.order_id=I.order_id
+WHERE order_status NOT IN ('canceled')
 UNION ALL
-SELECT 'Total Freight Charges' AS Measure_name,SUM(freight_value) AS measure_name 
-FROM gold.fact_order_items
+SELECT 'Est. profit' AS Measure_name,SUM(I.total_item_value)*0.25 AS measure_name 
+FROM gold.fact_orders O
+LEFT JOIN gold.fact_order_items I
+ON O.order_id=I.order_id
+WHERE order_status NOT IN ('canceled')
+UNION ALL
+SELECT 'Total Freight Charges' AS Measure_name,SUM(I.freight_value) AS measure_name 
+FROM gold.fact_orders O
+LEFT JOIN gold.fact_order_items I
+ON O.order_id=I.order_id
+WHERE order_status NOT IN ('canceled')
+
+SELECT TOP 1 * FROM gold.fact_order_items
+
 
 --=================================================
 --Magnitude analysis 
@@ -194,10 +213,11 @@ SELECT
 	C.customer_region,
 	SUM(I.total_item_value) AS overall_item_value
 FROM gold.fact_order_items I
-INNER JOIN gold.fact_orders O
-ON I.order_id=O.order_id
-INNER JOIN gold.dim_customers C
-ON O.customer_id=C.customer_id
+left JOIN gold.fact_orders O
+ON I.order_key=O.order_key
+inner JOIN gold.dim_customers C
+ON O.customer_key=C.customer_key
+WHERE order_status NOT IN ('canceled','unavailable')
 GROUP BY C.customer_region
 ORDER BY overall_item_value DESC
 
@@ -210,8 +230,9 @@ SELECT
 FROM gold.fact_order_items I
 INNER JOIN gold.fact_orders O
 ON I.order_id=O.order_id
-INNER JOIN gold.dim_customers C
+LEFT JOIN gold.dim_customers C
 ON O.customer_id=C.customer_id
+WHERE order_status NOT IN ('canceled','unavailable')
 GROUP BY C.customer_state,C.customer_region
 ORDER BY Total_Value_Incl_Freight DESC
 
@@ -255,10 +276,9 @@ LEFT JOIN gold.fact_orders AS O
     ON I.order_id = O.order_id
 LEFT JOIN gold.dim_customers AS C
     ON O.customer_id = C.customer_id
-GROUP BY
-    C.customer_region
-ORDER BY
-    total_revenue DESC;
+    WHERE order_status NOT IN ('canceled','unavailable') 
+GROUP BY C.customer_region
+ORDER BY total_revenue DESC;
 
 --TOP 2 orders with in the customer state 
 
@@ -295,13 +315,24 @@ SELECT TOP 3
 FROM gold.fact_order_items AS I
 LEFT JOIN gold.fact_orders AS O
     ON I.order_id = O.order_id
-INNER JOIN gold.dim_customers AS C
+LEFT JOIN gold.dim_customers AS C
     ON O.customer_id = C.customer_id
+    WHERE order_status NOT IN ('canceled','unavailable')
 GROUP BY
     C.customer_unique_id,
     C.customer_state
 ORDER BY
     Total_Sales_without_Freight_Cost DESC;
+
+
+
+
+
+
+
+
+
+
 
 
 
