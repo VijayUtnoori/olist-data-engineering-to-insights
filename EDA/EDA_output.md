@@ -90,10 +90,9 @@
 
 | order_status | count_of_order_status |
 | :--- | :--- |
-| delivered | 95082 |
-| shipped | 1098 |
+| delivered | 95455 |
+| shipped | 1094 |
 | canceled | 625 |
-| unavailable | 609 |
 | invoiced | 314 |
 | processing | 301 |
 | created | 5 |
@@ -234,8 +233,9 @@ Ranking
 
 | customer_unique_id | customer_state | Total_Sales_without_Freight_Cost | Total_Value_Incl_Freight_cost |
 | :--- | :--- | :--- | :--- |
-| 0a0a92112bd4c708ca5fde585afaa872 | Rio de Janeiro | 13,440.00 | 13,664.08 |
-| da122df9eeddfedc1dc1f5349a1a690c | Rio de Janeiro | 7,388.00 | 7,571.63 |
-| 763c8b1c9c68a0229c42c9fc6f662b93 | Espirito Santo | 7,160.00 | 7,274.88 |
+| 0a0a92112bd4c708ca5fde585afaa872 | Rio de Janeiro | 13440.00 | 13664.08 |
+| da122df9eeddfedc1dc1f5349a1a690c | Rio de Janeiro | 7388.00 | 7571.63 |
+| 763c8b1c9c68a0229c42c9fc6f662b93 | Espirito Santo | 7160.00 | 7274.88 |
+
 
 **Key Insights:** Top spending customers with Rio de Janeiro leading the top state in this segment.
