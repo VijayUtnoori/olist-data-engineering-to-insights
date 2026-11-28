@@ -203,13 +203,14 @@ Ranking
 
 ---
 
-### Customer Total Revenue by Region
+### TOP 3 Customer Total Revenue by Region
 
 | customer_region | total_revenue | TotalValueIncludingFreight |
 | :--- | :--- | :--- |
-| Southeast | 8,769,267.31 | 10,098,715.61 |
-| South | 1,935,163.84 | 2,274,622.32 |
-| Northeast | 1,535,501.42 | 1,868,313.63 |
+| Southeast | 8706163.01 | 10028216.93 |
+| South | 1919493.74 | 2257428.17 |
+| Northeast | 1528216.95 | 1860097.40 |
+
 
 **Key Insights:** The Southeast customer region generates the highest total revenue.
 
