@@ -212,17 +212,18 @@ CUMMULATIVE ANALYSIS
 
 | Order_year | product_category | avg_sales_incl_freight_cost | previous_sales_incl_freight_cost | avg_sales_status | diff_previous_year | previous_sales_status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 2017 | agro industry and commerce | 39,063.295000 | NULL | Below the avg | 231.96 | N/A |
-| 2018 | agro industry and commerce | 39,063.295000 | 31,111.89 | Above the avg | 29,548.62 | profit |
-| 2016 | air conditioning | 20,469.470000 | NULL | Below the avg | NULL | N/A |
-| 2017 | air conditioning | 20,469.470000 | 1,904.91 | Above the avg | 10,922.85 | profit |
-| 2018 | air conditioning | 20,469.470000 | 30,879.93 | Above the avg | -18,391.13 | loss |
-| 2017 | art | 13,883.130000 | NULL | Below the avg | -20,811.71 | N/A |
-| 2018 | art | 13,883.130000 | 10,300.18 | Above the avg | 15,457.16 | profit |
-| 2017 | arts and craftmanship | 1,092.070000 | NULL | Below the avg | -10,124.96 | N/A |
-| 2018 | arts and craftmanship | 1,092.070000 | 175.22 | Above the avg | 1,833.70 | profit |
-| 2016 | audio | 18,545.343333 | NULL | Below the avg | -1,721.88 | N/A |
+| 2017 | agro industry and commerce | 39063.295000 | NULL | Below the avg | NULL | no change |
+| 2018 | agro industry and commerce | 39063.295000 | 31111.89 | Above the avg | 15902.81 | profit |
+| 2016 | air conditioning | 20356.930000 | NULL | Below the avg | NULL | no change |
+| 2017 | air conditioning | 20356.930000 | 1904.91 | Above the avg | 28856.78 | profit |
+| 2018 | air conditioning | 20356.930000 | 30761.69 | Above the avg | -2357.50 | loss |
+| 2017 | art | 13857.330000 | NULL | Below the avg | NULL | no change |
+| 2018 | art | 13857.330000 | 10300.18 | Above the avg | 7114.30 | profit |
+| 2017 | arts and craftsmanship | 1092.070000 | NULL | Below the avg | NULL | no change |
+| 2018 | arts and craftsmanship | 1092.070000 | 175.22 | Above the avg | 1833.70 | profit |
+| 2016 | audio | 18536.116666 | NULL | Below the avg | NULL | no change |
 
+---
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 10 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
 
