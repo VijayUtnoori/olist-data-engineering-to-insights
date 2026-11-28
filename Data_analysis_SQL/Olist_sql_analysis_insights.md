@@ -9,18 +9,20 @@ DATA SEGMENTATION
 
 | customer_segmentation | total_customers |
 | :--- | :--- |
-| New customer | 94,302 |
-| Regular customer | 107 |
-| VIP_customer | 19 |
+| New customer | 93890|
+| Regular customer | 90 |
+| VIP_customer | 16 |
 
-**Note:** Spending amount is in Brazilian Real (BRL). Customers are segmented as VIP (at least 12 months history and spending more than R$500), Regular (at least 12 months history and spending R$500 or less), and New (lifespan less than 12 months).
+**Note:** Q1.Spending amount is in Brazilian Real (BRL). Customers are segmented as VIP (at least 12 months history and spending more than R$500), Regular (at least 12 months history and spending R$500 or less), and New (lifespan less than 12 months).
 
 **Exchange Rate Breakdown:**
 - **1 BRL to USD:** ~$0.199 USD (1 USD ≈ 5.03 BRL)
 - **1 BRL to INR:** ~₹18.81 INR
 
 **Key Insights**:Most of the customers fall under 'New' lifespan less than 12 months and spending R$500 or less
-Only 19 customers VIP customers there  least 12 months history and spending more than R$500
+Only 16 customers VIP customers there  least 12 months history and spending more than R$500
+
+**Note:** (cancelled and unavalible orders excluded)
 
 
 ### 2.Installment Bucket Analysis Report
