@@ -149,35 +149,36 @@
 
 ###  Customer State & Regional Performance Report
 
-| customer_state | customer_region | Total_price | Total_Value_Incl_Freight_cost |
+| customer_state | customer_region | Total_price | Total_Value_Incl_Freight |
 | :--- | :--- | :--- | :--- |
-| Sao Paulo | Southeast | 5131750.85 | 5839570.76 |
-| Rio de Janeiro | Southeast | 1804719.42 | 2106752.76 |
-| Minas Gerais | Southeast | 1563975.55 | 1831076.60 |
-| Rio Grande do Sul | South | 740040.54 | 873119.35 |
-| Parana | South | 672165.78 | 788092.35 |
-| Bahia | Northeast | 505898.65 | 604663.47 |
-| Santa Catarina | South | 514763.66 | 603118.77 |
-| Federal District | Central-West | 295731.67 | 345281.87 |
-| Goias | Central-West | 288917.84 | 341026.34 |
-| Espirito Santo | Southeast | 271414.12 | 320373.26 |
-| Pernambuco | Northeast | 260874.96 | 319647.18 |
-| Ceara | Northeast | 222771.18 | 270371.78 |
-| Para | North | 177978.96 | 216347.98 |
-| Mato Grosso | Central-West | 153284.22 | 182223.05 |
-| Maranhao | Northeast | 118493.40 | 149548.62 |
-| Paraiba | Northeast | 113227.89 | 138375.80 |
-| Mato Grosso do Sul | Central-West | 115648.09 | 134695.79 |
-| Piaui | Northeast | 86011.40 | 106925.90 |
-| Rio Grande do Norte | Northeast | 82230.99 | 100787.77 |
-| Alagoas | Northeast | 79789.83 | 95578.46 |
-| Sergipe | Northeast | 58062.95 | 72083.67 |
-| Tocantins | North | 49181.46 | 60711.31 |
-| Rondonia | North | 45980.64 | 57370.13 |
-| Amazonas | North | 22280.84 | 27734.85 |
-| Acre | North | 15576.96 | 19135.09 |
+| Sao Paulo | Southeast | 5079736.51 | 5784109.19 |
+| Rio de Janeiro | Southeast | 1794013.48 | 2095288.65 |
+| Minas Gerais | Southeast | 1560120.15 | 1827241.81 |
+| Rio Grande do Sul | South | 734600.95 | 867793.45 |
+| Parana | South | 669939.33 | 785944.46 |
+| Santa Catarina | South | 514953.46 | 603690.26 |
+| Bahia | Northeast | 504265.00 | 603352.89 |
+| Federal District | Central-West | 298734.93 | 348700.12 |
+| Goias | Central-West | 284201.97 | 336371.51 |
+| Espirito Santo | Southeast | 272292.87 | 321577.28 |
+| Pernambuco | Northeast | 260262.47 | 319013.72 |
+| Ceara | Northeast | 222864.82 | 270596.62 |
+| Para | North | 177248.27 | 215584.86 |
+| Mato Grosso | Central-West | 155603.27 | 185067.86 |
+| Maranhao | Northeast | 118808.85 | 150029.23 |
+| Paraiba | Northeast | 113682.20 | 138988.81 |
+| Mato Grosso do Sul | Central-West | 115829.10 | 134902.54 |
+| Piaui | Northeast | 86553.20 | 107608.86 |
+| Rio Grande do Norte | Northeast | 83004.74 | 101812.36 |
+| Alagoas | Northeast | 79854.82 | 95662.59 |
+| Sergipe | Northeast | 58920.85 | 73032.32 |
+| Tocantins | North | 49383.00 | 61041.77 |
+| Rondonia | North | 46031.64 | 57423.77 |
+| Amazonas | North | 22356.84 | 27835.73 |
+| Acre | North | 15762.95 | 19388.10 |
 | Amapa | North | 13474.30 | 16262.80 |
-| Roraima | North | 7480.43 | 9629.41 |
+| Roraima | North | 7739.44 | 9948.97 |
+
 
 **Key Insights:** Sao Paulo ranks 1st in total sales across Brazil, while Roraima records the lowest.
 
