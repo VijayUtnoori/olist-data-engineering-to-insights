@@ -11,7 +11,6 @@
 | Measure_name | Measure_value |
 | :--- | :--- |
 | Avg payment value | 160.59 |
-| Total payment value | 15705288.03 |
 | Total Customer Records | 99441.00 |
 | Total Unique Customers | 96096.00 |
 | Total reviews count | 96801.00 |
@@ -19,9 +18,11 @@
 | Total number of sellers | 3093.00 |
 | Total number unique products category s | 74.00 |
 | Total number of unique order items | 21.00 |
-| Total Value Including Freight Charges | 15558270.53 |
+| Total Revenue Including Freight Charges | 15558270.53 |
+| Total Revenue excluding Freight Charges | 13340239.41 |
 | Est. profit | 3889567.63 |
 | Total Freight Charges | 2218031.12 |
+
 
 **Key Insights:** These are the core measure names along with their respective measure values.
 
