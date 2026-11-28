@@ -222,7 +222,6 @@ CUMMULATIVE ANALYSIS
 | 2017 | arts and craftsmanship | 1092.070000 | NULL | Below the avg | NULL | no change |
 | 2018 | arts and craftsmanship | 1092.070000 | 175.22 | Above the avg | 1833.70 | profit |
 | 2016 | audio | 18536.116666 | NULL | Below the avg | NULL | no change |
-
 ---
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 10 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
