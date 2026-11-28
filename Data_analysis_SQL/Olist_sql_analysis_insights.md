@@ -5,6 +5,7 @@
 DATA SEGMENTATION
 
 --======================================
+
 ### 1. Customer Segmentation Report
 
 | customer_segmentation | total_customers |
@@ -37,9 +38,6 @@ Only 16 customers VIP customers there  least 12 months history and spending more
 **Key Insights:** The majority of customers complete their payments in a **Short term installment (5,090,0047)**, closely followed by **1-installment (4737353.69)**. 
 with generated sales
 
-
-
-
 ### 3. Sales Range & Product Count Distribution Report
 
 | sales_range | total_product_count |
@@ -63,14 +61,31 @@ with generated sales
 
 | customer_region | total_revenue_with_freight_cost | overall_revenue_with_freight_cost | contribution |
 | :--- | :--- | :--- | :--- |
-| Southeast | 10,098,715.61 | 15,664,156.25 | 64.47% |
-| South | 2,274,622.32 | 15,664,156.25 | 14.52% |
-| Northeast | 1,868,313.63 | 15,664,156.25 | 11.93% |
-| Central-West | 1,014,351.65 | 15,664,156.25 | 6.48% |
-| North | 408,153.04 | 15,664,156.25 | 2.61% |
+| Southeast | 10028216.93 | 15558270.53 | 64.46% |
+| South | 2257428.17 | 15558270.53 | 14.51% |
+| Northeast | 1860097.40 | 15558270.53 | 11.96% |
+| Central-West | 1005042.03 | 15558270.53 | 6.46% |
+| North | 407486.00 | 15558270.53 | 2.62% |
 
-**Key Insights:**: Southeast region contribute the most overall 64.47% followed by South 14.52%
 
+**Key Insights:**: Southeast region contribute the most overall 64.46% followed by South 14.51%
+
+## 5.TOP 10 product category overall revenue constribution 
+
+| product_category | total_revenue_without_freight | total_revenue_with_freight_cost | overall_total_revenue_with_freight_cost | contribution |
+| :--- | :--- | :--- | :--- | :--- |
+| health beauty | 1242830.77 | 1422324.74 | 15553437.27 | 9.14% |
+| watches gifts | 1186356.08 | 1285418.81 | 15553437.27 | 8.26% |
+| bed bath table | 1020551.71 | 1222182.07 | 15553437.27 | 7.86% |
+| sports leisure | 971609.65 | 1137912.99 | 15553437.27 | 7.32% |
+| computers accessories | 896718.15 | 1042191.14 | 15553437.27 | 6.70% |
+| furniture decor | 716902.24 | 886946.97 | 15553437.27 | 5.70% |
+| housewares | 618556.63 | 761728.45 | 15553437.27 | 4.90% |
+| cool stuff | 617572.05 | 700396.05 | 15553437.27 | 4.50% |
+| auto | 566526.86 | 657519.30 | 15553437.27 | 4.23% |
+| garden tools | 478585.45 | 576501.74 | 15553437.27 | 3.71% |
+
+**Key Insights:**: NOTE : ONLY 10 PRODUCT CATEGORY ARE DISPLAYED WE HAVE TOTAL 74 PRODUCT CATEGORY'S health beauty product is the hightest revenue contributed 9.14% and the least one security and services 0.00 %
 ---===================================
 
 CHANGE OVER TIME
@@ -79,7 +94,7 @@ CHANGE OVER TIME
 
 
 
-### 5. Monthly Sales and Order Trends
+### 6. Monthly Sales and Order Trends
 
 | order_year | total_revenue_without_freight_cost | total_sales_with_freight_cost | total_orders | total_customer_orders | Est_profit |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -114,7 +129,7 @@ CHANGE OVER TIME
 
 
 
-## 6. Monthly Sales Trends Cumulative Sales and Moving Averages
+## 7. Monthly Sales Trends Cumulative Sales and Moving Averages
 
 | purchased_at | total_sales | Running_total_without_freight_cost | Running_total_with_freight_cost | moving_average | Running_Est_profit |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -152,7 +167,7 @@ CUMMULATIVE ANALYSIS
 
 --==========================================================
 
-### 7. Yearly Orders Running Total & Moving Average Report
+### 8. Yearly Orders Running Total & Moving Average Report
 
 | order_year | number_of_orders | running_orders | moving_avg_orders |
 | :--- | :--- | :--- | :--- |
@@ -165,7 +180,7 @@ CUMMULATIVE ANALYSIS
  
 ---
 
-### 8 Distance Range vs. Freight Value Analysis Report
+### 9 Distance Range vs. Freight Value Analysis Report
 
 | distance_range_start | distance_range_end | total_orders | avg_freight_value | min_freight_value | max_freight_value |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -193,7 +208,7 @@ CUMMULATIVE ANALYSIS
 
 --====================
 
-### 9 Product Category Yearly Sales & Performance Comparison Report
+### 10 Product Category Yearly Sales & Performance Comparison Report
 
 | Order_year | product_category | avg_sales_incl_freight_cost | previous_sales_incl_freight_cost | avg_sales_status | diff_previous_year | previous_sales_status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -211,20 +226,6 @@ CUMMULATIVE ANALYSIS
 
 **Note:** There are a total of 170+ rows, and we are showcasing a sample of 10 rows here. Performance is evaluated using conditional logic: `avg_sales_status` compares current sales against the multi-year average (Above the avg, Below the avg, or avg), while `previous_sales_status` evaluates year-over-year growth trends (profit, loss, or no change, with N/A assigned when previous sales data is null).
 
----===========================================
 
-REPORTING CUSTOMER LEVEL
 
---=============================================
 
-### 10 Customer Lifetime Value & Behavioral Analysis Report
-
-| customer_unique_id | customer_state | customer_region | customer_segmentation | lifespan | recency | total_orders | total_product | total_sales | avg_order_value |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 0000366f3b9a7992bf8c76cfdf3221e2 | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 129.90 | 129.900000 |
-| 0000b849f77a49e4a4ce2b2a4ca5be3f | Sao Paulo | Southeast | New customer | 0 | 8 | 1 | 1 | 18.90 | 18.900000 |
-| 0000f46a3911fa3c080544483337064 | Santa Catarina | South | New customer | 0 | 9 | 1 | 1 | 69.00 | 69.000000 |
-| 0000f6ccb0745a6a4b88665a16c9f078 | Para | North | New customer | 0 | 9 | 1 | 1 | 25.99 | 25.990000 |
-| 0004aac84e0df4da2b147fca70cf8255 | Sao Paulo | Southeast | New customer | 0 | 9 | 1 | 1 | 180.00 | 180.000000 |
-
-**Note:** only shown 5 records ,Customers are segmented using the logic: `CASE WHEN lifespan >= 12 AND total_sales > 300 THEN 'VIP_customer' WHEN lifespan >= 12 AND total_sales <= 300 THEN 'Regular customer' ELSE 'New customer'`. Recency is measured in years since the last order.
